@@ -1,0 +1,21 @@
+name: Murder
+authors: ["TheNewHEROBRINE", "emanuele0204"]
+version: 0
+api: ["2.1.0", "2.0.0", "3.0.0"]
+main: CastleGames\Murder\Main
+
+commands:
+ murder:
+  usage: "/murder join|quit|setspawns"
+  
+permissions:
+ murder:
+  children:
+   murder.command:
+    children:
+     murder.command.join:
+      default: true
+     murder.command.quit:
+      default: true
+     murder.command.setspawns:
+      default: true
