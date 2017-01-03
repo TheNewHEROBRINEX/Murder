@@ -1,13 +1,11 @@
 <?php
 
-namespace emanuele0204\am_Murder;
+namespace CastleGames\Murder;
 
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\event\Listener;
-use pocketmine\event\level\LevelEvent;
-use pocketmine\event\DropLevelEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
