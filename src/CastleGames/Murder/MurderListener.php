@@ -1,3 +1,4 @@
+<?php
 namespace CastleGames\Murder;
 
 use pocketmine\event\player\PlayerInteractEvent;
@@ -20,11 +21,11 @@ class MurderListener implents Listener {
         $y = $block->getFloorY() + 1;
         $z = $block->getZ();
         if (isset($this->plugin->setspawns[$name][$world])) {
-            $spawns = $this->getConfig()->get($world, []);
+            $spawns = $this->plugin->getConfig()->get($world, []);
             $spawns[] = array($x, $y, $z);
             $this->plugin->getConfig()->set($world, $spawns);
             --$this->plugin->setspawns[$name][$world];
-            $player->sendMessage("§eSpawn Murder del mondo $world settato a§f $x $y $z. " . (($this->plugin->setspawns[$name][$world] == 1) ? "§eRimane " : "§eRimangono ") . $this->setspawns[$name][$world] . " §espawn da settare");
+            $player->sendMessage("§eSpawn Murder del mondo $world settato a§f $x $y $z. " . (($this->plugin->setspawns[$name][$world] == 1) ? "§eRimane " : "§eRimangono ") . $this->plugin->setspawns[$name][$world] . " §espawn da settare");
             if ($this->plugin->setspawns[$name][$world] <= 0) {
                 unset($this->plugin->setspawns[$name][$world]);
                 $this->plugin->getConfig()->save();
