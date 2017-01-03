@@ -5,8 +5,6 @@ namespace CastleGames\Murder;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
@@ -17,7 +15,7 @@ class Main extends PluginBase {
     
     public function onEnable() {
         @mkdir($this->getDataFolder());
-        $this->getServer()->getPluginManager()->registerEvents($this, new MurderListener());
+        $this->getServer()->getPluginManager()->registerEvents($this, new MurderListener($this));
         $this->config = new Config($this->getDataFolder() . "config.yml");
     }
     
