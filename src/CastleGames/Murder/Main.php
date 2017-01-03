@@ -11,13 +11,13 @@ use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 
-class Main extends PluginBase implements Listener {
+class Main extends PluginBase {
 
     private $config, $setspawns;
     
     public function onEnable() {
         @mkdir($this->getDataFolder());
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+        $this->getServer()->getPluginManager()->registerEvents($this, new MurderListener());
         $this->config = new Config($this->getDataFolder() . "config.yml");
     }
     
@@ -45,26 +45,5 @@ class Main extends PluginBase implements Listener {
             }
         }
         return true;
-    }
-    
-    public function onSpawnsSetting(PlayerInteractEvent $event) {
-        $player = $event->getPlayer();
-        $world = $player->getLevel()->getName();
-        $name = $player->getName();
-        $block = $event->getBlock();
-        $x = $block->getX();
-        $y = $block->getFloorY() + 1;
-        $z = $block->getZ();
-        if (isset($this->setspawns[$name][$world])) {
-            $spawns = $this->getConfig()->get($world, []);
-            $spawns[] = array($x, $y, $z);
-            $this->getConfig()->set($world, $spawns);
-            --$this->setspawns[$name][$world];
-            $player->sendMessage("§eSpawn Murder del mondo $world settato a§f $x $y $z. " . (($this->setspawns[$name][$world] == 1) ? "§eRimane " : "§eRimangono ") . $this->setspawns[$name][$world] . " §espawn da settare");
-            if ($this->setspawns[$name][$world] <= 0) {
-                unset($this->setspawns[$name][$world]);
-                $this->getConfig()->save();
-            }
-        }
     }
 }
