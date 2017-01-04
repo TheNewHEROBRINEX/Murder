@@ -1,4 +1,5 @@
 <?php
+
 namespace CastleGames\Murder;
 
 use pocketmine\event\player\PlayerInteractEvent;
