@@ -3,7 +3,7 @@
 namespace CastleGames\Murder;
 
 public class Arena {
-    public function __construct(Main $plugin, $murderName = 'murder', $slot = 0, $world = 'world', $countdown = 60, $maxtime = 300, $void = 0) {
+    public function __construct(Main $plugin, $murderName = 'murder', $slot = 0, $world = 'world', $countdown = 60, $maxtime = 1200, $void = 0) {
         $this->pg = $plugin;
         $this->murderName = $Murdername;
         $this->slot = ($slot + 0);
