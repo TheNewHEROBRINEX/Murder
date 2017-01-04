@@ -4,7 +4,7 @@ namespace CastleGames\Murder;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\Listener;
 
-class MurderListener implents Listener {
+class MurderListener implements Listener {
 
   private $plugin;
   
