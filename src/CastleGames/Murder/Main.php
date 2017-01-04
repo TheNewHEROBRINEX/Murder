@@ -14,7 +14,7 @@ class Main extends PluginBase {
     
     public function onEnable() {
         @mkdir($this->getDataFolder());
-        $this->getServer()->getPluginManager()->registerEvents($this, new MurderListener($this));
+        $this->getServer()->getPluginManager()->registerEvents(new MurderListener($this), $this);
         $this->config = new Config($this->getDataFolder() . "config.yml");
     }
     
