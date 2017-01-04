@@ -2,7 +2,6 @@
 
 namespace CastleGames\Murder;
 
-
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
