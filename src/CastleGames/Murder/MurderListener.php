@@ -7,10 +7,13 @@ use pocketmine\event\Listener;
 
 class MurderListener implements Listener {
 
+    /** @var MurderMain $plugin */
 	private $plugin;
+
+    /** @var array $setspawns */
 	public $setspawns;
 
-	public function __construct(Main $plugin) {
+	public function __construct(MurderMain $plugin) {
 		$this->plugin = $plugin;
 	}
 

@@ -11,7 +11,7 @@ class MurderArena {
     const GAME_STARTING = 1;
     const GAME_RUNNING = 2;
 
-    /** @var Main $plugin */
+    /** @var MurderMain $plugin */
     private $plugin;
 
     /** @var array $spawns */
@@ -34,13 +34,13 @@ class MurderArena {
 
     /**
      * MurderArena constructor.
-     * @param Main $plugin
+     * @param MurderMain $plugin
      * @param array $spawns
      * @param string $name
      * @param int $countdown
-     * @param int $maxtime
+     * @param int $maxTime
      */
-    public function __construct(Main $plugin, array $spawns, string $name, int $countdown, int $maxTime) {
+    public function __construct(MurderMain $plugin, array $spawns, string $name, int $countdown, int $maxTime) {
         $this->plugin = $plugin;
         $this->spawns = $spawns;
         $this->name = $name;
@@ -48,30 +48,30 @@ class MurderArena {
         $this->maxTime = $maxTime;
     }
 
-    public function join(Player $player){
+    public function join(Player $player) {
         $spawn = array_shift($this->spawns);
         $this->players[$player->getName()] = $spawn;
         $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($this->name)));
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function isIdle() {
+    public function isIdle(): int {
         return $this->status == 0;
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function isStarting() {
+    public function isStarting(): int {
         return $this->status == 1;
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function isRunning() {
+    public function isRunning(): int {
         return $this->status == 2;
     }
 }

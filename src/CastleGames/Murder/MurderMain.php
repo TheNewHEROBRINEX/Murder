@@ -8,7 +8,7 @@ use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 
-class Main extends PluginBase {
+class MurderMain extends PluginBase {
 
     /** @var Config $config */
     private $config;
@@ -35,18 +35,18 @@ class Main extends PluginBase {
      * @param int $maxTime
      * @return MurderArena
      */
-    public function addArena(string $name, array $spawns, $countdown = 90, $maxTime = 1200) {
+    public function addArena(string $name, array $spawns, $countdown = 90, $maxTime = 1200): MurderArena {
         return $this->arenas[$name] = new MurderArena($this, $spawns, $name, $countdown, $maxTime);
     }
 
     /**
      * @return MurderArena[]
      */
-    public function getArenas() {
+    public function getArenas(): array {
         return $this->arenas;
     }
-    
-    public function onCommand(CommandSender $sender, Command $command, $label, array $args) : bool {
+
+    public function onCommand(CommandSender $sender, Command $command, $label, array $args): bool {
         if ($sender instanceof Player) {
             if (isset($args[0])) {
                 switch (array_shift($args)) {
