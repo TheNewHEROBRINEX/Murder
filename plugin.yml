@@ -2,7 +2,7 @@ name: Murder
 authors: ["TheNewHEROBRINE", "emanuele0204"]
 version: 1.0.0
 api: ["2.1.0", "2.0.0", "3.0.0-ALPHA1", "3.0.0"]
-main: CastleGames\Murder\Main
+main: CastleGames\Murder\MurderMain
 
 commands:
  murder:
