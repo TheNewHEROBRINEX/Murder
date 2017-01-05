@@ -51,7 +51,7 @@ class MurderArena {
     public function join(Player $player){
         $spawn = array_shift($this->spawns);
         $this->players[$player->getName()] = $spawn;
-        $player->teleport(new Position(...$spawn, $this->plugin->getServer()->getLevelByName($this->name)));
+        $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($this->name)));
     }
 
     /**
