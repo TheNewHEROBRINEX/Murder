@@ -39,6 +39,13 @@ class Main extends PluginBase {
         return $this->arenas[$name] = new MurderArena($this, $spawns, $name, $countdown, $maxTime);
     }
 
+    /**
+     * @return MurderArena[]
+     */
+    public function getArenas() {
+        return $this->arenas;
+    }
+    
     public function onCommand(CommandSender $sender, Command $command, $label, array $args) : bool {
         if ($sender instanceof Player) {
             if (isset($args[0])) {
