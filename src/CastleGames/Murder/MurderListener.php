@@ -31,6 +31,7 @@ class MurderListener implements Listener {
 			if ($this->setspawns[$name][$world] <= 0) {
 				unset($this->setspawns[$name][$world]);
 				$this->plugin->getConfig()->save();
+				$this->plugin->addArena($world, $spawns);
 			}
 		}
 	}
