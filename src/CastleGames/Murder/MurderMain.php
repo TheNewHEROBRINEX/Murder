@@ -8,7 +8,7 @@ use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 
-class Main extends PluginBase {
+class MurderMain extends PluginBase {
 
     /** @var Config $config */
     private $config;
