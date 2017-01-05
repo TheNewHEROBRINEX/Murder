@@ -33,7 +33,7 @@ class MurderArena {
     private $players = [];
 
     /**
-     * Arena constructor.
+     * MurderArena constructor.
      * @param Main $plugin
      * @param array $spawns
      * @param string $name
