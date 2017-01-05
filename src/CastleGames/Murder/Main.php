@@ -35,7 +35,7 @@ class Main extends PluginBase {
      * @param int $maxTime
      * @return MurderArena
      */
-    public function addArena(string $name, array $spawns, $countdown = ($config->get('countdown') +0), $maxTime = ($config->get('maxGameTime') + 0)) {
+    public function addArena(string $name, array $spawns, $countdown = 90, $maxTime = 1200) {
         return $this->arenas[$name] = new MurderArena($this, $spawns, $name, $countdown, $maxTime);
     }
 
