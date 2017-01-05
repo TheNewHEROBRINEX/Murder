@@ -1,5 +1,5 @@
 # Murder for McPe
 Comandi:
-# /murder setspawns {NumeroSpawn}
-# /murder join {Mondo}
-# /murder quit
+/murder setspawns {NumeroSpawn}
+/murder join {Mondo}
+/murder quit
