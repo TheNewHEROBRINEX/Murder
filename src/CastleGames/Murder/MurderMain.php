@@ -35,15 +35,14 @@ class MurderMain extends PluginBase {
         $countdown = $this->getConfig()->get("countdown", 90);
         $maxTime = $this->getConfig()->get("maxGameTime", 1200);
         foreach ($this->getArenasCfg()->getAll() as $name => $spawns) {
-            $this->addArena($name, $spawns, $countdown, $maxTime);
+            $this->addArena($name, $spawns);
         }
+        $this->getServer()->getScheduler()->scheduleRepeatingTask(new MurderTimer($this), 20);
     }
 
     /**
      * @param string $name
      * @param array $spawns
-     * @param int $countdown
-     * @param int $maxTime
      * @return MurderArena
      */
     public function addArena(string $name, array $spawns): MurderArena {

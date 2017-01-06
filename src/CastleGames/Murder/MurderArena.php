@@ -60,10 +60,10 @@ class MurderArena {
     public function tick() {
         if ($this->isStarting()) {
             if (--$this->countdown == 0) {
-                //$this->broadcast("La partità inizierà è iniziata!");
+                //$this->broadcast("La partita è iniziata!");
                 $this->start();
             } elseif ($this->countdown > 10 && $this->countdown % 10 == 0) {
-                $this->broadcast("La partità inizierà tra {$this->countdown}");
+                $this->broadcast("La partita inizierà tra {$this->countdown}");
             } elseif ($this->countdown <= 10) {
                 $this->broadcast("La partita inizierà tra {$this->countdown}...");
             }

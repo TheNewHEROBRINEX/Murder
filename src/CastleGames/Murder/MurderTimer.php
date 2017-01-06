@@ -2,7 +2,9 @@
 
 namespace CastleGames\Murder;
 
-class MurderTimer {
+use pocketmine\scheduler\Task;
+
+class MurderTimer extends Task {
 
     private $owner;
 

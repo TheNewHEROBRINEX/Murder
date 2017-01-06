@@ -6,17 +6,13 @@ use pocketmine\entity\Entity;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\item\Item;
-use pocketmine\item\WoodenHoe;
 use pocketmine\level\sound\LaunchSound;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\FloatTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\nbt\tag\ShortTag;
-use pocketmine\network\protocol\PlayerActionPacket;
 use pocketmine\network\protocol\UseItemPacket;
-use pocketmine\Player;
 
 class MurderListener implements Listener {
 
