@@ -48,7 +48,7 @@ class MurderListener implements Listener {
         }
     }
 
-    public function onBowFire(DataPacketReceiveEvent $event) {
+    public function onShootSwordHoe(DataPacketReceiveEvent $event) {
         if (($packet = $event->getPacket()) instanceof UseItemPacket) {
             $player = $event->getPlayer();
             $item = $player->getInventory()->getItemInHand();
