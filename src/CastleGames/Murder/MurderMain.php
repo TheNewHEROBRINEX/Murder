@@ -27,7 +27,7 @@ class MurderMain extends PluginBase {
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, array(
             "join" => "§7[§eMurder§7] §9{player} §fsi è unito alla partita",
-            "quit" => "§7[§eMurder§7] §9{player} §fha abbandonato la patita",
+            "quit" => "§7[§eMurder§7] §9{player} §fha abbandonato la partita",
             "countdown" => 90,
             "maxGameTime" => 1200
         ));
