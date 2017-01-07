@@ -25,6 +25,7 @@ class MurderMain extends PluginBase {
     public function onEnable() {
         @mkdir($this->getDataFolder());
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
+        $this->getServer()->getCommandMap()->register("murder", new MurderCommand($this));
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, array(
             "join" => "§7[§eMurder§7] §9{player} §fsi è unito alla partita",
             "quit" => "§7[§eMurder§7] §9{player} §fha abbandonato la partita",
