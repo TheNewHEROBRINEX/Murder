@@ -60,7 +60,7 @@ class MurderMain extends PluginBase {
      * @param string|Player $player
      * @return MurderArena|null
      */
-    public function getArenaByPlayer($player): ?MurderArena {
+    public function getArenaByPlayer($player) {
         foreach ($this->getArenas() as $arena)
             if($arena->inArena($player))
                 return $arena;
@@ -71,7 +71,7 @@ class MurderMain extends PluginBase {
      * @param string $name
      * @return MurderArena|null
      */
-    public function getArenaByName(string $name): ?MurderArena {
+    public function getArenaByName(string $name) {
             return $this->arenas[$name];
     }
 
