@@ -20,22 +20,21 @@ class MurderMain extends PluginBase {
     private $listener;
 
     /** @var  MurderArena[] $arenas */
-    private $arenas;
+    private $arenas = array();
 
     public function onEnable() {
         @mkdir($this->getDataFolder());
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, array(
-            "quit" => "§7[§eMurder§7] §9{player} §fsi è unito alla partita",
-            "join" => "§7[§eMurder§7] §9{player} §fha abbandonato la patita",
+            "join" => "§7[§eMurder§7] §9{player} §fsi è unito alla partita",
+            "quit" => "§7[§eMurder§7] §9{player} §fha abbandonato la patita",
             "countdown" => 90,
             "maxGameTime" => 1200
         ));
         $this->arenasCfg = new Config($this->getDataFolder() . "arenas.yml");
-        $countdown = $this->getConfig()->get("countdown", 90);
-        $maxTime = $this->getConfig()->get("maxGameTime", 1200);
         foreach ($this->getArenasCfg()->getAll() as $name => $spawns) {
             $this->addArena($name, $spawns);
+            $this->getServer()->loadLevel($name);
         }
         $this->getServer()->getScheduler()->scheduleRepeatingTask(new MurderTimer($this), 20);
     }
@@ -57,36 +56,35 @@ class MurderMain extends PluginBase {
     }
 
     /**
+     * @param string|Player $player
+     * @return MurderArena|null
+     */
+    public function getArenaByPlayer($player): ?MurderArena {
+        foreach ($this->getArenas() as $arena)
+            if($arena->inArena($player))
+                return $arena;
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @return MurderArena|null
+     */
+    public function getArenaByName(string $name): ?MurderArena {
+            return $this->arenas[$name];
+    }
+
+    /**
+     * @return MurderListener
+     */
+    public function getListener(): MurderListener {
+        return $this->listener;
+    }
+
+    /**
      * @return Config
      */
     public function getArenasCfg(): Config {
         return $this->arenasCfg;
-    }
-
-    public function onCommand(CommandSender $sender, Command $command, $label, array $args): bool {
-        if ($sender instanceof Player) {
-            if (isset($args[0])) {
-                switch (array_shift($args)) {
-                    case "join":
-                        if (isset($this->arenas[$args[0]]))
-                            $this->arenas[$args[0]]->join($sender);
-                        break;
-                    case "quit":
-                        //TODO
-                        break;
-                    case "setspawns":
-                        $world = $sender->getLevel()->getName();
-                        $name = $sender->getName();
-                        if ($sender->hasPermission("murder.command.setspawns"))
-                            if (isset($args[0]) && is_numeric($args[0])) {
-                                $this->listener->setspawns[$name][$world] = (int)$args[0];
-                                $this->getArenasCfg()->remove($world);
-                                $sender->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getName()} §einiziato");
-                            }
-                        break;
-                }
-            }
-        }
-        return true;
     }
 }

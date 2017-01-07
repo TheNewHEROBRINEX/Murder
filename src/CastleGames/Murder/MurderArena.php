@@ -29,8 +29,8 @@ class MurderArena {
     /** @var int $status */
     private $state = self::GAME_IDLE;
 
-    /** @var Player[] $players */
-    private $players = [];
+    /** @var array $players */
+    private $players = array();
 
     /**
      * MurderArena constructor.
@@ -40,7 +40,7 @@ class MurderArena {
      */
     public function __construct(MurderMain $plugin, array $spawns, string $name) {
         $this->plugin = $plugin;
-        $this->spawns = $spawns;
+        $this->spawns = shuffle($spawns);
         $this->name = $name;
         $this->countdown = $this->plugin->getConfig()->get("countdown", 90);
         $this->maxTime = $this->plugin->getConfig()->get("maxGameTime", 1200);
@@ -60,8 +60,8 @@ class MurderArena {
     public function tick() {
         if ($this->isStarting()) {
             if (--$this->countdown == 0) {
-                //$this->broadcast("La partita è iniziata!");
                 $this->start();
+                $this->broadcast("La partita è iniziata!");
             } elseif ($this->countdown > 10 && $this->countdown % 10 == 0) {
                 $this->broadcast("La partita inizierà tra {$this->countdown}");
             } elseif ($this->countdown <= 10) {
@@ -71,25 +71,71 @@ class MurderArena {
     }
 
     public function start() {
-        //TODO
+        $this->state = self::GAME_RUNNING;
+        $players = array_keys($this->players);
+        $playersNames = $players;
+        $skin = array();
+        foreach ($players as $player){
+            $skin[$player] = $this->plugin->getServer()->getPlayer($player)->getSkinData();
+        }
+        shuffle($skin);
+        shuffle($playersNames);
+        foreach ($players as $player){
+            $player = $this->plugin->getServer()->getPlayer($player);
+            $player->setSkin(array_shift($skin), $player->getSkinId());
+            $player->setNameTag(array_shift($playersNames));
+        }
     }
 
-    public function quit(Player $player) {
-        if (!$this->isRunning())
+    /**
+     * @param Player $player
+     */
+    public function quit(Player $player, bool $silent = false) {
+        if (!$this->isRunning()) {
             array_unshift($this->spawns, $this->players[$player->getName()]);
+            shuffle($this->spawns);
+        }
         unset($this->players[$player->getName()]);
         $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
-        $this->broadcast(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
-        if ($this->players < 5)
+        if (!$silent)
+            $this->broadcast(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
+        if ($this->players < 5 && $this->isStarting())
             $this->state = self::GAME_IDLE;
     }
 
+    /**
+     * @param string $msg
+     */
     public function broadcast(string $msg) {
         $this->plugin->getServer()->broadcastMessage($msg, $this->plugin->getServer()->getLevelByName($this->name)->getPlayers());
     }
 
-    public function inArena(Player $player) {
+    /**
+     * @return array
+     */
+    public function getPlayers(): array {
+        return $this->players;
+    }
+
+    /**
+     * @param Player|string $player
+     * @return bool
+     */
+    public function inArena($player) {
+        if ($player instanceof Player)
+            $player = $player->getName();
         return isset($this->players[$player->getName()]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string {
+        return $this->name;
+    }
+
+    public function __toString() {
+        return $this->getName();
     }
 
     /**

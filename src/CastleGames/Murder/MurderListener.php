@@ -5,6 +5,7 @@ namespace CastleGames\Murder;
 use pocketmine\entity\Entity;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\level\sound\LaunchSound;
 use pocketmine\nbt\tag\CompoundTag;
@@ -39,7 +40,7 @@ class MurderListener implements Listener {
             $spawns[] = array($x, $y, $z);
             $this->plugin->getArenasCfg()->set($world, $spawns);
             --$this->setspawns[$name][$world];
-            $player->sendMessage("§eSpawn Murder del mondo $world settato a§f $x $y $z. " . (($this->setspawns[$name][$world] == 1) ? "§eRimane " : "§eRimangono ") . $this->setspawns[$name][$world] . " §espawn da settare");
+            $player->sendMessage("§eSpawn Murder del mondo $world settato a§f $x $y $z. " . (($this->setspawns[$name][$world] == 1) ? "§eRimane " : "§eRimangono §f") . $this->setspawns[$name][$world] . " §espawn da settare");
             if ($this->setspawns[$name][$world] <= 0) {
                 unset($this->setspawns[$name][$world]);
                 $this->plugin->getArenasCfg()->save();
@@ -48,34 +49,39 @@ class MurderListener implements Listener {
         }
     }
 
-    public function onBowFire(DataPacketReceiveEvent $event) {
-        if (($packet = $event->getPacket()) instanceof UseItemPacket) {
+    public function onSwordHoeShoot(DataPacketReceiveEvent $event) {
+        if ($this->plugin->getArenaByPlayer($event->getPlayer()) && ($packet = $event->getPacket()) instanceof UseItemPacket) {
             $player = $event->getPlayer();
             $item = $player->getInventory()->getItemInHand();
-                if ($item->getId() === $item::WOODEN_SWORD || $item->getId() === $item::WOODEN_HOE) {
-                    $nbt = new CompoundTag("", [
-                        "Pos" => new ListTag("Pos", [
-                            new DoubleTag("", $player->x),
-                            new DoubleTag("", $player->y + $player->getEyeHeight()),
-                            new DoubleTag("", $player->z)
-                        ]),
-                        "Motion" => new ListTag("Motion", [
-                            new DoubleTag("", -sin($player->yaw / 180 * M_PI) * cos($player->pitch / 180 * M_PI)),
-                            new DoubleTag("", -sin($player->pitch / 180 * M_PI)),
-                            new DoubleTag("", cos($player->yaw / 180 * M_PI) * cos($player->pitch / 180 * M_PI))
-                        ]),
-                        "Rotation" => new ListTag("Rotation", [
-                            new FloatTag("", $player->yaw),
-                            new FloatTag("", $player->pitch)
-                        ]),
-                        "Fire" => new ShortTag("Fire", 0)
-                    ]);
-                    $arrow = Entity::createEntity("Arrow", $player->chunk, $nbt, $player, true);
-                    $arrow->setMotion($arrow->getMotion()->multiply(2));
-                    $arrow->spawnToAll();
-                    $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
-                    $event->setCancelled(true);
-                }
+            if ($item->getId() === $item::WOODEN_SWORD || $item->getId() === $item::WOODEN_HOE) {
+                $nbt = new CompoundTag("", [
+                    "Pos" => new ListTag("Pos", [
+                        new DoubleTag("", $player->x),
+                        new DoubleTag("", $player->y + $player->getEyeHeight()),
+                        new DoubleTag("", $player->z)
+                    ]),
+                    "Motion" => new ListTag("Motion", [
+                        new DoubleTag("", -sin($player->yaw / 180 * M_PI) * cos($player->pitch / 180 * M_PI)),
+                        new DoubleTag("", -sin($player->pitch / 180 * M_PI)),
+                        new DoubleTag("", cos($player->yaw / 180 * M_PI) * cos($player->pitch / 180 * M_PI))
+                    ]),
+                    "Rotation" => new ListTag("Rotation", [
+                        new FloatTag("", $player->yaw),
+                        new FloatTag("", $player->pitch)
+                    ]),
+                    "Fire" => new ShortTag("Fire", 0)
+                ]);
+                $arrow = Entity::createEntity("Arrow", $player->chunk, $nbt, $player, true);
+                $arrow->setMotion($arrow->getMotion()->multiply(2));
+                $arrow->spawnToAll();
+                $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
+                $event->setCancelled(true);
             }
         }
     }
+
+    public function onQuit(PlayerQuitEvent $event) {
+        if ($arena = $this->plugin->getArenaByPlayer($player = $event->getPlayer()))
+            $arena->quit($player);
+    }
+}
