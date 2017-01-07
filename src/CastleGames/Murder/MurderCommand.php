@@ -33,7 +33,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
             if (isset($args[0])) {
                 switch (array_shift($args)) {
                     case "join":
-                        if ($arena = $this->getPlugin()->getArenaByName([$args[0]])) {
+                        if ($arena = $this->getPlugin()->getArenaByName($args[0])) {
                             if (!$this->getPlugin()->getServer()->isLevelLoaded($arena));
                                 $this->getPlugin()->getServer()->loadLevel($arena);
                             $arena->join($sender);
