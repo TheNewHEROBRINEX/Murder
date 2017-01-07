@@ -124,7 +124,7 @@ class MurderArena {
     public function inArena($player) {
         if ($player instanceof Player)
             $player = $player->getName();
-        return isset($this->players[$player->getName()]);
+        return isset($this->players[$player]);
     }
 
     /**
