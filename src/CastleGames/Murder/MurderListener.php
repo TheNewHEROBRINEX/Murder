@@ -40,7 +40,7 @@ class MurderListener implements Listener {
             $spawns[] = array($x, $y, $z);
             $this->plugin->getArenasCfg()->set($world, $spawns);
             --$this->setspawns[$name][$world];
-            $player->sendMessage("§eSpawn Murder del mondo $world settato a§f $x $y $z. " . (($this->setspawns[$name][$world] == 1) ? "§eRimane " : "§eRimangono §f") . $this->setspawns[$name][$world] . " §espawn da settare");
+            $player->sendMessage("§eSpawn Murder del mondo $world settato a§f $x $y $z. " . (($this->setspawns[$name][$world] == 1) ? "§eRimane §f" : "§eRimangono §f") . $this->setspawns[$name][$world] . " §espawn da settare");
             if ($this->setspawns[$name][$world] <= 0) {
                 unset($this->setspawns[$name][$world]);
                 $this->plugin->getArenasCfg()->save();

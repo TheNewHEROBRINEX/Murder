@@ -10,6 +10,7 @@ use pocketmine\utils\Config;
 
 class MurderMain extends PluginBase {
 
+    const MESSAGE_PREFIX = "§7[§eMurder§7] ";
     /** @var Config $config */
     private $config;
 
@@ -27,8 +28,8 @@ class MurderMain extends PluginBase {
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->getServer()->getCommandMap()->register("murder", new MurderCommand($this));
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, array(
-            "join" => "§7[§eMurder§7] §9{player} §fsi è unito alla partita",
-            "quit" => "§7[§eMurder§7] §9{player} §fha abbandonato la partita",
+            "join" => "§9{player} §fsi è unito alla partita",
+            "quit" => "§9{player} §fha abbandonato la partita",
             "countdown" => 90,
             "maxGameTime" => 1200
         ));

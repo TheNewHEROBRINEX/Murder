@@ -64,7 +64,7 @@ class MurderArena {
             $spawn = array_shift($this->spawns);
             $this->players[$player->getName()] = $spawn;
             $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($this->name)));
-            $this->broadcast(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
+            $this->broadcast(MurderMain::MESSAGE_PREFIX . str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
             if (count($this->players) >= 5 && $this->isIdle())
                 $this->state = self::GAME_STARTING;
         }
@@ -74,11 +74,11 @@ class MurderArena {
         if ($this->isStarting()) {
             if (--$this->countdown == 0) {
                 $this->start();
-                $this->broadcast("La partita è iniziata!");
+                $this->broadcast(MurderMain::MESSAGE_PREFIX . "La partita è iniziata!");
             } elseif ($this->countdown > 10 && $this->countdown % 10 == 0) {
-                $this->broadcast("La partita inizierà tra {$this->countdown}");
+                $this->broadcast(MurderMain::MESSAGE_PREFIX . "La partita inizierà tra {$this->countdown} secondi");
             } elseif ($this->countdown <= 10) {
-                $this->broadcast("La partita inizierà tra {$this->countdown}...");
+                $this->broadcast(MurderMain::MESSAGE_PREFIX . "La partita inizierà tra {$this->countdown}...");
             }
         }
     }
@@ -93,23 +93,23 @@ class MurderArena {
         $this->skins = $skins;
         do {
             shuffle($skins);
-        } while ($this->skins != $skins);
+        } while (array_values($this->skins) == $skins);
         do {
             shuffle($players);
-        } while (array_keys($this->players) != $players);
+        } while (array_keys($this->players) == $players);
         foreach (array_keys($this->players) as $player) {
             $player = $this->plugin->getServer()->getPlayer($player);
             $player->setSkin(array_shift($skin), $player->getSkinId());
-            $player->setNameTag(array_shift($playersNames));
+            $player->setNameTag(array_shift($players));
             $player->respawnToAll();
         }
         $random = array_rand($players, 2);
         $this->murderer = $this->plugin->getServer()->getPlayerExact($players[$random[0]]);
         $this->bystanders[] = $this->plugin->getServer()->getPlayerExact($players[$random[1]]);
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
-        $this->murderer->sendMessage("Sei l'assassino!");
+        $this->murderer->sendMessage(MurderMain::MESSAGE_PREFIX . "Sei l'assassino!");
         $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
-        $this->bystanders[0]->sendMessage("Sei quello con l'arma!");
+        $this->bystanders[0]->sendMessage(MurderMain::MESSAGE_PREFIX . "Sei quello con l'arma!");
     }
 
     /**
@@ -126,7 +126,7 @@ class MurderArena {
             unset($this->players[$player->getName()]);
             $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
             if (!$silent)
-                $this->broadcast(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
+                $this->broadcast(MurderMain::MESSAGE_PREFIX . str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
             if ($this->players < 5 && $this->isStarting())
                 $this->state = self::GAME_IDLE;
         }
@@ -136,7 +136,7 @@ class MurderArena {
      * @param string $msg
      */
     public function broadcast(string $msg) {
-        $this->plugin->getServer()->broadcastMessage($msg, $this->plugin->getServer()->getLevelByName($this->name)->getPlayers());
+        $this->plugin->getServer()->broadcastMessage(MurderMain::MESSAGE_PREFIX . $msg, $this->plugin->getServer()->getLevelByName($this->name)->getPlayers());
     }
 
     /**
