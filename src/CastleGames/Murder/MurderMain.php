@@ -72,7 +72,10 @@ class MurderMain extends PluginBase {
      * @return MurderArena|null
      */
     public function getArenaByName(string $name) {
+        if (isset($this->arenas[$name]))
             return $this->arenas[$name];
+        else
+            return null;
     }
 
     /**

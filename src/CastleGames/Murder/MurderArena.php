@@ -2,6 +2,7 @@
 
 namespace CastleGames\Murder;
 
+use pocketmine\item\Item;
 use pocketmine\level\Position;
 use pocketmine\Player;
 
@@ -32,6 +33,15 @@ class MurderArena {
     /** @var array $players */
     private $players = array();
 
+    /** @var array */
+    private $skins = array();
+
+    /** @var Player $murder */
+    private $murderer;
+
+    /** @var Player[] $bystanders */
+    private $bystanders;
+
     /**
      * MurderArena constructor.
      * @param MurderMain $plugin
@@ -49,6 +59,8 @@ class MurderArena {
 
     public function join(Player $player) {
         if (!$this->isRunning() && !$this->inArena($player) && count($this->spawns) > 0) {
+            $player->getInventory()->clearAll();
+            $player->getInventory()->sendContents($player);
             $spawn = array_shift($this->spawns);
             $this->players[$player->getName()] = $spawn;
             $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($this->name)));
@@ -74,34 +86,50 @@ class MurderArena {
     public function start() {
         $this->state = self::GAME_RUNNING;
         $players = array_keys($this->players);
-        $playersNames = $players;
-        $skin = array();
-        foreach ($players as $player){
-            $skin[$player] = $this->plugin->getServer()->getPlayer($player)->getSkinData();
+        $skins = array();
+        foreach ($players as $player) {
+            $skins[$player] = $this->plugin->getServer()->getPlayer($player)->getSkinData();
         }
-        shuffle($skin);
-        shuffle($playersNames);
-        foreach ($players as $player){
+        $this->skins = $skins;
+        do {
+            shuffle($skins);
+        } while ($this->skins != $skins);
+        do {
+            shuffle($players);
+        } while (array_keys($this->players) != $players);
+        foreach (array_keys($this->players) as $player) {
             $player = $this->plugin->getServer()->getPlayer($player);
             $player->setSkin(array_shift($skin), $player->getSkinId());
             $player->setNameTag(array_shift($playersNames));
+            $player->respawnToAll();
         }
+        $random = array_rand($players, 2);
+        $this->murderer = $this->plugin->getServer()->getPlayerExact($players[$random[0]]);
+        $this->bystanders[] = $this->plugin->getServer()->getPlayerExact($players[$random[1]]);
+        $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
+        $this->murderer->sendMessage("Sei l'assassino!");
+        $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
+        $this->bystanders[0]->sendMessage("Sei quello con l'arma!");
     }
 
     /**
      * @param Player $player
      */
     public function quit(Player $player, bool $silent = false) {
-        if (!$this->isRunning()) {
-            array_unshift($this->spawns, $this->players[$player->getName()]);
-            shuffle($this->spawns);
+        if ($this->inArena($player)) {
+            $player->getInventory()->clearAll();
+            $player->getInventory()->sendContents($player);
+            if (!$this->isRunning()) {
+                array_unshift($this->spawns, $this->players[$player->getName()]);
+                shuffle($this->spawns);
+            }
+            unset($this->players[$player->getName()]);
+            $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+            if (!$silent)
+                $this->broadcast(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
+            if ($this->players < 5 && $this->isStarting())
+                $this->state = self::GAME_IDLE;
         }
-        unset($this->players[$player->getName()]);
-        $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
-        if (!$silent)
-            $this->broadcast(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
-        if ($this->players < 5 && $this->isStarting())
-            $this->state = self::GAME_IDLE;
     }
 
     /**
@@ -135,7 +163,10 @@ class MurderArena {
         return $this->name;
     }
 
-    public function __toString() {
+    /**
+     * @return string
+     */
+    public function __toString(): string {
         return $this->getName();
     }
 
