@@ -40,7 +40,8 @@ class MurderArena {
      */
     public function __construct(MurderMain $plugin, array $spawns, string $name) {
         $this->plugin = $plugin;
-        $this->spawns = shuffle($spawns);
+        shuffle($spawns);
+        $this->spawns = $spawns;
         $this->name = $name;
         $this->countdown = $this->plugin->getConfig()->get("countdown", 90);
         $this->maxTime = $this->plugin->getConfig()->get("maxGameTime", 1200);
