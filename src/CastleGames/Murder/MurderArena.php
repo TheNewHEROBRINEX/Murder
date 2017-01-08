@@ -91,12 +91,12 @@ class MurderArena {
             $skins[$player] = $this->plugin->getServer()->getPlayer($player)->getSkinData();
         }
         $this->skins = $skins;
-        do {
+        /*do {
             shuffle($skins);
         } while ($this->skins != $skins);
         do {
             shuffle($players);
-        } while (array_keys($this->players) != $players);
+        } while (array_keys($this->players) != $players);*/
         foreach (array_keys($this->players) as $player) {
             $player = $this->plugin->getServer()->getPlayer($player);
             $player->setSkin(array_shift($skin), $player->getSkinId());
