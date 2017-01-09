@@ -99,7 +99,7 @@ class MurderArena {
         } while (array_keys($this->players) == $players);
         foreach (array_keys($this->players) as $player) {
             $player = $this->plugin->getServer()->getPlayer($player);
-            $player->setSkin(array_shift($skin), $player->getSkinId());
+            $player->setSkin(array_shift($skins), $player->getSkinId());
             $player->setNameTag(array_shift($players));
             $player->respawnToAll();
         }
