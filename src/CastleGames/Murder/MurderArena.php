@@ -65,7 +65,7 @@ class MurderArena {
             $this->players[$player->getName()] = $spawn;
             $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($this->name)));
             $this->broadcast(MurderMain::MESSAGE_PREFIX . str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
-            if (count($this->players) >= 5 && $this->isIdle())
+            if (count($this->players) >= 2 && $this->isIdle())
                 $this->state = self::GAME_STARTING;
         }
     }
@@ -87,6 +87,9 @@ class MurderArena {
         $this->state = self::GAME_RUNNING;
         $players = array_keys($this->players);
         $skins = array();
+        $random = array_rand($players, 2);
+        $this->murderer = $this->plugin->getServer()->getPlayerExact($players[$random[0]]);
+        $this->bystanders[] = $this->plugin->getServer()->getPlayerExact($players[$random[1]]);
         foreach ($players as $player) {
             $skins[$player] = $this->plugin->getServer()->getPlayer($player)->getSkinData();
         }
@@ -103,9 +106,6 @@ class MurderArena {
             $player->setNameTag(array_shift($players));
             $player->respawnToAll();
         }
-        $random = array_rand($players, 2);
-        $this->murderer = $this->plugin->getServer()->getPlayerExact($players[$random[0]]);
-        $this->bystanders[] = $this->plugin->getServer()->getPlayerExact($players[$random[1]]);
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->murderer->sendMessage(MurderMain::MESSAGE_PREFIX . "Sei l'assassino!");
         $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
@@ -127,7 +127,7 @@ class MurderArena {
             $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
             if (!$silent)
                 $this->broadcast(MurderMain::MESSAGE_PREFIX . str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
-            if ($this->players < 5 && $this->isStarting())
+            if ($this->players < 2 && $this->isStarting())
                 $this->state = self::GAME_IDLE;
         }
     }
