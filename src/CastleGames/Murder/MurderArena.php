@@ -102,9 +102,10 @@ class MurderArena {
         } while (array_keys($this->players) == $players);
         foreach (array_keys($this->players) as $player) {
             $player = $this->plugin->getServer()->getPlayer($player);
-            $player->setSkin(array_shift($skins), $player->getSkinId());
+            $player->despawnFromAll();
             $player->setNameTag(array_shift($players));
-            $player->respawnToAll();
+            $player->setSkin(array_shift($skins), $player->getSkinId());
+            $player->spawnToAll();
         }
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->murderer->sendMessage(MurderMain::MESSAGE_PREFIX . "Sei l'assassino!");
