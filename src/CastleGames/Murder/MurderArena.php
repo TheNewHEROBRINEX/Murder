@@ -15,9 +15,6 @@ class MurderArena {
     /** @var MurderMain $plugin */
     private $plugin;
 
-    /** @var array $spawns */
-    private $spawns;
-
     /** @var string $name */
     private $name;
 
@@ -30,13 +27,13 @@ class MurderArena {
     /** @var int $status */
     private $state = self::GAME_IDLE;
 
-    /** @var array $players */
+    /** @var Player[] $players */
     private $players = array();
 
     /** @var array */
     private $skins = array();
 
-    /** @var Player $murder */
+    /** @var Player $murderer */
     private $murderer;
 
     /** @var Player[] $bystanders */
@@ -48,23 +45,21 @@ class MurderArena {
      * @param array $spawns
      * @param string $name
      */
-    public function __construct(MurderMain $plugin, array $spawns, string $name) {
+    public function __construct(MurderMain $plugin, string $name) {
         $this->plugin = $plugin;
-        shuffle($spawns);
-        $this->spawns = $spawns;
         $this->name = $name;
         $this->countdown = $this->plugin->getConfig()->get("countdown", 90);
         $this->maxTime = $this->plugin->getConfig()->get("maxGameTime", 1200);
     }
 
     public function join(Player $player) {
-        if (!$this->isRunning() && !$this->inArena($player) && count($this->spawns) > 0) {
+        if (!$this->isRunning() && !$this->inArena($player)) {
+            $this->players[] = $player;
             $player->getInventory()->clearAll();
             $player->getInventory()->sendContents($player);
-            $spawn = array_shift($this->spawns);
-            $this->players[$player->getName()] = $spawn;
-            $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($this->name)));
-            $this->broadcast(MurderMain::MESSAGE_PREFIX . str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
+            $hub = $this->plugin->getServer()->getLevelByName($this->plugin->getConfig()->get("hub"));
+            $player->teleport($hub->getSpawnLocation(), $hub);
+            $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
             if (count($this->players) >= 2 && $this->isIdle())
                 $this->state = self::GAME_STARTING;
         }
@@ -74,43 +69,51 @@ class MurderArena {
         if ($this->isStarting()) {
             if (--$this->countdown == 0) {
                 $this->start();
-                $this->broadcast(MurderMain::MESSAGE_PREFIX . "La partita è iniziata!");
+                $this->broadcastMessage("La partita è iniziata!");
             } elseif ($this->countdown > 10 && $this->countdown % 10 == 0) {
-                $this->broadcast(MurderMain::MESSAGE_PREFIX . "La partita inizierà tra {$this->countdown} secondi");
+                $this->broadcastMessage("La partita inizierà tra {$this->countdown} secondi");
             } elseif ($this->countdown <= 10) {
-                $this->broadcast(MurderMain::MESSAGE_PREFIX . "La partita inizierà tra {$this->countdown}...");
+                $this->broadcastMessage("La partita inizierà tra {$this->countdown}...");
             }
         }
     }
 
     public function start() {
         $this->state = self::GAME_RUNNING;
-        $players = array_keys($this->players);
         $skins = array();
-        $random = array_rand($players, 2);
-        $this->murderer = $this->plugin->getServer()->getPlayerExact($players[$random[0]]);
-        $this->bystanders[] = $this->plugin->getServer()->getPlayerExact($players[$random[1]]);
-        foreach ($players as $player) {
-            $skins[$player] = $this->plugin->getServer()->getPlayer($player)->getSkinData();
+        foreach ($this->players as $player) {
+            $skins[$player->getName()] = $player->getSkinData();
         }
         $this->skins = $skins;
         do {
             shuffle($skins);
         } while (array_values($this->skins) == $skins);
+        $players = $this->players;
         do {
             shuffle($players);
-        } while (array_keys($this->players) == $players);
-        foreach (array_keys($this->players) as $player) {
-            $player = $this->plugin->getServer()->getPlayer($player);
-            $player->despawnFromAll();
-            $player->setNameTag(array_shift($players));
+        } while ($this->players == $players);
+        foreach ($this->players as $player) {
             $player->setSkin(array_shift($skins), $player->getSkinId());
-            $player->spawnToAll();
+            $player->setNameTag(array_shift($players));
         }
+        $random = array_rand($this->players, 2);
+        $this->murderer = $random[0];
+        $this->bystanders[] = $random[1];
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
-        $this->murderer->sendMessage(MurderMain::MESSAGE_PREFIX . "Sei l'assassino!");
+        $this->plugin->sendMessage("Sei l'assassino!", $this->murderer);
         $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
-        $this->bystanders[0]->sendMessage(MurderMain::MESSAGE_PREFIX . "Sei quello con l'arma!");
+        $this->plugin->sendMessage("Sei quello con l'arma!", $this->bystanders[0]);
+        $this->bystanders[0]->setFood(6);
+        foreach ($this->players as $player){
+            if($player != $this->getMurderer() && $player != $this->bystanders[0]){
+                $this->bystanders[] = $player;
+                $player->setFood(6);
+            }
+            $spawns = $this->plugin->getArenasCfg()->get($this);
+            shuffle($spawns);
+            $spawn = array_shift($spawns);
+            $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2]), $this->plugin->getServer()->getLevelByName($this));
+        }
     }
 
     /**
@@ -120,14 +123,10 @@ class MurderArena {
         if ($this->inArena($player)) {
             $player->getInventory()->clearAll();
             $player->getInventory()->sendContents($player);
-            if (!$this->isRunning()) {
-                array_unshift($this->spawns, $this->players[$player->getName()]);
-                shuffle($this->spawns);
-            }
-            unset($this->players[$player->getName()]);
-            $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+            unset($this->players[array_search($player, $this->players)]);
             if (!$silent)
-                $this->broadcast(MurderMain::MESSAGE_PREFIX . str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
+                $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
+            $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
             if ($this->players < 2 && $this->isStarting())
                 $this->state = self::GAME_IDLE;
         }
@@ -136,25 +135,37 @@ class MurderArena {
     /**
      * @param string $msg
      */
-    public function broadcast(string $msg) {
-        $this->plugin->getServer()->broadcastMessage(MurderMain::MESSAGE_PREFIX . $msg, $this->plugin->getServer()->getLevelByName($this->name)->getPlayers());
+    public function broadcastMessage(string $msg) {
+        $this->plugin->broadcastMessage($msg, $this->getPlayers());
     }
 
     /**
-     * @return array
+     * @return Player[]
      */
     public function getPlayers(): array {
         return $this->players;
     }
 
     /**
-     * @param Player|string $player
+     * @return Player
+     */
+    public function getMurderer() {
+        return $this->murderer;
+    }
+
+    /**
+     * @return Player[]
+     */
+    public function getBystanders() {
+        return $this->bystanders;
+    }
+
+    /**
+     * @param Player $player
      * @return bool
      */
-    public function inArena($player) {
-        if ($player instanceof Player)
-            $player = $player->getName();
-        return isset($this->players[$player]);
+    public function inArena(Player $player) {
+        return in_array($player, $this->players);
     }
 
     /**

@@ -38,14 +38,14 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                                 $this->getPlugin()->getServer()->loadLevel($arena);
                             $arena->join($sender);
                         } else {
-                            $sender->sendMessage(TextFormat::RED . "L'arena $arena non esiste!");
+                            $this->getPlugin()->sendMessage(TextFormat::RED . "L'arena $args[0] non esiste!", $sender);
                         }
                         break;
                     case "quit":
                         if ($arena = $this->getPlugin()->getArenaByPlayer($sender))
                             $arena->quit($sender);
                         else
-                            $sender->sendMessage(TextFormat::RED . "Non sei una partita di Murder!");
+                            $this->getPlugin()->sendMessage(TextFormat::RED . "Non sei una partita di Murder!", $sender);
                         break;
                     case "setspawns":
                         $world = $sender->getLevel()->getName();
@@ -54,7 +54,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                             if (isset($args[0]) && is_numeric($args[0])) {
                                 $this->getPlugin()->getListener()->setspawns[$name][$world] = (int)$args[0];
                                 $this->getPlugin()->getArenasCfg()->remove($world);
-                                $sender->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getName()} §einiziato");
+                                $this->getPlugin()->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getName()} §einiziato", $sender);
                             }
                         break;
                 }
