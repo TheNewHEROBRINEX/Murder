@@ -109,7 +109,7 @@ class MurderArena {
                 $this->bystanders[] = $player;
                 $player->setFood(6);
             }
-            $spawns = $this->plugin->getArenasCfg()->get($this);
+            $spawns = $this->plugin->getArenasCfg()->get($this->getName());
             shuffle($spawns);
             $spawn = array_shift($spawns);
             $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2]), $this->plugin->getServer()->getLevelByName($this));
