@@ -127,7 +127,7 @@ class MurderArena {
             if (!$silent)
                 $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
             $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
-            if ($this->players < 2 && $this->isStarting())
+            if (count($this->players) < 2 && $this->isStarting())
                 $this->state = self::GAME_IDLE;
         }
     }
