@@ -1,6 +1,6 @@
 <?php
 
-namespace CastleGames\Murder;
+namespace TheNewHEROBRINE\Murder;
 
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;

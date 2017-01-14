@@ -1,6 +1,6 @@
 <?php
 
-namespace CastleGames\Murder;
+namespace TheNewHEROBRINE\Murder;
 
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
