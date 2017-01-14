@@ -58,7 +58,7 @@ class MurderArena {
             $player->getInventory()->clearAll();
             $player->getInventory()->sendContents($player);
             $hub = $this->plugin->getServer()->getLevelByName($this->plugin->getConfig()->get("hub"));
-            $player->teleport($hub->getSpawnLocation(), $hub);
+            $player->teleport($hub->getSpawnLocation());
             $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
             if (count($this->players) >= 2 && $this->isIdle())
                 $this->state = self::GAME_STARTING;
@@ -94,11 +94,11 @@ class MurderArena {
         } while ($this->players == $players);
         foreach ($this->players as $player) {
             $player->setSkin(array_shift($skins), $player->getSkinId());
-            $player->setNameTag(array_shift($players));
+            $player->setNameTag(array_shift($players)->getName());
         }
         $random = array_rand($this->players, 2);
-        $this->murderer = $random[0];
-        $this->bystanders[] = $random[1];
+        $this->murderer = $this->getPlayers()[$random[0]];
+        $this->bystanders[] = $this->getPlayers()[$random[1]];
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->plugin->sendMessage("Sei l'assassino!", $this->murderer);
         $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
