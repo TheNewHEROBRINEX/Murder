@@ -14,7 +14,6 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\FloatTag;
 use pocketmine\nbt\tag\ListTag;
-use pocketmine\nbt\tag\ShortTag;
 use pocketmine\network\protocol\UseItemPacket;
 use pocketmine\Player;
 
@@ -42,7 +41,7 @@ class MurderListener implements Listener {
             $spawns = $this->plugin->getArenasCfg()->get($world, []);
             $spawns[] = array($x, $y, $z);
             $this->plugin->getArenasCfg()->set($world, $spawns);
-            $this->plugin->sendMessage("§eSpawn Murder del mondo $world settato a§f $x $y $z. " . ((--$this->setspawns[$name][$world] == 1) ? "§eRimane§f " : "§eRimangono§f ") . $this->setspawns[$name][$world] . " §espawn da settare", $player);
+            $this->plugin->sendMessage("§eSpawn Murder del mondo §f$world §esettato a§f $x $y $z. " . ((--$this->setspawns[$name][$world] == 1) ? "§eRimane§f " : "§eRimangono§f ") . $this->setspawns[$name][$world] . " §espawn da settare", $player);
             if ($this->setspawns[$name][$world] <= 0) {
                 unset($this->setspawns[$name][$world]);
                 $this->plugin->getArenasCfg()->save();
@@ -52,10 +51,10 @@ class MurderListener implements Listener {
     }
 
     public function onSwordHoeShoot(DataPacketReceiveEvent $event) {
-        if ($this->plugin->getArenaByPlayer($event->getPlayer()) && ($packet = $event->getPacket()) instanceof UseItemPacket && $packet->face === 0xff) {
+        if ($this->plugin->getArenaByPlayer($event->getPlayer()) && ($packet = $event->getPacket()) instanceof UseItemPacket && $packet->face == -1) {
             $player = $event->getPlayer();
             $item = $player->getInventory()->getItemInHand();
-            if ($item->getId() === $item::WOODEN_SWORD || $item->getId() === $item::WOODEN_HOE) {
+            if ($item->getId() === $item::WOODEN_SWORD) {
                 $nbt = new CompoundTag("", [
                     "Pos" => new ListTag("Pos", [
                         new DoubleTag("", $player->x),
@@ -71,11 +70,9 @@ class MurderListener implements Listener {
                         new FloatTag("", $player->yaw),
                         new FloatTag("", $player->pitch)
                     ]),
-                    "Fire" => new ShortTag("Fire", 0)
                 ]);
-                $arrow = Entity::createEntity("Arrow", $player->chunk, $nbt, $player, true);
-                $arrow->setMotion($arrow->getMotion()->multiply(2));
-                $arrow->spawnToAll();
+                $sword = Entity::createEntity("MurderKnifeProjectile", $player->chunk, $nbt, $player);
+                $sword->spawnToAll();
                 $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
                 $event->setCancelled(true);
             }

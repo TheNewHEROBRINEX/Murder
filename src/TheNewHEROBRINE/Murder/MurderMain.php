@@ -2,6 +2,7 @@
 
 namespace TheNewHEROBRINE\Murder;
 
+use pocketmine\entity\Entity;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
@@ -33,11 +34,11 @@ class MurderMain extends PluginBase {
             "hub" => "MurderHub"
         ));
         $hub = $this->getConfig()->get("hub", "MurderHub");
-        if (!$this->getServer()->isLevelGenerated($hub)){
+        if (!$this->getServer()->isLevelGenerated($hub)) {
             $this->getServer()->getLogger()->error("Il mondo $hub non esiste. Cambia l'hub nelle config");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
-        } else{
+        } else {
             $this->getServer()->loadLevel($hub);
         }
         $this->arenasCfg = new Config($this->getDataFolder() . "arenas.yml");
@@ -46,6 +47,7 @@ class MurderMain extends PluginBase {
             $this->getServer()->loadLevel($name);
         }
         $this->getServer()->getScheduler()->scheduleRepeatingTask(new MurderTimer($this), 20);
+        Entity::registerEntity(MurderKnifeProjectile::class);
     }
 
     public function sendMessage(string $message, Player $recipient) {
@@ -76,13 +78,14 @@ class MurderMain extends PluginBase {
     }
 
     /**
-     * @param string|Player $player
+     * @param Player $player
      * @return MurderArena|null
      */
     public function getArenaByPlayer($player) {
         foreach ($this->getArenas() as $arena)
             if ($arena->inArena($player))
                 return $arena;
+
         return null;
     }
 
@@ -93,8 +96,8 @@ class MurderMain extends PluginBase {
     public function getArenaByName(string $name) {
         if (isset($this->arenas[$name]))
             return $this->arenas[$name];
-        else
-            return null;
+
+        return null;
     }
 
     /**
