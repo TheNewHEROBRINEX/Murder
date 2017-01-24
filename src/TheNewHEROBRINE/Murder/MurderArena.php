@@ -95,6 +95,7 @@ class MurderArena {
         foreach ($this->players as $player) {
             $player->setSkin(array_shift($skins), $player->getSkinId());
             $player->setNameTag(array_shift($players)->getName());
+            //TODO: add time waiting for let the client to download the skin
         }
         $random = array_rand($this->players, 2);
         $this->murderer = $this->getPlayers()[$random[0]];
