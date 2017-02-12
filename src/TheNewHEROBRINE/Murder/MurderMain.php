@@ -6,6 +6,8 @@ use pocketmine\entity\Entity;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
+use TheNewHEROBRINE\Murder\projectile\MurderGunProjectile;
+use TheNewHEROBRINE\Murder\projectile\MurderKnifeProjectile;
 
 class MurderMain extends PluginBase {
 
@@ -23,6 +25,7 @@ class MurderMain extends PluginBase {
     private $arenas = array();
 
     public function onEnable() {
+        //$this->getServer()->getPluginManager()->disablePlugin($this->getServer()->getPluginManager()->getPlugin("SimpleFloatingTexter"));
         @mkdir($this->getDataFolder());
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->getServer()->getCommandMap()->register("murder", new MurderCommand($this));
@@ -47,7 +50,8 @@ class MurderMain extends PluginBase {
             $this->getServer()->loadLevel($name);
         }
         $this->getServer()->getScheduler()->scheduleRepeatingTask(new MurderTimer($this), 20);
-        Entity::registerEntity(MurderKnifeProjectile::class);
+        Entity::registerEntity(MurderKnifeProjectile::class, true);
+        Entity::registerEntity(MurderGunProjectile::class, true);
     }
 
     public function sendMessage(string $message, Player $recipient) {
@@ -63,7 +67,6 @@ class MurderMain extends PluginBase {
 
     /**
      * @param string $name
-     * @param array $spawns
      * @return MurderArena
      */
     public function addArena(string $name): MurderArena {
@@ -112,5 +115,12 @@ class MurderMain extends PluginBase {
      */
     public function getArenasCfg(): Config {
         return $this->arenasCfg;
+    }
+
+    public function onDisable() {
+        foreach ($this->getServer()->getLevels() as $level)
+            foreach ($level->getEntities() as $entity)
+                if ($entity instanceof MurderGunProjectile or $entity instanceof MurderKnifeProjectile)
+                    $entity->kill();
     }
 }

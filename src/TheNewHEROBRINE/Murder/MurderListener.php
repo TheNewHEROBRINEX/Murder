@@ -9,7 +9,7 @@ use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\level\sound\LaunchSound;
+//use pocketmine\level\sound\LaunchSound;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\FloatTag;
@@ -51,10 +51,7 @@ class MurderListener implements Listener {
     }
 
     public function onSwordHoeShoot(DataPacketReceiveEvent $event) {
-        if ($this->plugin->getArenaByPlayer($event->getPlayer()) && ($packet = $event->getPacket()) instanceof UseItemPacket && $packet->face == -1) {
-            $player = $event->getPlayer();
-            $item = $player->getInventory()->getItemInHand();
-            if ($item->getId() === $item::WOODEN_SWORD) {
+        if ($this->plugin->getArenaByPlayer($player = $event->getPlayer()) and ($packet = $event->getPacket()) instanceof UseItemPacket and $packet->face === -1 and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::WOODEN_HOE) {
                 $nbt = new CompoundTag("", [
                     "Pos" => new ListTag("Pos", [
                         new DoubleTag("", $player->x),
@@ -71,11 +68,11 @@ class MurderListener implements Listener {
                         new FloatTag("", $player->pitch)
                     ]),
                 ]);
-                $sword = Entity::createEntity("MurderKnifeProjectile", $player->chunk, $nbt, $player);
-                $sword->spawnToAll();
-                $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
+                $projectile = Entity::createEntity($item->getId() == $item::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->chunk, $nbt, $player);
+                $projectile->setMotion($projectile->getMotion()->multiply(2));
+                $projectile->spawnToAll();
+                //$player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers()); not working
                 $event->setCancelled(true);
-            }
         }
     }
 
@@ -85,7 +82,8 @@ class MurderListener implements Listener {
     }
 
     public function onDamage(EntityDamageEvent $event){
-        if (($player = $event->getEntity()) instanceof Player && $this->plugin->getArenaByPlayer($player) !== null){
+        $player = $event->getEntity();
+        if ($player instanceof Player && $this->plugin->getArenaByPlayer($player) !== null){
             if ($event instanceof EntityDamageByEntityEvent){
 
             }

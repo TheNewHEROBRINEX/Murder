@@ -34,8 +34,8 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                 switch (array_shift($args)) {
                     case "join":
                         if ($arena = $this->getPlugin()->getArenaByName($args[0])) {
-                            if (!$this->getPlugin()->getServer()->isLevelLoaded($arena));
-                                $this->getPlugin()->getServer()->loadLevel($arena);
+                            if (!$this->getPlugin()->getServer()->isLevelLoaded($arena)) ;
+                            $this->getPlugin()->getServer()->loadLevel($arena);
                             $arena->join($sender);
                         } else {
                             $this->getPlugin()->sendMessage(TextFormat::RED . "L'arena $args[0] non esiste!", $sender);
@@ -45,7 +45,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                         if ($arena = $this->getPlugin()->getArenaByPlayer($sender))
                             $arena->quit($sender);
                         else
-                            $this->getPlugin()->sendMessage(TextFormat::RED . "Non sei una partita di Murder!", $sender);
+                            $this->getPlugin()->sendMessage(TextFormat::RED . "Non sei in una partita di Murder!", $sender);
                         break;
                     case "setspawns":
                         $world = $sender->getLevel()->getName();

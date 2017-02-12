@@ -85,6 +85,7 @@ class MurderArena {
             $skins[$player->getName()] = $player->getSkinData();
         }
         $this->skins = $skins;
+        if (count(array_unique($this->skins)) > 1)
         do {
             shuffle($skins);
         } while (array_values($this->skins) == $skins);
@@ -95,7 +96,7 @@ class MurderArena {
         foreach ($this->players as $player) {
             $player->setSkin(array_shift($skins), $player->getSkinId());
             $player->setNameTag(array_shift($players)->getName());
-            //TODO: add time waiting for let the client to download the skin
+            //TODO: add time waiting for let clients download the skins
         }
         $random = array_rand($this->players, 2);
         $this->murderer = $this->getPlayers()[$random[0]];
@@ -106,6 +107,7 @@ class MurderArena {
         $this->plugin->sendMessage("Sei quello con l'arma!", $this->bystanders[0]);
         $this->bystanders[0]->setFood(6);
         foreach ($this->players as $player){
+            $player->setGamemode($player::ADVENTURE);
             if($player != $this->getMurderer() && $player != $this->bystanders[0]){
                 $this->bystanders[] = $player;
                 $player->setFood(6);
