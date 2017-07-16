@@ -7,7 +7,7 @@ use TheNewHEROBRINE\Murder\particle\MobSpellParticle;
 
 class MurderGunProjectile extends MurderProjectile {
 
-    public function getName(){
+    public function getName() {
         return "MurderGunProjectile";
     }
 
@@ -20,7 +20,7 @@ class MurderGunProjectile extends MurderProjectile {
 
         $hasUpdate = parent::onUpdate($currentTick);
 
-        if ($this->age > 30 * 20 or !isset($this->shootingEntity) or $this->hadCollision) {
+        if ($this->age > 30 * 20 or $this->getOwningEntity() == null or $this->hadCollision) {
             $this->kill();
             $hasUpdate = true;
         } else {

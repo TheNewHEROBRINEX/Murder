@@ -12,7 +12,7 @@ class MurderTimer extends Task {
         $this->owner = $owner;
     }
 
-    public function onRun($tick) {
+    public function onRun(int $tick) {
         foreach ($this->getOwner()->getArenas() as $arena)
             $arena->tick();
     }

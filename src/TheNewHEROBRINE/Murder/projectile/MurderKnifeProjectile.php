@@ -2,23 +2,23 @@
 
 namespace TheNewHEROBRINE\Murder\projectile;
 
-use pocketmine\level\format\Chunk;
+use pocketmine\level\Level;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\network\protocol\AddItemEntityPacket;
+use pocketmine\network\mcpe\protocol\AddItemEntityPacket;
 use pocketmine\Player;
 
-class MurderKnifeProjectile extends MurderProjectile  {
+class MurderKnifeProjectile extends MurderProjectile {
 
     protected $knife;
 
-    public function getName() {
-        return "MurderKnifeProjectile";
-    }
-
-    public function __construct(Chunk $chunk, CompoundTag $nbt, Player $murderer = null) {
+    public function __construct(Level $level, CompoundTag $nbt, Player $murderer = null) {
         if ($murderer !== null)
             $this->knife = $murderer->getInventory()->getItemInHand();
-        parent::__construct($chunk, $nbt, $murderer);
+        parent::__construct($level, $nbt, $murderer);
+    }
+
+    public function getName() {
+        return "MurderKnifeProjectile";
     }
 
     public function onUpdate($currentTick) {
@@ -28,7 +28,7 @@ class MurderKnifeProjectile extends MurderProjectile  {
 
         $hasUpdate = parent::onUpdate($currentTick);
 
-        if ($this->age > 30 * 20 or !isset($this->shootingEntity)) {
+        if ($this->age > 30 * 20 or $this->getOwningEntity() == null) {
             $this->kill();
             $hasUpdate = true;
         }
@@ -39,7 +39,7 @@ class MurderKnifeProjectile extends MurderProjectile  {
     public function spawnTo(Player $player) {
         if ($this->knife !== null) {
             $pk = new AddItemEntityPacket();
-            $pk->eid = $this->getId();
+            $pk->entityRuntimeId = $this->getId();
             $pk->x = $this->x;
             $pk->y = $this->y;
             $pk->z = $this->z;

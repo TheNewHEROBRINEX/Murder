@@ -6,6 +6,7 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\Player;
+use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
 class MurderCommand extends Command implements PluginIdentifiableCommand {
@@ -21,14 +22,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
         $this->plugin = $plugin;
     }
 
-    /**
-     * @return MurderMain
-     */
-    public function getPlugin(): MurderMain {
-        return $this->plugin;
-    }
-
-    public function execute(CommandSender $sender, $commandLabel, array $args) {
+    public function execute(CommandSender $sender, string $commandLabel, array $args) {
         if ($sender instanceof Player) {
             if (isset($args[0])) {
                 switch (array_shift($args)) {
@@ -38,27 +32,46 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                             $this->getPlugin()->getServer()->loadLevel($arena);
                             $arena->join($sender);
                         } else {
-                            $this->getPlugin()->sendMessage(TextFormat::RED . "L'arena $args[0] non esiste!", $sender);
+                            $this->getPlugin()->sendMessage(TextFormat::RED . "Arena $args[0] doesn't exists!", $sender);
                         }
                         break;
                     case "quit":
                         if ($arena = $this->getPlugin()->getArenaByPlayer($sender))
                             $arena->quit($sender);
                         else
-                            $this->getPlugin()->sendMessage(TextFormat::RED . "Non sei in una partita di Murder!", $sender);
+                            $this->getPlugin()->sendMessage(TextFormat::RED . "You aren't in any Murder game!", $sender);
                         break;
-                    case "setspawns":
+                    case "setarena":
                         $world = $sender->getLevel()->getName();
                         $name = $sender->getName();
-                        if ($sender->hasPermission("murder.command.setspawns"))
-                            if (isset($args[0]) && is_numeric($args[0])) {
+                        if ($sender->hasPermission("murder.command.setarena"))
+                            if (count($args) == 2 and ctype_digit(implode("", $args))) {
                                 $this->getPlugin()->getListener()->setspawns[$name][$world] = (int)$args[0];
-                                $this->getPlugin()->getArenasCfg()->remove($world);
+                                $this->getPlugin()->getListener()->setespawns[$name][$world] = (int)$args[1];
+                                $this->getPlugin()->getArenasCfg()->setNested("$world.spawns", []);
+                                $this->getPlugin()->getArenasCfg()->setNested("$world.espawns", []);
                                 $this->getPlugin()->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getName()} §einiziato", $sender);
+                            }
+                        break;
+                    case "setespawns":
+                        $world = $sender->getLevel()->getName();
+                        $name = $sender->getName();
+                        if ($sender->hasPermission("murder.command.setespawns"))
+                            if (count($args) === 3 && is_numeric($args[0])) {
+                                $this->getPlugin()->getListener()->setespawns[$name][$world] = (int)$args[0];
+                                $this->getPlugin()->getArenasCfg()->setNested("$world.espawns", []);
+                                $this->getPlugin()->sendMessage("§eSetting of§f $args[0] §e emerald spawns for the world§f {$sender->getLevel()->getName()} §estarted", $sender);
                             }
                         break;
                 }
             }
         }
+    }
+
+    /**
+     * @return MurderMain
+     */
+    public function getPlugin(): Plugin {
+        return $this->plugin;
     }
 }
