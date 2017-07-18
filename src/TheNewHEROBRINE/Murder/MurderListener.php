@@ -26,6 +26,8 @@ use TheNewHEROBRINE\Murder\projectile\MurderKnifeProjectile;
 
 class MurderListener implements Listener {
 
+    const CAUSE_KNIFE_PROJECTILE = 100;
+
     /** @var array $setspawns */
     public $setspawns;
     /** @var array $setespawns */
@@ -171,3 +173,24 @@ class MurderListener implements Listener {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
