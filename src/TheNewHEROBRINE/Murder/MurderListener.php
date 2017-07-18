@@ -3,6 +3,8 @@
 namespace TheNewHEROBRINE\Murder;
 
 use pocketmine\entity\Entity;
+use pocketmine\entity\Human;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
@@ -19,6 +21,8 @@ use pocketmine\nbt\tag\FloatTag;
 use pocketmine\nbt\tag\ListTag;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\Player;
+use TheNewHEROBRINE\Murder\projectile\MurderGunProjectile;
+use TheNewHEROBRINE\Murder\projectile\MurderKnifeProjectile;
 
 class MurderListener implements Listener {
 
@@ -111,7 +115,7 @@ class MurderListener implements Listener {
         if ($player instanceof Player and $arena = $this->plugin->getArenaByPlayer($player) and $item->getId() == Item::EMERALD and $inv->contains(Item::get(Item::EMERALD, -1, 4))) {
             if ($arena->isBystander($player) and !$inv->contains(Item::get(Item::WOODEN_HOE, -1, 1))) {
                 $inv->addItem(Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
-                $this->plugin->sendMessage("Hai ricevuto una pistola!", $player);
+                $this->plugin->sendMessage("Hai ricevuto la pistola!", $player);
             } elseif ($arena->isMurderer($player)) {
                 $inv->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
                 $this->plugin->sendMessage("Hai ricevuto un altro coltello!", $player);
@@ -123,16 +127,46 @@ class MurderListener implements Listener {
         }
     }
 
-    public function onDeath(PlayerDeathEvent $event){
+    public function onDeath(PlayerDeathEvent $event) {
         if ($this->plugin->getArenaByPlayer($event->getPlayer()))
             $event->setDrops([]);
     }
 
     public function onDamage(EntityDamageEvent $event) {
-        $player = $event->getEntity();
-        if ($player instanceof Player && $this->plugin->getArenaByPlayer($player) !== null) {
-            if ($event instanceof EntityDamageByEntityEvent) {
-
+        $damaged = $event->getEntity();
+        if ($damaged instanceof Human and !$damaged instanceof Player) {
+            $event->setCancelled();
+        }
+        elseif ($event instanceof EntityDamageByEntityEvent) {
+            $damager = $event->getDamager();
+            $cause = $event->getCause();
+            if ($damaged instanceof Player and $arena = $this->plugin->getArenaByPlayer($damaged)) {
+                if ($cause == EntityDamageEvent::CAUSE_ENTITY_ATTACK and $damager instanceof Player and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == Item::WOODEN_SWORD) {
+                    $damaged->kill();
+                    $arena->onDeath($damaged);
+                    $arena->broadcastMessage("L'assassino ha ucciso un innocente!");
+                } elseif ($cause == EntityDamageEvent::CAUSE_PROJECTILE and $event instanceof EntityDamageByChildEntityEvent and $damager instanceof Player) {
+                    $projectile = $event->getChild();
+                    if ($projectile instanceof MurderKnifeProjectile) {
+                        $damaged->kill();
+                        $arena->onDeath($damaged);
+                        $arena->broadcastMessage("L'assassino ha ucciso un innocente!");
+                    } elseif ($projectile instanceof MurderGunProjectile) {
+                        if ($arena->isMurderer($damaged)) {
+                            $damaged->kill();
+                            $arena->onDeath($damaged);
+                            $arena->broadcastMessage("L'assassino è stato ucciso!");
+                        } else {
+                            $damaged->kill();
+                            $arena->onDeath($damaged);
+                            $arena->broadcastMessage("Un innocente ha ucciso un innocente *facepalm*!");
+                        }
+                    } else {
+                        $event->setCancelled();
+                    }
+                } else {
+                    $event->setCancelled();
+                }
             }
         }
     }

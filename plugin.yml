@@ -1,7 +1,7 @@
 name: Murder
 author: TheNewHEROBRINE
 version: 0.8
-api: ["2.1.0", "2.0.0", "3.0.0-ALPHA1", "3.0.0-ALPHA2", "3.0.0", "3.0.0-ALPHA3"]
+api: ["3.0.0-ALPHA7"]
 main: TheNewHEROBRINE\Murder\MurderMain
 
 permissions:
@@ -13,5 +13,5 @@ permissions:
       default: true
      murder.command.quit:
       default: true
-     murder.command.setspawns:
-      default: true
+     murder.command.setarena:
+      default: op
