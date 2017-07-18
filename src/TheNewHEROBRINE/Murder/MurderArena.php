@@ -2,10 +2,17 @@
 
 namespace TheNewHEROBRINE\Murder;
 
+use pocketmine\entity\Entity;
+use pocketmine\entity\Human;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\DoubleTag;
+use pocketmine\nbt\tag\FloatTag;
+use pocketmine\nbt\tag\ListTag;
+use pocketmine\nbt\tag\StringTag;
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\projectile\MurderKnifeProjectile;
 
@@ -172,7 +179,10 @@ class MurderArena {
         } while ($this->players == $players);
         foreach ($this->players as $player) {
             $player->setSkin(array_shift($skins), $player->getSkinId());
-            $player->setNameTag(array_shift($players)->getName());
+            $name = array_shift($players)->getName();
+            $player->setDisplayName($name);
+            $player->setNameTag($name);
+            $player->setNameTagAlwaysVisible(false);
         }
         $random = array_rand($this->players, 2);
         shuffle($random);
@@ -226,6 +236,45 @@ class MurderArena {
             if (count($this->players) < 2 && $this->isStarting())
                 $this->state = self::GAME_IDLE;
         }
+    }
+
+    /**
+     * @param Player $player
+     */
+    public function onDeath(Player $player){
+        if (!$this->isMurderer($player)) {
+            $nbt = new CompoundTag("", [
+                "Pos" => new ListTag("Pos", [
+                    new DoubleTag("", $player->x),
+                    new DoubleTag("", $player->y),
+                    new DoubleTag("", $player->z)
+                ]),
+                "Motion" => new ListTag("Motion", [
+                    new DoubleTag("", 0),
+                    new DoubleTag("", 0),
+                    new DoubleTag("", 0)
+                ]),
+                "Rotation" => new ListTag("Rotation", [
+                    new FloatTag("", $player->yaw),
+                    new FloatTag("", $player->pitch)
+                ]),
+            ]);
+            $player->saveNBT();
+            $nbt->Inventory = clone $player->namedtag->Inventory;
+            $nbt->Skin = new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkinData()), "Name" => new StringTag("Name", $player->getSkinId())]);
+            $corpse = Entity::createEntity("Human", $player->getLevel(), $nbt);
+            $corpse->spawnToAll();
+            $corpse->setDataProperty(Human::DATA_PLAYER_BED_POSITION, Human::DATA_TYPE_POS, [(int)$player->x, (int)$player->y, (int)$player->z]);
+            $corpse->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
+            $corpse->respawnToAll();
+        }
+    }
+
+    /**
+     * @return Level
+     */
+    public function getWorld(): Level {
+        return $this->world;
     }
 
     /**

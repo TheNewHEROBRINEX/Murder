@@ -11,8 +11,4 @@ abstract class MurderProjectile extends Projectile {
 
     protected $gravity = 0;
     protected $drag = 0;
-
-    public function getResultDamage(): int {
-        return 3.5 * 2;
-    }
 }

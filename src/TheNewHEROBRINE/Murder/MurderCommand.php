@@ -53,15 +53,10 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                                 $this->getPlugin()->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getName()} §einiziato", $sender);
                             }
                         break;
-                    case "setespawns":
-                        $world = $sender->getLevel()->getName();
-                        $name = $sender->getName();
-                        if ($sender->hasPermission("murder.command.setespawns"))
-                            if (count($args) === 3 && is_numeric($args[0])) {
-                                $this->getPlugin()->getListener()->setespawns[$name][$world] = (int)$args[0];
-                                $this->getPlugin()->getArenasCfg()->setNested("$world.espawns", []);
-                                $this->getPlugin()->sendMessage("§eSetting of§f $args[0] §e emerald spawns for the world§f {$sender->getLevel()->getName()} §estarted", $sender);
-                            }
+                    case "killall":
+                        foreach ($this->getPlugin()->getArenas() as $arena)
+                            foreach ($arena->getWorld()->getEntities() as $entity)
+                                $entity->kill();
                         break;
                 }
             }
