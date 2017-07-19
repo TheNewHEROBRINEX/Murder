@@ -1,8 +1,9 @@
 name: Murder
 author: TheNewHEROBRINE
-version: 0.8
+version: 0.9
 api: ["3.0.0-ALPHA7"]
 main: TheNewHEROBRINE\Murder\MurderMain
+load: POSTWORLD
 
 permissions:
  murder:

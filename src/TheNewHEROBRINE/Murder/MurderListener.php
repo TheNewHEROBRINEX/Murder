@@ -161,10 +161,7 @@ class MurderListener implements Listener {
                             $arena->onDeath($damaged);
                             $arena->broadcastMessage("Un innocente ha ucciso un innocente *facepalm*!");
                         }
-                    } else {
-                        $event->setCancelled();
                     }
-                } else {
                     $event->setCancelled();
                 }
             }

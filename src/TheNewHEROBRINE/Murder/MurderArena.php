@@ -227,14 +227,28 @@ class MurderArena {
      */
     public function quit(Player $player, bool $silent = false) {
         if ($this->inArena($player)) {
-            $player->getInventory()->clearAll();
-            $player->getInventory()->sendContents($player);
+            if ($this->isRunning()) {
+                $player->setNameTagAlwaysVisible(true);
+                $player->setNameTag($player->getName());
+                $player->setDisplayName($player->getName());
+                $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
+                $player->getInventory()->clearAll();
+                $player->getInventory()->sendContents($player);
+                if ($this->isBystander($player) and count($this->players) == 2) {
+                    $this->plugin->broadcastMessage("L'assassino ha vinto la partita su " . $this);
+                    $this->stop();
+                }
+                elseif ($this->isMurderer($player)){
+                    $this->plugin->broadcastMessage("Gli innocenti hanno vinto la partita su " . $this);
+                    $this->stop();
+                }
+            }
             unset($this->players[array_search($player, $this->players)]);
-            if (!$silent)
-                $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
-            $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
-            if (count($this->players) < 2 && $this->isStarting())
-                $this->state = self::GAME_IDLE;
+                if (!$silent)
+                    $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
+                $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                if (count($this->players) < 2 && $this->isStarting())
+                    $this->state = self::GAME_IDLE;
         }
     }
 
@@ -242,7 +256,6 @@ class MurderArena {
      * @param Player $player
      */
     public function onDeath(Player $player){
-        if (!$this->isMurderer($player)) {
             $nbt = new CompoundTag("", [
                 "Pos" => new ListTag("Pos", [
                     new DoubleTag("", $player->x),
@@ -267,6 +280,30 @@ class MurderArena {
             $corpse->setDataProperty(Human::DATA_PLAYER_BED_POSITION, Human::DATA_TYPE_POS, [(int)$player->x, (int)$player->y, (int)$player->z]);
             $corpse->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
             $corpse->respawnToAll();
+            $this->quit($player, true);
+    }
+
+    public function stop(){
+        foreach ($this->getPlayers() as $player){
+            if ($player->isOnline()){
+                $player->setNameTagAlwaysVisible(true);
+                $player->setNameTag($player->getName());
+                $player->setDisplayName($player->getName());
+                $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
+                $player->getInventory()->clearAll();
+                $player->getInventory()->sendContents($player);
+                $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+            }
+            $this->players = [];
+            $this->skin = [];
+            $this->countdown = $this->plugin->getConfig()->get("countdown", 90);
+            $this->bystanders = [];
+            $this->murderer = null;
+            $this->spawnEmerald = 0;
+            $this->state = self::GAME_IDLE;
+            foreach ($this->getWorld()->getEntities() as $entity){
+                $entity->setHealth(0);
+            }
         }
     }
 

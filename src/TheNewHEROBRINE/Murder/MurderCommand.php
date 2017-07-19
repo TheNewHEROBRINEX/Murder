@@ -56,7 +56,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     case "killall":
                         foreach ($this->getPlugin()->getArenas() as $arena)
                             foreach ($arena->getWorld()->getEntities() as $entity)
-                                $entity->kill();
+                                $entity->setHealth(0);
                         break;
                 }
             }
