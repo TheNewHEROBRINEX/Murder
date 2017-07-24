@@ -164,8 +164,8 @@ class MurderListener implements Listener {
         }
         //do this only for players that are currently playing murder
         elseif ($damaged instanceof Player and $arena = $this->plugin->getArenaByPlayer($damaged)){
-            //do this only if player is damaged by another one
-            if ($event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof Player){
+            //do this only if player is damaged by another one while in game
+            if ($arena->isRunning() and $event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof Player){
                 /** @var Player $damager */
                 //if player is attacked directly by the murderer using a wooden sword
                 if (($cause = $event->getCause()) == EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == Item::WOODEN_SWORD){
