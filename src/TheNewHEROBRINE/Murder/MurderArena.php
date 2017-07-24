@@ -233,7 +233,7 @@ class MurderArena {
                 if ($this->isMurderer($player)){
                     $this->stop("Gli innocenti hanno vinto la partita su " . $this);
                 }
-                elseif (count($this->players) == 1){
+                elseif (count($this->players) == 2){
                     $this->stop("L'assassino ha vinto la partita su " . $this);
                 }
                 else{
