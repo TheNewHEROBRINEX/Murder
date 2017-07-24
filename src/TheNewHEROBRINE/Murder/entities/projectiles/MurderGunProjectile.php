@@ -32,7 +32,7 @@ class MurderGunProjectile extends MurderProjectile {
             $hasUpdate = true;
         }
         else{
-            for ($i = 0; $i < 20; $i++) {
+            for ($i = 0; $i < 30; $i++) {
                 $this->level->addParticle(new MobSpellParticle($this->add(
                     $this->width / 2 + mt_rand(-100, 100) / 500,
                     $this->height / 2 + mt_rand(-100, 100) / 500,

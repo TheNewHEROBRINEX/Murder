@@ -100,7 +100,7 @@ class MurderListener implements Listener {
             ]);
 
             $projectile = Entity::createEntity($item->getId() == $item::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
-            $projectile->setMotion($projectile->getMotion()->multiply(2));
+            $projectile->setMotion($projectile->getMotion()->multiply(2.5));
             $projectile->spawnToAll();
             $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
             if ($item->getId() == $item::WOODEN_SWORD){

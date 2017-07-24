@@ -18,7 +18,11 @@ class Corpse extends Human {
      * @param CompoundTag $nbt
      * @param Player $player
      */
-    public function __construct(Level $level, CompoundTag $nbt, Player $player) {
+    public function __construct(Level $level, CompoundTag $nbt, Player $player = null) {
+        if (!$player){
+            $this->kill();
+            return;
+        }
         $nbt = new CompoundTag("", [
             "Pos" => new ListTag("Pos", [
                 new DoubleTag("", $player->x),

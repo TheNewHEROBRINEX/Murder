@@ -229,7 +229,6 @@ class MurderArena {
      */
     public function quit(Player $player, $silent = false) {
         if ($this->inArena($player)){
-            unset($this->players[array_search($player, $this->players)]);
             if ($this->isRunning()){
                 if ($this->isMurderer($player)){
                     $this->stop("Gli innocenti hanno vinto la partita su " . $this);
@@ -238,6 +237,7 @@ class MurderArena {
                     $this->stop("L'assassino ha vinto la partita su " . $this);
                 }
                 else{
+                    unset($this->players[array_search($player, $this->players)]);
                     $player->getInventory()->clearAll();
                     $player->setHealth($player->getMaxHealth());
                     $player->setFood($player->getMaxFood());
