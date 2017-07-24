@@ -1,6 +1,6 @@
 <?php
 
-namespace TheNewHEROBRINE\Murder\projectile;
+namespace TheNewHEROBRINE\Murder\entities\projectiles;
 
 use pocketmine\entity\Projectile;
 

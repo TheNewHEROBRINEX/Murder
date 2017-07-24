@@ -2,25 +2,15 @@
 
 namespace TheNewHEROBRINE\Murder;
 
-use pocketmine\scheduler\Task;
+use pocketmine\scheduler\PluginTask;
 
-class MurderTimer extends Task {
-
-    private $owner;
-
-    public function __construct(MurderMain $owner) {
-        $this->owner = $owner;
-    }
-
-    public function onRun(int $tick) {
-        foreach ($this->getOwner()->getArenas() as $arena)
-            $arena->tick();
-    }
-
+class MurderTimer extends PluginTask {
     /**
-     * @return MurderMain
+     * @param int $tick
      */
-    public function getOwner(): MurderMain {
-        return $this->owner;
+    public function onRun(int $tick) {
+        foreach ($this->getOwner()->getArenas() as $arena) {
+            $arena->tick();
+        }
     }
 }

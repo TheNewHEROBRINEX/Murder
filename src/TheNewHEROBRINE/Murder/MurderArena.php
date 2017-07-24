@@ -2,19 +2,12 @@
 
 namespace TheNewHEROBRINE\Murder;
 
-use pocketmine\entity\Entity;
-use pocketmine\entity\Human;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\Vector3;
-use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\DoubleTag;
-use pocketmine\nbt\tag\FloatTag;
-use pocketmine\nbt\tag\ListTag;
-use pocketmine\nbt\tag\StringTag;
 use pocketmine\Player;
-use TheNewHEROBRINE\Murder\projectile\MurderKnifeProjectile;
+use TheNewHEROBRINE\Murder\entities\projectiles\MurderKnifeProjectile;
 
 class MurderArena {
 
@@ -38,10 +31,10 @@ class MurderArena {
     private $state = self::GAME_IDLE;
 
     /** @var Player[] $players */
-    private $players = array();
+    private $players = [];
 
-    /** @var array */
-    private $skins = array();
+    /** @var array $skins */
+    private $skins = [];
 
     /** @var Player $murderer */
     private $murderer;
@@ -62,7 +55,6 @@ class MurderArena {
     private $spawnEmerald = 10;
 
     /**
-     * MurderArena constructor.
      * @param MurderMain $plugin
      * @param string $name
      * @param array $spawns
@@ -78,23 +70,27 @@ class MurderArena {
         $this->maxTime = $this->plugin->getConfig()->get("maxGameTime", 1200);
     }
 
+    /**
+     * @param Player $player
+     */
     public function join(Player $player) {
-        if (!$this->isRunning() && !$this->inArena($player)) {
+        if (!$this->isRunning() && !$this->inArena($player)){
             $this->players[] = $player;
             $player->getInventory()->clearAll();
             $player->getInventory()->sendContents($player);
             $hub = $this->plugin->getServer()->getLevelByName($this->plugin->getConfig()->get("hub"));
             $player->teleport($hub->getSpawnLocation());
             $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
-            if (count($this->players) >= 2 && $this->isIdle())
+            if (count($this->players) >= 2 && $this->isIdle()){
                 $this->state = self::GAME_STARTING;
+            }
         }
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function isRunning(): int {
+    public function isRunning(): bool {
         return $this->state == 2;
     }
 
@@ -102,7 +98,7 @@ class MurderArena {
      * @param Player $player
      * @return bool
      */
-    public function inArena(Player $player) {
+    public function inArena(Player $player): bool {
         return in_array($player, $this->players);
     }
 
@@ -128,26 +124,28 @@ class MurderArena {
     }
 
     public function tick() {
-        if ($this->isStarting()) {
-            if ($this->countdown == 0) {
+        if ($this->isStarting()){
+            if ($this->countdown == 0){
                 $this->start();
                 $this->broadcastMessage("La partita è iniziata!");
-            } elseif ($this->countdown > 10 && $this->countdown % 10 == 0) {
+            }
+            elseif ($this->countdown > 10 && $this->countdown % 10 == 0){
                 $this->broadcastMessage("La partita inizierà tra {$this->countdown} secondi");
-            } elseif ($this->countdown <= 10) {
+            }
+            elseif ($this->countdown <= 10){
                 $this->broadcastMessage("La partita inizierà tra {$this->countdown}...");
             }
             $this->countdown--;
         }
 
-        if ($this->isRunning()) {
+        if ($this->isRunning()){
             foreach ($this->murderer->level->getNearbyEntities($this->murderer->boundingBox->grow(1, 0.5, 1), $this->murderer) as $entity) {
-                if ($entity instanceof MurderKnifeProjectile) {
+                if ($entity instanceof MurderKnifeProjectile){
                     $this->murderer->getInventory()->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
                     $entity->kill();
                 }
             }
-            if ($this->spawnEmerald == 0) {
+            if ($this->spawnEmerald == 0){
                 $this->spawnEmerald($this->espawns[array_rand($this->espawns)]);
                 $this->spawnEmerald = 10;
             }
@@ -164,15 +162,16 @@ class MurderArena {
 
     public function start() {
         $this->state = self::GAME_RUNNING;
-        $skins = array();
+        $skins = [];
         foreach ($this->players as $player) {
             $skins[$player->getName()] = $player->getSkinData();
         }
         $this->skins = $skins;
-        if (count(array_unique($this->skins)) > 1)
+        if (count(array_unique($this->skins)) > 1){
             do {
                 shuffle($skins);
             } while (array_values($this->skins) == $skins);
+        }
         $players = $this->players;
         do {
             shuffle($players);
@@ -197,7 +196,7 @@ class MurderArena {
         shuffle($spawns);
         foreach ($this->players as $player) {
             $player->setGamemode($player::ADVENTURE);
-            if ($player !== $this->getMurderer() && $player != $this->bystanders[0]) {
+            if ($player !== $this->getMurderer() && $player != $this->bystanders[0]){
                 $this->bystanders[] = $player;
                 $player->setFood(6);
             }
@@ -212,10 +211,13 @@ class MurderArena {
     /**
      * @return Player
      */
-    public function getMurderer() {
+    public function getMurderer(): Player {
         return $this->murderer;
     }
 
+    /**
+     * @param array $espawn
+     */
     public function spawnEmerald(array $espawn) {
         $this->world->dropItem(new Vector3($espawn[0], $espawn[1], $espawn[2]), Item::get(Item::EMERALD));
     }
@@ -225,66 +227,49 @@ class MurderArena {
      * @param Player $player
      * @param bool $silent
      */
-    public function quit(Player $player, bool $silent = false) {
-        if ($this->inArena($player)) {
-            if ($this->isRunning()) {
-                $player->setNameTagAlwaysVisible(true);
-                $player->setNameTag($player->getName());
-                $player->setDisplayName($player->getName());
-                $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
-                $player->getInventory()->clearAll();
-                $player->getInventory()->sendContents($player);
-                if ($this->isBystander($player) and count($this->players) == 2) {
-                    $this->plugin->broadcastMessage("L'assassino ha vinto la partita su " . $this);
-                    $this->stop();
+    public function quit(Player $player, $silent = false) {
+        if ($this->inArena($player)){
+            unset($this->players[array_search($player, $this->players)]);
+            if ($this->isRunning()){
+                if ($this->isMurderer($player)){
+                    $this->stop("Gli innocenti hanno vinto la partita su " . $this);
                 }
-                elseif ($this->isMurderer($player)){
-                    $this->plugin->broadcastMessage("Gli innocenti hanno vinto la partita su " . $this);
-                    $this->stop();
+                elseif (count($this->players) == 1){
+                    $this->stop("L'assassino ha vinto la partita su " . $this);
+                }
+                else{
+                    $player->getInventory()->clearAll();
+                    $player->setHealth($player->getMaxHealth());
+                    $player->setFood($player->getMaxFood());
+                    if (!$silent){
+                        $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
+                        $player->setNameTagAlwaysVisible(true);
+                        $player->setNameTag($player->getName());
+                        $player->setDisplayName($player->getName());
+                        $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
+                        $player->getInventory()->sendContents($player);
+                        $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                    }
                 }
             }
-            unset($this->players[array_search($player, $this->players)]);
-                if (!$silent)
-                    $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
-                $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
-                if (count($this->players) < 2 && $this->isStarting())
+            elseif ($this->isStarting()){
+                if (count($this->players) < 2){
                     $this->state = self::GAME_IDLE;
+                }
+            }
         }
     }
 
     /**
      * @param Player $player
+     * @return bool
      */
-    public function onDeath(Player $player){
-            $nbt = new CompoundTag("", [
-                "Pos" => new ListTag("Pos", [
-                    new DoubleTag("", $player->x),
-                    new DoubleTag("", $player->y),
-                    new DoubleTag("", $player->z)
-                ]),
-                "Motion" => new ListTag("Motion", [
-                    new DoubleTag("", 0),
-                    new DoubleTag("", 0),
-                    new DoubleTag("", 0)
-                ]),
-                "Rotation" => new ListTag("Rotation", [
-                    new FloatTag("", $player->yaw),
-                    new FloatTag("", $player->pitch)
-                ]),
-            ]);
-            $player->saveNBT();
-            $nbt->Inventory = clone $player->namedtag->Inventory;
-            $nbt->Skin = new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkinData()), "Name" => new StringTag("Name", $player->getSkinId())]);
-            $corpse = Entity::createEntity("Human", $player->getLevel(), $nbt);
-            $corpse->spawnToAll();
-            $corpse->setDataProperty(Human::DATA_PLAYER_BED_POSITION, Human::DATA_TYPE_POS, [(int)$player->x, (int)$player->y, (int)$player->z]);
-            $corpse->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
-            $corpse->respawnToAll();
-            $this->quit($player, true);
+    public function isBystander(Player $player): bool {
+        return in_array($player, $this->bystanders);
     }
 
-    public function stop(){
-        foreach ($this->getPlayers() as $player){
+    public function stop(string $message){
+        foreach ($this->getPlayers() as $player) {
             if ($player->isOnline()){
                 $player->setNameTagAlwaysVisible(true);
                 $player->setNameTag($player->getName());
@@ -294,14 +279,15 @@ class MurderArena {
                 $player->getInventory()->sendContents($player);
                 $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
             }
+            $this->plugin->broadcastMessage($message);
             $this->players = [];
-            $this->skin = [];
+            $this->skins = [];
             $this->countdown = $this->plugin->getConfig()->get("countdown", 90);
             $this->bystanders = [];
             $this->murderer = null;
-            $this->spawnEmerald = 0;
+            $this->spawnEmerald = 10;
             $this->state = self::GAME_IDLE;
-            foreach ($this->getWorld()->getEntities() as $entity){
+            foreach ($this->getWorld()->getEntities() as $entity) {
                 $entity->setHealth(0);
             }
         }
@@ -315,26 +301,24 @@ class MurderArena {
     }
 
     /**
-     * @return Player[]
-     */
-    public function getBystanders() {
-        return $this->bystanders;
-    }
-
-    /**
      * @param Player $player
+     * @return bool
      */
-    public function isMurderer(Player $player) {
+    public function isMurderer(Player $player): bool {
         return $this->murderer === $player;
     }
 
-    public function isBystander(Player $player) {
-        return in_array($player, $this->bystanders);
+    /**
+     * @return Player[]
+     */
+    public function getBystanders(): array {
+        return $this->bystanders;
     }
 
     /**
      * @return string
      */
+
     public function __toString(): string {
         return $this->getName();
     }

@@ -6,8 +6,9 @@ use pocketmine\entity\Entity;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
-use TheNewHEROBRINE\Murder\projectile\MurderGunProjectile;
-use TheNewHEROBRINE\Murder\projectile\MurderKnifeProjectile;
+use TheNewHEROBRINE\Murder\entities\Corpse;
+use TheNewHEROBRINE\Murder\entities\projectiles\MurderGunProjectile;
+use TheNewHEROBRINE\Murder\entities\projectiles\MurderKnifeProjectile;
 
 class MurderMain extends PluginBase {
 
@@ -22,25 +23,26 @@ class MurderMain extends PluginBase {
     private $listener;
 
     /** @var  MurderArena[] $arenas */
-    private $arenas = array();
+    private $arenas = [];
 
     public function onEnable() {
         @mkdir($this->getDataFolder());
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->getServer()->getCommandMap()->register("murder", new MurderCommand($this));
-        $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, array(
+        $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, [
             "join" => "§9{player}§f joined the game",
             "quit" => "§9{player}§f left the game",
             "countdown" => 90,
             "maxGameTime" => 1200,
-            "hub" => "MurderHub"
-        ));
+            "hub" => "MurderHub"]
+        );
         $hub = $this->getConfig()->get("hub", "MurderHub");
-        if (!$this->getServer()->isLevelGenerated($hub)) {
+        if (!$this->getServer()->isLevelGenerated($hub)){
             $this->getServer()->getLogger()->error("Il mondo $hub non esiste. Cambia l'hub nelle config");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
-        } else {
+        }
+        else{
             $this->getServer()->loadLevel($hub);
         }
         $this->arenasCfg = new Config($this->getDataFolder() . "arenas.yml");
@@ -51,6 +53,7 @@ class MurderMain extends PluginBase {
         $this->getServer()->getScheduler()->scheduleRepeatingTask(new MurderTimer($this), 20);
         Entity::registerEntity(MurderKnifeProjectile::class, true);
         Entity::registerEntity(MurderGunProjectile::class, true);
+        Entity::registerEntity(Corpse::class, true);
     }
 
     /**
@@ -70,13 +73,22 @@ class MurderMain extends PluginBase {
         return $this->arenas[$name] = new MurderArena($this, $name, $spawns, $espawns);
     }
 
+    /**
+     * @param string $message
+     * @param null $recipients
+     */
     public function broadcastMessage(string $message, $recipients = null) {
-        if ($recipients === null)
+        if ($recipients === null){
             $recipients = $this->getServer()->getOnlinePlayers();
+        }
         foreach ($recipients as $recipient)
             $this->sendMessage($message, $recipient);
     }
 
+    /**
+     * @param string $message
+     * @param Player $recipient
+     */
     public function sendMessage(string $message, Player $recipient) {
         $recipient->sendMessage(self::MESSAGE_PREFIX . $message);
     }
@@ -87,8 +99,9 @@ class MurderMain extends PluginBase {
      */
     public function getArenaByPlayer($player) {
         foreach ($this->getArenas() as $arena)
-            if ($arena->inArena($player))
+            if ($arena->inArena($player)){
                 return $arena;
+            }
 
         return null;
     }
@@ -105,8 +118,9 @@ class MurderMain extends PluginBase {
      * @return MurderArena|null
      */
     public function getArenaByName(string $name) {
-        if (isset($this->arenas[$name]))
+        if (isset($this->arenas[$name])){
             return $this->arenas[$name];
+        }
 
         return null;
     }
@@ -121,7 +135,8 @@ class MurderMain extends PluginBase {
     public function onDisable() {
         foreach ($this->getServer()->getLevels() as $level)
             foreach ($level->getEntities() as $entity)
-                if ($entity instanceof MurderGunProjectile or $entity instanceof MurderKnifeProjectile)
+                if ($entity instanceof MurderGunProjectile or $entity instanceof MurderKnifeProjectile){
                     $entity->kill();
+                }
     }
 }
