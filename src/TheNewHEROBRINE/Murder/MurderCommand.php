@@ -53,7 +53,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                         }
                         break;
                     case "setarena":
-                        $world = $sender->getLevel()->getName();
+                        $world = $sender->getLevel()->getFolderName();
                         $name = $sender->getName();
                         if ($sender->hasPermission("murder.command.setarena")){
                             if (count($args) == 2 and ctype_digit(implode("", $args))){
@@ -61,7 +61,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                                 $this->getPlugin()->getListener()->setespawns[$name][$world] = (int)$args[1];
                                 $this->getPlugin()->getArenasCfg()->setNested("$world.spawns", []);
                                 $this->getPlugin()->getArenasCfg()->setNested("$world.espawns", []);
-                                $this->getPlugin()->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getName()} §einiziato", $sender);
+                                $this->getPlugin()->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getFolderName()} §einiziato", $sender);
                             }
                         }
                         break;

@@ -42,7 +42,7 @@ class MurderListener implements Listener {
      */
     public function onArenaSetting(PlayerInteractEvent $event) {
         $player = $event->getPlayer();
-        $world = $player->getLevel()->getName();
+        $world = $player->getLevel()->getFolderName();
         $name = $player->getName();
         $block = $event->getBlock();
         $x = $block->getX();
@@ -56,7 +56,7 @@ class MurderListener implements Listener {
             if ($this->setspawns[$name][$world] <= 0){
                 unset($this->setspawns[$name][$world]);
                 $this->plugin->getArenasCfg()->save();
-                $this->plugin->sendMessage("§eSettaggio di§f {$this->setespawns[$name][$world]} §eemerald spawn per il mondo§f {$player->getLevel()->getName()} §einiziato", $player);
+                $this->plugin->sendMessage("§eSettaggio di§f {$this->setespawns[$name][$world]} §eemerald spawn per il mondo§f {$player->getLevel()->getFolderName()} §einiziato", $player);
             }
             return;
         }
