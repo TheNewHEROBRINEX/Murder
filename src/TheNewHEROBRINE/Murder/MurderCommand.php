@@ -5,6 +5,8 @@ namespace TheNewHEROBRINE\Murder;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
+use pocketmine\entity\Entity;
+use pocketmine\network\mcpe\protocol\AddEntityPacket;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
@@ -35,9 +37,8 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     case "join":
                         if ($arena = $this->getPlugin()->getArenaByName($args[0])){
                             if (!$this->getPlugin()->getServer()->isLevelLoaded($arena)){
-                                ;
+                                $this->getPlugin()->getServer()->loadLevel($arena);
                             }
-                            $this->getPlugin()->getServer()->loadLevel($arena);
                             $arena->join($sender);
                         }
                         else{
@@ -79,7 +80,6 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
         return true; //TODO
     }
 
-    /** @noinspection PhpDocSignatureInspection */
     /**
      * @return MurderMain
      */
