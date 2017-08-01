@@ -78,7 +78,7 @@ class MurderListener implements Listener {
     /**
      * @param DataPacketReceiveEvent $event
      */
-    public function onSwordHoeShoot(DataPacketReceiveEvent $event) {
+    public function onShoot(DataPacketReceiveEvent $event) {
         $player = $event->getPlayer();
         $packet = $event->getPacket();
         if ($this->plugin->getArenaByPlayer($player) and $packet instanceof UseItemPacket and $packet->face === -1 and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD){
@@ -127,8 +127,8 @@ class MurderListener implements Listener {
         $player = $inv->getHolder();
         $item = $event->getItem()->getItem();
         if ($player instanceof Player and $arena = $this->plugin->getArenaByPlayer($player) and $item->getId() == Item::EMERALD and $inv->contains(Item::get(Item::EMERALD, -1, 4))){
-            if ($arena->isBystander($player) and !$inv->contains(Item::get(Item::WOODEN_HOE, -1, 1))){
-                $inv->addItem(Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
+            if ($arena->isBystander($player) and !$inv->contains(Item::get(Item::FISHING_ROD, -1, 1))){
+                $inv->addItem(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
                 $this->plugin->sendMessage("Hai ricevuto la pistola!", $player);
             }
             elseif ($arena->isMurderer($player)){

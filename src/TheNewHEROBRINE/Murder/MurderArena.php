@@ -278,6 +278,8 @@ class MurderArena {
                 $player->setNameTagAlwaysVisible(true);
                 $player->setNameTag($player->getName());
                 $player->setDisplayName($player->getName());
+                var_dump($this->skins);
+                var_dump($player->getName());
                 $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
                 $player->getInventory()->clearAll();
                 $player->getInventory()->sendContents($player);
