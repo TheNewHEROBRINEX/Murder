@@ -78,10 +78,10 @@ class MurderListener implements Listener {
     /**
      * @param DataPacketReceiveEvent $event
      */
-    public function onSwordHoeShoot(DataPacketReceiveEvent $event) {
+    public function onShoot(DataPacketReceiveEvent $event) {
         $player = $event->getPlayer();
         $packet = $event->getPacket();
-        if ($this->plugin->getArenaByPlayer($player) and $packet instanceof UseItemPacket and $packet->face === -1 and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::WOODEN_HOE){
+        if ($this->plugin->getArenaByPlayer($player) and $packet instanceof UseItemPacket and $packet->face === -1 and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD){
             $nbt = new CompoundTag("", [
                 "Pos" => new ListTag("Pos", [
                     new DoubleTag("", $player->x),
@@ -99,7 +99,7 @@ class MurderListener implements Listener {
                 ]),
             ]);
 
-            $projectile = Entity::createEntity($item->getId() == $item::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
+            $projectile = Entity::createEntity($item->getId() == $item::FISHING_ROD ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
             $projectile->setMotion($projectile->getMotion()->multiply(2.5));
             $projectile->spawnToAll();
             $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
@@ -127,8 +127,8 @@ class MurderListener implements Listener {
         $player = $inv->getHolder();
         $item = $event->getItem()->getItem();
         if ($player instanceof Player and $arena = $this->plugin->getArenaByPlayer($player) and $item->getId() == Item::EMERALD and $inv->contains(Item::get(Item::EMERALD, -1, 4))){
-            if ($arena->isBystander($player) and !$inv->contains(Item::get(Item::WOODEN_HOE, -1, 1))){
-                $inv->addItem(Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
+            if ($arena->isBystander($player) and !$inv->contains(Item::get(Item::FISHING_ROD, -1, 1))){
+                $inv->addItem(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
                 $this->plugin->sendMessage("Hai ricevuto la pistola!", $player);
             }
             elseif ($arena->isMurderer($player)){
@@ -189,12 +189,10 @@ class MurderListener implements Listener {
                         }
                     }
                 }
-                //kill damaged
-                $damaged->setHealth(0);
                 //spawn corpse
                 Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
-                //quit damaged silently
-                //$arena->quit($damaged);
+                //kill damaged
+                $damaged->setHealth(0);
             }
             //prevent other types of damage
             $event->setCancelled();

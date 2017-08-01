@@ -2,6 +2,7 @@
 
 namespace TheNewHEROBRINE\Murder;
 
+use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -188,17 +189,20 @@ class MurderArena {
         $this->murderer = $this->getPlayers()[$random[0]];
         $this->bystanders[] = $this->getPlayers()[$random[1]];
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
+        $this->murderer->setDataProperty(Entity::DATA_INTERACTIVE_TAG, Entity::DATA_TYPE_STRING, "Lancia");
         $this->plugin->sendMessage("Sei l'assassino!", $this->murderer);
-        $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
-        $this->plugin->sendMessage("Sei quello con l'arma!", $this->bystanders[0]);
+        $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
+        $this->bystanders[0]->setDataProperty(Entity::DATA_INTERACTIVE_TAG, Entity::DATA_TYPE_STRING, "Spara");
         $this->bystanders[0]->setFood(6);
+        $this->plugin->sendMessage("Sei quello con l'arma!", $this->bystanders[0]);
         $spawns = $this->spawns;
         shuffle($spawns);
         foreach ($this->players as $player) {
             $player->setGamemode($player::ADVENTURE);
             if ($player !== $this->getMurderer() && $player != $this->bystanders[0]){
-                $this->bystanders[] = $player;
+                $this->bystanders[0]->setDataProperty(Entity::DATA_INTERACTIVE_TAG, Entity::DATA_TYPE_STRING, "Spara");
                 $player->setFood(6);
+                $this->bystanders[] = $player;
             }
             $spawn = array_shift($spawns);
             $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2], $this->plugin->getServer()->getLevelByName($this)));
@@ -241,14 +245,15 @@ class MurderArena {
                     $player->getInventory()->clearAll();
                     $player->setHealth($player->getMaxHealth());
                     $player->setFood($player->getMaxFood());
-                    if (!$silent){
-                        $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
+                    if ($silent){
                         $player->setNameTagAlwaysVisible(true);
                         $player->setNameTag($player->getName());
                         $player->setDisplayName($player->getName());
                         $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
                         $player->getInventory()->sendContents($player);
                         $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                    } else {
+                        $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
                     }
                 }
             }
@@ -279,6 +284,7 @@ class MurderArena {
                 $player->getInventory()->sendContents($player);
                 $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
             }
+        }
             $this->plugin->broadcastMessage($message);
             $this->players = [];
             $this->skins = [];
@@ -290,7 +296,6 @@ class MurderArena {
             foreach ($this->getWorld()->getEntities() as $entity) {
                 $entity->setHealth(0);
             }
-        }
     }
 
     /**

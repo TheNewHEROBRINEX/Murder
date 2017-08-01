@@ -5,6 +5,10 @@ namespace TheNewHEROBRINE\Murder;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
+use pocketmine\entity\Entity;
+use pocketmine\level\format\io\BaseLevelProvider;
+use pocketmine\nbt\tag\StringTag;
+use pocketmine\network\mcpe\protocol\AddEntityPacket;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
@@ -35,9 +39,8 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     case "join":
                         if ($arena = $this->getPlugin()->getArenaByName($args[0])){
                             if (!$this->getPlugin()->getServer()->isLevelLoaded($arena)){
-                                ;
+                                $this->getPlugin()->getServer()->loadLevel($arena);
                             }
-                            $this->getPlugin()->getServer()->loadLevel($arena);
                             $arena->join($sender);
                         }
                         else{
@@ -68,18 +71,32 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     //debug
                     case "killall":
                         if ($sender->isOp()){ //too lazy to add a perm
-                            foreach ($this->getPlugin()->getArenas() as $arena)
-                                foreach ($arena->getWorld()->getEntities() as $entity)
+                            foreach ($this->getPlugin()->getServer()->getLevels() as $level)
+                                foreach ($level->getEntities() as $entity)
                                     $entity->setHealth(0);
                         }
                         break;
+                    case "fix":
+                        if ($sender->isOp()){
+                            foreach ($this->getPlugin()->getServer()->getLevels() as $level){
+                                $provider = $level->getProvider();
+                                if ($provider instanceof BaseLevelProvider){
+                                    $provider->getLevelData()->LevelName = new StringTag("LevelName", $level->getFolderName());
+                                    $provider->saveLevelData();
+                                    $this->plugin->getServer()->shutdown();
+                                }
+                            }
+                        }
+                        break;
+                    case "world":
+                        $this->getPlugin()->getServer()->loadLevel($args[0]);
+                        $sender->teleport($this->getPlugin()->getServer()->getLevelByName($args[0])->getSpawnLocation());
                 }
             }
         }
         return true; //TODO
     }
 
-    /** @noinspection PhpDocSignatureInspection */
     /**
      * @return MurderMain
      */
