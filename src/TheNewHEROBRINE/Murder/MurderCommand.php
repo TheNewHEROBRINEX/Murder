@@ -7,6 +7,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\entity\Entity;
 use pocketmine\level\format\io\BaseLevelProvider;
+use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\protocol\AddEntityPacket;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
@@ -80,7 +81,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                             foreach ($this->getPlugin()->getServer()->getLevels() as $level){
                                 $provider = $level->getProvider();
                                 if ($provider instanceof BaseLevelProvider){
-                                    $provider->getLevelData()->setName($level->getFolderName());
+                                    $provider->getLevelData()->LevelName = new StringTag("LevelName", $level->getFolderName());
                                     $provider->saveLevelData();
                                     $this->plugin->getServer()->shutdown();
                                 }
