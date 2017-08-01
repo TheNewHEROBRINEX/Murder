@@ -47,8 +47,8 @@ class MurderMain extends PluginBase {
         }
         $this->arenasCfg = new Config($this->getDataFolder() . "arenas.yml");
         foreach ($this->getArenasCfg()->getAll() as $name => $arena) {
-            $this->addArena($name, $arena["spawns"], $arena["espawns"]);
             $this->getServer()->loadLevel($name);
+            $this->addArena($name, $arena["spawns"], $arena["espawns"]);
         }
         $this->getServer()->getScheduler()->scheduleRepeatingTask(new MurderTimer($this), 20);
         Entity::registerEntity(MurderKnifeProjectile::class, true);
