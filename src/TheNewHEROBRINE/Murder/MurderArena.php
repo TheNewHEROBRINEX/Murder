@@ -191,7 +191,7 @@ class MurderArena {
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->murderer->setDataProperty(Entity::DATA_INTERACTIVE_TAG, Entity::DATA_TYPE_STRING, "Lancia");
         $this->plugin->sendMessage("Sei l'assassino!", $this->murderer);
-        $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
+        $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
         $this->bystanders[0]->setDataProperty(Entity::DATA_INTERACTIVE_TAG, Entity::DATA_TYPE_STRING, "Spara");
         $this->bystanders[0]->setFood(6);
         $this->plugin->sendMessage("Sei quello con l'arma!", $this->bystanders[0]);
