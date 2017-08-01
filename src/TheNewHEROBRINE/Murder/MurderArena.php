@@ -245,7 +245,7 @@ class MurderArena {
                     $player->getInventory()->clearAll();
                     $player->setHealth($player->getMaxHealth());
                     $player->setFood($player->getMaxFood());
-                    if (!$silent){
+                    if ($silent){
                         $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
                         $player->setNameTagAlwaysVisible(true);
                         $player->setNameTag($player->getName());
@@ -278,8 +278,6 @@ class MurderArena {
                 $player->setNameTagAlwaysVisible(true);
                 $player->setNameTag($player->getName());
                 $player->setDisplayName($player->getName());
-                var_dump($this->skins);
-                var_dump($player->getName());
                 $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
                 $player->getInventory()->clearAll();
                 $player->getInventory()->sendContents($player);
