@@ -81,6 +81,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                                 $provider = $level->getProvider();
                                 if ($provider instanceof BaseLevelProvider){
                                     $provider->getLevelData()->setName($level->getFolderName());
+                                    $provider->saveLevelData();
                                     $this->plugin->getServer()->shutdown();
                                 }
                             }
