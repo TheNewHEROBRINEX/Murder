@@ -285,6 +285,7 @@ class MurderArena {
                 $player->getInventory()->sendContents($player);
                 $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
             }
+        }
             $this->plugin->broadcastMessage($message);
             $this->players = [];
             $this->skins = [];
@@ -296,7 +297,6 @@ class MurderArena {
             foreach ($this->getWorld()->getEntities() as $entity) {
                 $entity->setHealth(0);
             }
-        }
     }
 
     /**
