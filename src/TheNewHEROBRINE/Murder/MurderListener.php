@@ -189,12 +189,10 @@ class MurderListener implements Listener {
                         }
                     }
                 }
-                //kill damaged
-                $damaged->setHealth(0);
                 //spawn corpse
                 Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
-                //quit damaged silently
-                //$arena->quit($damaged);
+                //kill damaged
+                $damaged->setHealth(0);
             }
             //prevent other types of damage
             $event->setCancelled();

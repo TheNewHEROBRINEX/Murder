@@ -246,13 +246,14 @@ class MurderArena {
                     $player->setHealth($player->getMaxHealth());
                     $player->setFood($player->getMaxFood());
                     if ($silent){
-                        $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
                         $player->setNameTagAlwaysVisible(true);
                         $player->setNameTag($player->getName());
                         $player->setDisplayName($player->getName());
                         $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
                         $player->getInventory()->sendContents($player);
                         $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                    } else {
+                        $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
                     }
                 }
             }
