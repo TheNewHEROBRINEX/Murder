@@ -2,7 +2,6 @@
 
 namespace TheNewHEROBRINE\Murder;
 
-use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -287,7 +286,6 @@ class MurderArena {
                 $player->setButton("");
                 $player->setGamemode($this->plugin->getServer()->getDefaultGamemode());
                 $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
-                echo $player->getName() . PHP_EOL;
             }
         }
             $this->plugin->broadcastMessage($message);
@@ -298,7 +296,6 @@ class MurderArena {
             $this->murderer = null;
             $this->spawnEmerald = 10;
             $this->state = self::GAME_IDLE;
-            echo $this->getWorld()->getName() . PHP_EOL;
             foreach ($this->getWorld()->getEntities() as $entity) {
                 $entity->close();
             }
