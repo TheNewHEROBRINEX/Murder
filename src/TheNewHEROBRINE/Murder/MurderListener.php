@@ -10,6 +10,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\Item;
@@ -85,7 +86,7 @@ class MurderListener implements Listener {
     public function onShoot(DataPacketReceiveEvent $event) {
         $player = $event->getPlayer();
         $packet = $event->getPacket();
-        if ($this->plugin->getArenaByPlayer($player) and $packet instanceof UseItemPacket and $packet->face === -1 and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD){
+        if ($this->plugin->getArenaByPlayer($player) and ($packet instanceof UseItemPacket and $packet->face === -1 or $packet instanceof InteractPacket and $packet->action === InteractPacket::ACTION_RIGHT_CLICK) and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD){
             $nbt = new CompoundTag("", [
                 "Pos" => new ListTag("Pos", [
                     new DoubleTag("", $player->x),
@@ -102,13 +103,12 @@ class MurderListener implements Listener {
                     new FloatTag("", $player->pitch)
                 ]),
             ]);
-
             $projectile = Entity::createEntity($item->getId() == $item::FISHING_ROD ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
             $projectile->setMotion($projectile->getMotion()->multiply(2.5));
             $projectile->spawnToAll();
             $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
             if ($item->getId() == $item::WOODEN_SWORD){
-                $player->getInventory()->remove($player->getInventory()->getItemInHand());
+                $player->getInventory()->setItemInHand(Item::get(Item::AIR));
             }
             $event->setCancelled(true);
         }
