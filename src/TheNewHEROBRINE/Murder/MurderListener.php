@@ -7,6 +7,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerQuitEvent;
@@ -20,6 +21,7 @@ use pocketmine\nbt\tag\ListTag;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\entities\Corpse;
+use TheNewHEROBRINE\Murder\entities\MurderPlayer;
 
 class MurderListener implements Listener {
 
@@ -197,5 +199,9 @@ class MurderListener implements Listener {
             //prevent other types of damage
             $event->setCancelled();
         }
+    }
+
+    public function onPlayerCreation(PlayerCreationEvent $event){
+        $event->setPlayerClass(MurderPlayer::class);
     }
 }

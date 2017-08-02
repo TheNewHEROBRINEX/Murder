@@ -189,10 +189,10 @@ class MurderArena {
         $this->murderer = $this->getPlayers()[$random[0]];
         $this->bystanders[] = $this->getPlayers()[$random[1]];
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
-        $this->murderer->setDataProperty(Entity::DATA_INTERACTIVE_TAG, Entity::DATA_TYPE_STRING, "Lancia");
+        $this->murderer->setButton("Lancia");
         $this->plugin->sendMessage("Sei l'assassino!", $this->murderer);
         $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
-        $this->bystanders[0]->setDataProperty(Entity::DATA_INTERACTIVE_TAG, Entity::DATA_TYPE_STRING, "Spara");
+        $this->bystanders[0]->setButton("Spara");
         $this->bystanders[0]->setFood(6);
         $this->plugin->sendMessage("Sei quello con l'arma!", $this->bystanders[0]);
         $spawns = $this->spawns;
@@ -200,7 +200,7 @@ class MurderArena {
         foreach ($this->players as $player) {
             $player->setGamemode($player::ADVENTURE);
             if ($player !== $this->getMurderer() && $player != $this->bystanders[0]){
-                $this->bystanders[0]->setDataProperty(Entity::DATA_INTERACTIVE_TAG, Entity::DATA_TYPE_STRING, "Spara");
+                $this->bystanders[0]->setButton("Spara");
                 $player->setFood(6);
                 $this->bystanders[] = $player;
             }
@@ -251,6 +251,7 @@ class MurderArena {
                         $player->setDisplayName($player->getName());
                         $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
                         $player->getInventory()->sendContents($player);
+                        $player->setButton("");
                         $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
                     } else {
                         $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
@@ -282,6 +283,7 @@ class MurderArena {
                 $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
                 $player->getInventory()->clearAll();
                 $player->getInventory()->sendContents($player);
+                $player->setButton("");
                 $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
             }
         }

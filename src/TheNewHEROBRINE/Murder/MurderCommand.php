@@ -91,6 +91,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     case "world":
                         $this->getPlugin()->getServer()->loadLevel($args[0]);
                         $sender->teleport($this->getPlugin()->getServer()->getLevelByName($args[0])->getSpawnLocation());
+                        break;
                 }
             }
         }
