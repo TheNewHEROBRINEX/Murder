@@ -252,6 +252,7 @@ class MurderArena {
                         $player->setSkin($this->skins[$player->getName()], $player->getSkinId());
                         $player->getInventory()->sendContents($player);
                         $player->setButton("");
+                        $player->setGamemode($this->plugin->getServer()->getDefaultGamemode());
                         $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
                     } else {
                         $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("quit")));
@@ -284,7 +285,9 @@ class MurderArena {
                 $player->getInventory()->clearAll();
                 $player->getInventory()->sendContents($player);
                 $player->setButton("");
+                $player->setGamemode($this->plugin->getServer()->getDefaultGamemode());
                 $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
+                echo $player->getName() . PHP_EOL;
             }
         }
             $this->plugin->broadcastMessage($message);
@@ -295,8 +298,9 @@ class MurderArena {
             $this->murderer = null;
             $this->spawnEmerald = 10;
             $this->state = self::GAME_IDLE;
+            echo $this->getWorld()->getName() . PHP_EOL;
             foreach ($this->getWorld()->getEntities() as $entity) {
-                $entity->setHealth(0);
+                $entity->close();
             }
     }
 

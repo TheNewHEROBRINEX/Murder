@@ -14,10 +14,12 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\Item;
 use pocketmine\level\sound\LaunchSound;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\DoubleTag;
 use pocketmine\nbt\tag\FloatTag;
 use pocketmine\nbt\tag\ListTag;
+use pocketmine\network\mcpe\protocol\InteractPacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\entities\Corpse;
@@ -168,13 +170,16 @@ class MurderListener implements Listener {
         elseif ($damaged instanceof Player and $arena = $this->plugin->getArenaByPlayer($damaged)){
             //do this only if player is damaged by another one while in game
             if ($arena->isRunning() and $event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof Player){
+                $kill = false;
                 /** @var Player $damager */
                 //if player is attacked directly by the murderer using a wooden sword
                 if (($cause = $event->getCause()) == EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == Item::WOODEN_SWORD){
+                    $kill = true;
                     $arena->broadcastMessage("L'assassino ha ucciso un innocente!");
                 }
                 //do this only if the player is damaged by a projectile (a bystander's gun shoot or a thrown murderer's sword)
                 elseif ($cause == EntityDamageEvent::CAUSE_PROJECTILE){
+                    $kill = true;
                     //if a murderer hits a bystander
                     if ($arena->isMurderer($damager)){
                         $arena->broadcastMessage("L'assassino ha ucciso un innocente!");
@@ -191,17 +196,19 @@ class MurderListener implements Listener {
                         }
                     }
                 }
-                //spawn corpse
-                Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
-                //kill damaged
-                $damaged->setHealth(0);
+                if ($kill){
+                    //spawn corpse
+                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
+                    //kill damaged
+                    $damaged->setHealth(0);
+                }
             }
             //prevent other types of damage
             $event->setCancelled();
         }
     }
 
-    public function onPlayerCreation(PlayerCreationEvent $event){
+    public function onPlayerCreation(PlayerCreationEvent $event) {
         $event->setPlayerClass(MurderPlayer::class);
     }
 }
