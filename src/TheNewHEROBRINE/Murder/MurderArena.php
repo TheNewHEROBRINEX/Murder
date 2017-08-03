@@ -259,6 +259,7 @@ class MurderArena {
                 }
             }
             elseif ($this->isStarting()){
+                unset($this->players[array_search($player, $this->players)]);
                 if (count($this->players) < 2){
                     $this->state = self::GAME_IDLE;
                 }
