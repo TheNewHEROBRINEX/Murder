@@ -286,6 +286,8 @@ class MurderArena {
                 $player->getInventory()->sendContents($player);
                 $player->setButton("");
                 $player->setGamemode($this->plugin->getServer()->getDefaultGamemode());
+                $player->setHealth($player->getMaxHealth());
+                $player->setFood($player->getMaxFood());
                 $player->teleport($this->plugin->getServer()->getDefaultLevel()->getSpawnLocation());
             }
         }
