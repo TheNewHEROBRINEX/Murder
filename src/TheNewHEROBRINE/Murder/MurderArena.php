@@ -75,16 +75,24 @@ class MurderArena {
      * @param Player $player
      */
     public function join(Player $player) {
-        if (!$this->isRunning() && !$this->inArena($player)){
-            $this->players[] = $player;
-            $player->getInventory()->clearAll();
-            $player->getInventory()->sendContents($player);
-            $hub = $this->plugin->getServer()->getLevelByName($this->plugin->getConfig()->get("hub"));
-            $player->teleport($hub->getSpawnLocation());
-            $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
-            if (count($this->players) >= 2 && $this->isIdle()){
-                $this->state = self::GAME_STARTING;
+        if (!$this->isRunning()){
+            if (!$this->plugin->getArenaByPlayer($player)){
+                $this->players[] = $player;
+                $player->getInventory()->clearAll();
+                $player->getInventory()->sendContents($player);
+                $hub = $this->plugin->getServer()->getLevelByName($this->plugin->getConfig()->get("hub"));
+                $player->teleport($hub->getSpawnLocation());
+                $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->plugin->getConfig()->get("join")));
+                if (count($this->players) >= 2 && $this->isIdle()){
+                    $this->state = self::GAME_STARTING;
+                }
             }
+            else {
+                $player->sendMessage(TextFormat::RED . "Sei già in una partita!");
+            }
+        }
+        else {
+            $player->sendMessage(TextFormat::RED . "Partita in corso!");
         }
     }
 
