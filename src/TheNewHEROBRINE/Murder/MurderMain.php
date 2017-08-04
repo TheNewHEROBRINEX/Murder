@@ -98,7 +98,7 @@ class MurderMain extends PluginBase {
      * @param Player $recipient
      */
     public function sendPopup(string $text, Player $recipient) {
-        $recipient->sendPopup(self::MESSAGE_PREFIX . $text);
+        $recipient->sendPopup($text);
     }
 
     /**
