@@ -192,7 +192,7 @@ class MurderArena {
         $this->bystanders[] = $this->getPlayers()[$random[1]];
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->murderer->setButton("Lancia");
-        $this->bystanders[0]->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
+        $this->murderer->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
         $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
         $this->bystanders[0]->setButton("Spara");
         $this->bystanders[0]->setFood(6);
@@ -204,7 +204,7 @@ class MurderArena {
             if ($player !== $this->getMurderer() && $player != $this->bystanders[0]){
                 $player->setButton("Spara");
                 $player->setFood(6);
-                $this->bystanders[0]->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
+                $player->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
                 $this->bystanders[] = $player;
             }
             $spawn = array_shift($spawns);
