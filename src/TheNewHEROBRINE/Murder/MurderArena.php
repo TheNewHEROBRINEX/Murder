@@ -7,6 +7,7 @@ use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
+use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entities\projectiles\MurderKnifeProjectile;
 
 class MurderArena {
@@ -189,11 +190,11 @@ class MurderArena {
         $this->bystanders[] = $this->getPlayers()[$random[1]];
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->murderer->setButton("Lancia");
-        $this->plugin->sendMessage("Sei l'assassino!", $this->murderer);
+        $this->bystanders[0]->addTitle(TextFormat::RED . "Murderer", TextFormat::AQUA . "Uccidi tutti");
         $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
         $this->bystanders[0]->setButton("Spara");
         $this->bystanders[0]->setFood(6);
-        $this->plugin->sendMessage("Sei quello con l'arma!", $this->bystanders[0]);
+        $this->bystanders[0]->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Con un'arma segreta");
         $spawns = $this->spawns;
         shuffle($spawns);
         foreach ($this->players as $player) {
@@ -201,6 +202,7 @@ class MurderArena {
             if ($player !== $this->getMurderer() && $player != $this->bystanders[0]){
                 $player->setButton("Spara");
                 $player->setFood(6);
+                $this->bystanders[0]->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
                 $this->bystanders[] = $player;
             }
             $spawn = array_shift($spawns);
