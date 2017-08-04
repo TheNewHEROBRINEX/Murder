@@ -137,12 +137,7 @@ class MurderArena {
                 $this->start();
                 $this->broadcastMessage("La partita è iniziata!");
             }
-            elseif ($this->countdown > 10 && $this->countdown % 10 == 0){
-                $this->broadcastMessage("La partita inizierà tra {$this->countdown} secondi");
-            }
-            elseif ($this->countdown <= 10){
-                $this->broadcastMessage("La partita inizierà tra {$this->countdown}...");
-            }
+            $this->broadcastPopup(TextFormat::YELLOW . "Inizio tra " . TextFormat::WHITE . $this->countdown . TextFormat::YELLOW . "s");
             $this->countdown--;
         }
 
