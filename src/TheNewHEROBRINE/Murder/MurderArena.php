@@ -111,6 +111,13 @@ class MurderArena {
     }
 
     /**
+     * @param string $msg
+     */
+    public function broadcastPopup(string $msg) {
+        $this->plugin->broadcastPopup($msg, $this->getPlayers());
+    }
+
+    /**
      * @return Player[]
      */
     public function getPlayers(): array {

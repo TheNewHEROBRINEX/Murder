@@ -75,22 +75,42 @@ class MurderMain extends PluginBase {
 
     /**
      * @param string $message
+     * @param Player $recipient
+     */
+    public function sendMessage(string $text, Player $recipient) {
+        $recipient->sendMessage(self::MESSAGE_PREFIX . $text);
+    }
+
+    /**
+     * @param string $message
      * @param null $recipients
      */
-    public function broadcastMessage(string $message, $recipients = null) {
+    public function broadcastMessage(string $text, $recipients = null) {
         if ($recipients === null){
             $recipients = $this->getServer()->getOnlinePlayers();
         }
         foreach ($recipients as $recipient)
-            $this->sendMessage($message, $recipient);
+            $this->sendMessage($text, $recipient);
     }
 
     /**
      * @param string $message
      * @param Player $recipient
      */
-    public function sendMessage(string $message, Player $recipient) {
-        $recipient->sendMessage(self::MESSAGE_PREFIX . $message);
+    public function sendPopup(string $text, Player $recipient) {
+        $recipient->sendPopup(self::MESSAGE_PREFIX . $text);
+    }
+
+    /**
+     * @param string $message
+     * @param null $recipients
+     */
+    public function broadcastPopup(string $text, $recipients = null) {
+        if ($recipients === null){
+            $recipients = $this->getServer()->getOnlinePlayers();
+        }
+        foreach ($recipients as $recipient)
+            $this->sendPopup($text, $recipient);
     }
 
     /**
