@@ -199,7 +199,7 @@ class MurderArena {
         foreach ($this->players as $player) {
             $player->setGamemode($player::ADVENTURE);
             if ($player !== $this->getMurderer() && $player != $this->bystanders[0]){
-                $this->bystanders[0]->setButton("Spara");
+                $player->setButton("Spara");
                 $player->setFood(6);
                 $this->bystanders[] = $player;
             }
