@@ -197,7 +197,7 @@ class MurderArena {
         $this->bystanders[] = $this->getPlayers()[$random[1]];
         $this->murderer->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->murderer->setButton("Lancia");
-        $this->bystanders[0]->addTitle(TextFormat::RED . "Murderer", TextFormat::AQUA . "Uccidi tutti");
+        $this->bystanders[0]->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
         $this->bystanders[0]->getInventory()->setItem(0, Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
         $this->bystanders[0]->setButton("Spara");
         $this->bystanders[0]->setFood(6);
