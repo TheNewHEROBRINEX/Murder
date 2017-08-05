@@ -51,7 +51,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     return false;
                 }
 
-                if (count($args) === 2){
+                if (count($args) !== 1){
                     throw new InvalidCommandSyntaxException();
                 }
 
@@ -71,7 +71,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     return false;
                 }
 
-                if (!count($args)){
+                if (count($args)){
                     throw new InvalidCommandSyntaxException();
                 }
 
