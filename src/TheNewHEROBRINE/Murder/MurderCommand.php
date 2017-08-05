@@ -76,7 +76,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                 }
 
                 if ($arena = $this->getPlugin()->getArenaByPlayer($sender)){
-                    $arena->quit($sender);
+                    $arena->quit($sender, true);
                 }
                 else{
                     $sender->sendMessage(TextFormat::RED . "Non sei in nessuna partita di Murder!");
