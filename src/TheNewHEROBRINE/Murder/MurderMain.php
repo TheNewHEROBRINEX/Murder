@@ -3,9 +3,11 @@
 namespace TheNewHEROBRINE\Murder;
 
 use pocketmine\entity\Entity;
+use pocketmine\level\Level;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
+use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entities\Corpse;
 use TheNewHEROBRINE\Murder\entities\projectiles\MurderGunProjectile;
 use TheNewHEROBRINE\Murder\entities\projectiles\MurderKnifeProjectile;
@@ -13,29 +15,45 @@ use TheNewHEROBRINE\Murder\entities\projectiles\MurderKnifeProjectile;
 class MurderMain extends PluginBase {
 
     const MESSAGE_PREFIX = "§7[§eMurder§7]§r§f ";
+
     /** @var Config $config */
     private $config;
 
     /** @var Config $arenasCfg */
     private $arenasCfg;
 
+    /** @var  MurderArena[] $arenas */
+    private $arenas = [];
+
     /** @var MurderListener $listener */
     private $listener;
 
-    /** @var  MurderArena[] $arenas */
-    private $arenas = [];
+    /** @var Level $hub */
+    private $hub;
+
+    /** @var int $countdown */
+    private $countdown;
+
+    /** @var string $joinMessage */
+    private $joinMessage;
+
+    /** @var string $quitMessage */
+    private $quitMessage;
 
     public function onEnable() {
         @mkdir($this->getDataFolder());
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->getServer()->getCommandMap()->register("murder", new MurderCommand($this));
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, [
-            "join" => "§9{player}§f joined the game",
-            "quit" => "§9{player}§f left the game",
+            "join" => TextFormat::BLUE . "{player}" . TextFormat::WHITE . "è entrato in partita",
+            "quit" => TextFormat::BLUE . "{player}" . TextFormat::WHITE . "è uscito dalla partita",
             "countdown" => 90,
             "maxGameTime" => 1200,
             "hub" => "MurderHub"]
         );
+        $this->countdown = $this->getConfig()->get("countdown", 90);
+        $this->joinMessage = $this->getConfig()->get("join", TextFormat::BLUE . "{player}" . TextFormat::WHITE . "è entrato in partita");
+        $this->quitMessage = $this->getConfig()->get("quit", TextFormat::BLUE . "{player}" . TextFormat::WHITE . "è uscito dalla partita");
         $hub = $this->getConfig()->get("hub", "MurderHub");
         if (!$this->getServer()->isLevelGenerated($hub)){
             $this->getServer()->getLogger()->error("Il mondo $hub non esiste. Cambia l'hub nelle config");
@@ -44,6 +62,7 @@ class MurderMain extends PluginBase {
         }
         else{
             $this->getServer()->loadLevel($hub);
+            $this->hub = $this->getServer()->getLevelByName($hub);
         }
         $this->arenasCfg = new Config($this->getDataFolder() . "arenas.yml");
         foreach ($this->getArenasCfg()->getAll() as $name => $arena) {
@@ -56,11 +75,14 @@ class MurderMain extends PluginBase {
         Entity::registerEntity(Corpse::class, true);
     }
 
-    /**
-     * @return Config
-     */
-    public function getArenasCfg(): Config {
-        return $this->arenasCfg;
+    public function onDisable() {
+        foreach ($this->getServer()->getLevels() as $level) {
+            foreach ($level->getEntities() as $entity) {
+                if ($entity instanceof MurderGunProjectile or $entity instanceof MurderKnifeProjectile or $entity instanceof Corpse){
+                    $entity->kill();
+                }
+            }
+        }
     }
 
     /**
@@ -74,7 +96,7 @@ class MurderMain extends PluginBase {
     }
 
     /**
-     * @param string $message
+     * @param string $text
      * @param Player $recipient
      */
     public function sendMessage(string $text, Player $recipient) {
@@ -82,8 +104,8 @@ class MurderMain extends PluginBase {
     }
 
     /**
-     * @param string $message
-     * @param null $recipients
+     * @param string $text
+     * @param Player[]|null $recipients
      */
     public function broadcastMessage(string $text, $recipients = null) {
         if ($recipients === null){
@@ -94,7 +116,7 @@ class MurderMain extends PluginBase {
     }
 
     /**
-     * @param string $message
+     * @param string $text
      * @param Player $recipient
      */
     public function sendPopup(string $text, Player $recipient) {
@@ -102,8 +124,8 @@ class MurderMain extends PluginBase {
     }
 
     /**
-     * @param string $message
-     * @param null $recipients
+     * @param string $text
+     * @param Player[]|null $recipients
      */
     public function broadcastPopup(string $text, $recipients = null) {
         if ($recipients === null){
@@ -127,6 +149,25 @@ class MurderMain extends PluginBase {
     }
 
     /**
+     * @param string $name
+     * @return MurderArena|null
+     */
+    public function getArenaByName(string $name) {
+        if (isset($this->getArenas()[$name])){
+            return $this->getArenas()[$name];
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getArenasCfg(): Config {
+        return $this->arenasCfg;
+    }
+
+    /**
      * @return MurderArena[]
      */
     public function getArenas(): array {
@@ -134,15 +175,31 @@ class MurderMain extends PluginBase {
     }
 
     /**
-     * @param string $name
-     * @return MurderArena|null
+     * @return int
      */
-    public function getArenaByName(string $name) {
-        if (isset($this->arenas[$name])){
-            return $this->arenas[$name];
-        }
+    public function getCountdown(): int {
+        return $this->countdown;
+    }
 
-        return null;
+    /**
+     * @return Level
+     */
+    public function getHub(): Level {
+        return $this->hub;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJoinMessage(): string {
+        return $this->joinMessage;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQuitMessage(): string {
+        return $this->quitMessage;
     }
 
     /**
@@ -150,13 +207,5 @@ class MurderMain extends PluginBase {
      */
     public function getListener(): MurderListener {
         return $this->listener;
-    }
-
-    public function onDisable() {
-        foreach ($this->getServer()->getLevels() as $level)
-            foreach ($level->getEntities() as $entity)
-                if ($entity instanceof MurderGunProjectile or $entity instanceof MurderKnifeProjectile){
-                    $entity->kill();
-                }
     }
 }

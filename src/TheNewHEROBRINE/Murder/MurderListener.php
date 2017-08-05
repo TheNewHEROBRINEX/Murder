@@ -52,28 +52,28 @@ class MurderListener implements Listener {
         $y = $block->getFloorY() + 1;
         $z = $block->getZ();
         if (isset($this->setspawns[$name][$world])){
-            $spawns = $this->plugin->getArenasCfg()->getNested("$world.spawns");
+            $spawns = $this->getPlugin()->getArenasCfg()->getNested("$world.spawns");
             $spawns[] = [$x, $y, $z];
-            $this->plugin->getArenasCfg()->setNested("$world.spawns", $spawns);
-            $this->plugin->sendMessage("§eSpawn Murder del mondo §f$world §esettato a§f $x $y $z. " . ((--$this->setspawns[$name][$world] == 1) ? "§eRimane§f " : "§eRimangono§f ") . $this->setspawns[$name][$world] . " §espawn da settare", $player);
+            $this->getPlugin()->getArenasCfg()->setNested("$world.spawns", $spawns);
+            $this->getPlugin()->sendMessage("§eSpawn Murder del mondo §f$world §esettato a§f $x $y $z. " . ((--$this->setspawns[$name][$world] == 1) ? "§eRimane§f " : "§eRimangono§f ") . $this->setspawns[$name][$world] . " §espawn da settare", $player);
             if ($this->setspawns[$name][$world] <= 0){
                 unset($this->setspawns[$name][$world]);
-                $this->plugin->getArenasCfg()->save();
-                $this->plugin->sendMessage("§eSettaggio di§f {$this->setespawns[$name][$world]} §eemerald spawn per il mondo§f {$player->getLevel()->getFolderName()} §einiziato", $player);
+                $this->getPlugin()->getArenasCfg()->save();
+                $this->getPlugin()->sendMessage("§eSettaggio di§f {$this->setespawns[$name][$world]} §eemerald spawn per il mondo§f {$player->getLevel()->getFolderName()} §einiziato", $player);
             }
             return;
         }
 
         if (isset($this->setespawns[$name][$world])){
-            $espawns = $this->plugin->getArenasCfg()->getNested("$world.espawns");
+            $espawns = $this->getPlugin()->getArenasCfg()->getNested("$world.espawns");
             $espawns[] = [$x, $y, $z];
-            $this->plugin->getArenasCfg()->setNested("$world.espawns", $espawns);
-            $this->plugin->sendMessage("§eEmerald spawn Murder del mondo §f$world §esettato a§f $x $y $z. " . ((--$this->setespawns[$name][$world] == 1) ? "§eRimane§f " : "§eRimangono§f ") . $this->setespawns[$name][$world] . "§e emerald spawn da settare", $player);
+            $this->getPlugin()->getArenasCfg()->setNested("$world.espawns", $espawns);
+            $this->getPlugin()->sendMessage("§eEmerald spawn Murder del mondo §f$world §esettato a§f $x $y $z. " . ((--$this->setespawns[$name][$world] == 1) ? "§eRimane§f " : "§eRimangono§f ") . $this->setespawns[$name][$world] . "§e emerald spawn da settare", $player);
             if ($this->setespawns[$name][$world] <= 0){
                 unset($this->setespawns[$name][$world]);
-                $this->plugin->getArenasCfg()->save();
+                $this->getPlugin()->getArenasCfg()->save();
             }
-            $this->plugin->addArena($world, $this->plugin->getArenasCfg()->getNested("$world.spawns"), $this->plugin->getArenasCfg()->getNested("$world.espawns"));
+            $this->getPlugin()->addArena($world, $this->getPlugin()->getArenasCfg()->getNested("$world.spawns"), $this->getPlugin()->getArenasCfg()->getNested("$world.espawns"));
         }
 
     }
@@ -84,7 +84,7 @@ class MurderListener implements Listener {
     public function onShoot(DataPacketReceiveEvent $event) {
         $player = $event->getPlayer();
         $packet = $event->getPacket();
-        if ($this->plugin->getArenaByPlayer($player) and ($packet instanceof UseItemPacket and $packet->face === -1 or $packet instanceof InteractPacket and $packet->action === InteractPacket::ACTION_RIGHT_CLICK) and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD){
+        if ($this->getPlugin()->getArenaByPlayer($player) and ($packet instanceof UseItemPacket and $packet->face === -1 or $packet instanceof InteractPacket and $packet->action === InteractPacket::ACTION_RIGHT_CLICK) and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD){
             $nbt = new CompoundTag("", [
                 "Pos" => new ListTag("Pos", [
                     new DoubleTag("", $player->x),
@@ -116,7 +116,7 @@ class MurderListener implements Listener {
      * @param PlayerQuitEvent $event
      */
     public function onQuit(PlayerQuitEvent $event) {
-        if ($arena = $this->plugin->getArenaByPlayer($player = $event->getPlayer())){
+        if ($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer())){
             $arena->quit($player);
         }
     }
@@ -128,14 +128,14 @@ class MurderListener implements Listener {
         $inv = $event->getInventory();
         $player = $inv->getHolder();
         $item = $event->getItem()->getItem();
-        if ($player instanceof Player and $arena = $this->plugin->getArenaByPlayer($player) and $item->getId() == Item::EMERALD and $inv->contains(Item::get(Item::EMERALD, -1, 4))){
+        if ($player instanceof Player and $arena = $this->getPlugin()->getArenaByPlayer($player) and $item->getId() == Item::EMERALD and $inv->contains(Item::get(Item::EMERALD, -1, 4))){
             if ($arena->isBystander($player) and !$inv->contains(Item::get(Item::FISHING_ROD, -1, 1))){
                 $inv->addItem(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
-                $this->plugin->sendMessage("Hai ricevuto la pistola!", $player);
+                $this->getPlugin()->sendMessage("Hai ricevuto la pistola!", $player);
             }
             elseif ($arena->isMurderer($player)){
                 $inv->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
-                $this->plugin->sendMessage("Hai ricevuto un altro coltello!", $player);
+                $this->getPlugin()->sendMessage("Hai ricevuto un altro coltello!", $player);
             }
             $inv->remove(Item::get(Item::EMERALD));
             $event->setCancelled();
@@ -148,7 +148,7 @@ class MurderListener implements Listener {
      * @param PlayerDeathEvent $event
      */
     public function onDeath(PlayerDeathEvent $event) {
-        if ($arena = $this->plugin->getArenaByPlayer($player = $event->getPlayer())){
+        if ($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer())){
             $arena->quit($player, true);
             $event->setDrops([]);
             $event->setDeathMessage("");
@@ -165,7 +165,7 @@ class MurderListener implements Listener {
             $event->setCancelled();
         }
         //do this only for players that are currently playing murder
-        elseif ($damaged instanceof Player and $arena = $this->plugin->getArenaByPlayer($damaged)){
+        elseif ($damaged instanceof Player and $arena = $this->getPlugin()->getArenaByPlayer($damaged)){
             //do this only if player is damaged by another one while in game
             if ($arena->isRunning() and $event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof Player){
                 $kill = false;
@@ -206,7 +206,17 @@ class MurderListener implements Listener {
         }
     }
 
+    /**
+     * @param PlayerCreationEvent $event
+     */
     public function onPlayerCreation(PlayerCreationEvent $event) {
         $event->setPlayerClass(MurderPlayer::class);
+    }
+
+    /**
+     * @return MurderMain
+     */
+    public function getPlugin(): MurderMain {
+        return $this->plugin;
     }
 }
