@@ -2,6 +2,7 @@
 
 namespace TheNewHEROBRINE\Murder;
 
+use pocketmine\entity\Effect;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -165,40 +166,33 @@ class MurderListener implements Listener {
             $event->setCancelled();
         }
         //do this only for players that are currently playing murder
-        elseif ($damaged instanceof Player and $arena = $this->getPlugin()->getArenaByPlayer($damaged)){
+        elseif ($damaged instanceof MurderPlayer and $arena = $this->getPlugin()->getArenaByPlayer($damaged)){
             //do this only if player is damaged by another one while in game
-            if ($arena->isRunning() and $event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof Player){
+            if ($arena->isRunning() and $event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof MurderPlayer){
                 $kill = false;
-                /** @var Player $damager */
+                /** @var MurderPlayer $damager */
                 //if player is attacked directly by the murderer using a wooden sword
                 if (($cause = $event->getCause()) == EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == Item::WOODEN_SWORD){
-                    $kill = true;
-                    $arena->broadcastMessage("L'assassino ha ucciso un innocente!");
+                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
+                    $damaged->setHealth(0);
                 }
                 //do this only if the player is damaged by a projectile (a bystander's gun shoot or a thrown murderer's sword)
                 elseif ($cause == EntityDamageEvent::CAUSE_PROJECTILE){
-                    $kill = true;
-                    //if a murderer hits a bystander
-                    if ($arena->isMurderer($damager)){
-                        $arena->broadcastMessage("L'assassino ha ucciso un innocente!");
-                    }
+                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
+                    $damaged->setHealth(0);
                     //if a bystander hits the murderer or another bystander
-                    else{
+                    if ($arena->isBystander($damager)){
                         //murderer
                         if ($arena->isMurderer($damaged)){
-                            $arena->broadcastMessage("L'assassino è stato ucciso!");
+                            $arena->broadcastMessage($damager->getMurderName() . " ha ucciso l'assassino " . $damaged->getMurderName() . "!");
                         }
                         //bystander
                         else{
-                            $arena->broadcastMessage("Un innocente ha ucciso un innocente *facepalm*!");
+                            $arena->broadcastMessage($damager->getDisplayName() . " ha ucciso un innocente!");
+                            $damager->getInventory()->remove(Item::get(Item::FISHING_ROD));
+                            $damager->addEffect(Effect::getEffect(Effect::BLINDNESS)->setDuration(20 * 20));
                         }
                     }
-                }
-                if ($kill){
-                    //spawn corpse
-                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
-                    //kill damaged
-                    $damaged->setHealth(0);
                 }
             }
             //prevent other types of damage

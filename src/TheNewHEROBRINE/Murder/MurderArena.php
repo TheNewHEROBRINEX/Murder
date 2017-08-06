@@ -26,8 +26,8 @@ class MurderArena {
     /** @var int $countdown */
     private $countdown;
 
-    /** @var int $maxTime */
-    private $maxTime;
+ // /** @var int $maxTime */
+ // private $maxTime;
 
     /** @var int $status */
     private $state = self::GAME_IDLE;
@@ -174,10 +174,10 @@ class MurderArena {
         $this->murderer = $this->getPlayers()[$random[0]];
         $this->bystanders[] = $this->getPlayers()[$random[1]];
         $this->getMurderer()->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
-        $this->getMurderer()->setButton("Lancia");
+        $this->getMurderer()->setButtonText("Lancia");
         $this->getMurderer()->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
         $this->getBystanders()[0]->getInventory()->setItem(0, Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
-        $this->getBystanders()[0]->setButton("Spara");
+        $this->getBystanders()[0]->setButtonText("Spara");
         $this->getBystanders()[0]->setFood(6);
         $this->getBystanders()[0]->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Con un'arma segreta");
         $spawns = $this->spawns;
@@ -185,7 +185,7 @@ class MurderArena {
         foreach ($this->getPlayers() as $player) {
             $player->setGamemode($player::ADVENTURE);
             if ($player !== $this->getMurderer() && $player != $this->getBystanders()[0]){
-                $player->setButton("Spara");
+                $player->setButtonText("Spara");
                 $player->setFood(6);
                 $player->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
                 $this->bystanders[] = $player;
@@ -239,7 +239,7 @@ class MurderArena {
             }
             $player->getInventory()->clearAll();
             $player->getInventory()->sendContents($player);
-            $player->setButton("");
+            $player->setButtonText("");
             $player->setGamemode($this->getPlugin()->getServer()->getDefaultGamemode());
             $player->setHealth($player->getMaxHealth());
             $player->setFood($player->getMaxFood());

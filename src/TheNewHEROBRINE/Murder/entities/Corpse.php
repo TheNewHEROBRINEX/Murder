@@ -19,31 +19,32 @@ class Corpse extends Human {
      * @param Player $player
      */
     public function __construct(Level $level, CompoundTag $nbt, Player $player = null) {
-        if (!$player){
-            $this->kill();
-            return;
+        if ($player === null){
+            $this->close();
         }
-        $nbt = new CompoundTag("", [
-            "Pos" => new ListTag("Pos", [
-                new DoubleTag("", $player->x),
-                new DoubleTag("", $player->y),
-                new DoubleTag("", $player->z)
-            ]),
-            "Motion" => new ListTag("Motion", [
-                new DoubleTag("", 0),
-                new DoubleTag("", 0),
-                new DoubleTag("", 0)
-            ]),
-            "Rotation" => new ListTag("Rotation", [
-                new FloatTag("", $player->yaw),
-                new FloatTag("", $player->pitch)
-            ]),
-        ]);
-        $player->saveNBT();
-        $nbt->Inventory = clone $player->namedtag->Inventory;
-        $nbt->Skin = new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkinData()), "Name" => new StringTag("Name", $player->getSkinId())]);
-        parent::__construct($level, $nbt);
-        $this->setDataProperty(Human::DATA_PLAYER_BED_POSITION, Human::DATA_TYPE_POS, [(int)$player->x, (int)$player->y, (int)$player->z]);
-        $this->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
+        else{
+            $nbt = new CompoundTag("", [
+                "Pos" => new ListTag("Pos", [
+                    new DoubleTag("", $player->x),
+                    new DoubleTag("", $player->y),
+                    new DoubleTag("", $player->z)
+                ]),
+                "Motion" => new ListTag("Motion", [
+                    new DoubleTag("", 0),
+                    new DoubleTag("", 0),
+                    new DoubleTag("", 0)
+                ]),
+                "Rotation" => new ListTag("Rotation", [
+                    new FloatTag("", $player->yaw),
+                    new FloatTag("", $player->pitch)
+                ]),
+            ]);
+            $player->saveNBT();
+            $nbt->Inventory = clone $player->namedtag->Inventory;
+            $nbt->Skin = new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkinData()), "Name" => new StringTag("Name", $player->getSkinId())]);
+            parent::__construct($level, $nbt);
+            $this->setDataProperty(Human::DATA_PLAYER_BED_POSITION, Human::DATA_TYPE_POS, [(int)$player->x, (int)$player->y, (int)$player->z]);
+            $this->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
+        }
     }
 }

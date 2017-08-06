@@ -9,8 +9,10 @@ class MurderTimer extends PluginTask {
      * @param int $tick
      */
     public function onRun(int $tick) {
-        foreach ($this->getOwner()->getArenas() as $arena) {
-            $arena->tick();
+        if ($this->owner instanceof MurderMain){
+            foreach ($this->owner->getArenas() as $arena) {
+                $arena->tick();
+            }
         }
     }
 }
