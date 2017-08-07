@@ -14,7 +14,7 @@ use TheNewHEROBRINE\Murder\entities\projectiles\MurderKnifeProjectile;
 
 class MurderMain extends PluginBase {
 
-    const MESSAGE_PREFIX = "§7[§eMurder§7]§r§f ";
+    const MESSAGE_PREFIX = TextFormat::GRAY . "[" . TextFormat::YELLOW . "Murder" . TextFormat::GRAY . "]" . TextFormat::WHITE;
 
     /** @var Config $config */
     private $config;
@@ -100,7 +100,7 @@ class MurderMain extends PluginBase {
      * @param Player $recipient
      */
     public function sendMessage(string $text, Player $recipient) {
-        $recipient->sendMessage(self::MESSAGE_PREFIX . $text);
+        $recipient->sendMessage(self::MESSAGE_PREFIX . " " . $text);
     }
 
     /**

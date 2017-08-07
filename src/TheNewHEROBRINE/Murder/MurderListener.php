@@ -135,15 +135,17 @@ class MurderListener implements Listener {
             if ($arena->isBystander($player) and !$inv->contains(Item::get(Item::FISHING_ROD, -1, 1))){
                 $inv->addItem(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
                 $this->getPlugin()->sendMessage("Hai ricevuto la pistola!", $player);
+                $inv->remove(Item::get(Item::EMERALD));
+                $inv->sendContents($player);
             }
             elseif ($arena->isMurderer($player)){
                 $inv->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
                 $this->getPlugin()->sendMessage("Hai ricevuto un altro coltello!", $player);
+                $inv->remove(Item::get(Item::EMERALD));
+                $inv->sendContents($player);
             }
-            $inv->remove(Item::get(Item::EMERALD));
             $event->setCancelled();
             $event->getItem()->kill();
-            $inv->sendContents($player);
         }
     }
 

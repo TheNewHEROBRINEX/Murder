@@ -81,7 +81,16 @@ class MurderArena {
             $this->countdown--;
         }
 
-        if ($this->isRunning()){
+        elseif ($this->isRunning()){
+            $padding = str_repeat(" ", 55);
+            foreach ($this->getPlayers() as $player){
+                $tmp = $player->getInventory()->all(Item::get(Item::EMERALD, -1));
+                $player->sendPopup(
+                    $padding . MurderMain::MESSAGE_PREFIX . "\n" .
+                    $padding . TextFormat::AQUA . "Ruolo: " . TextFormat::GREEN . $this->getRole($player) . "\n" .
+                    $padding . TextFormat::AQUA . "Smeraldi: " . TextFormat::YELLOW . ($player->getInventory()->contains(Item::get(Item::EMERALD, -1)) ? array_shift($tmp)->getCount() : 0) . "/5\n" .
+                    $padding . TextFormat::AQUA . "Identità: " . "\n$padding" . TextFormat::GREEN . $player->getDisplayName() . str_repeat("\n", 3));
+            }
             foreach ($this->getMurderer()->getLevel()->getNearbyEntities($this->getMurderer()->getBoundingBox()->grow(1, 0.5, 1), $this->getMurderer()) as $entity) {
                 if ($entity instanceof MurderKnifeProjectile){
                     $this->getMurderer()->getInventory()->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
@@ -261,6 +270,17 @@ class MurderArena {
      */
     public function inArena(Player $player): bool {
         return in_array($player, $this->getPlayers());
+    }
+
+    /**
+     * @param Player $player
+     * @return string|null
+     */
+    public function getRole(Player $player): string {
+        if ($this->inArena($player)){
+            return $this->isMurderer($player) ? "Murderer" : "Bystander";
+        }
+        return null;
     }
 
     /**

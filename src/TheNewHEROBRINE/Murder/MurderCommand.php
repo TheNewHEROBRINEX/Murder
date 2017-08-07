@@ -100,18 +100,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                 $this->getPlugin()->getArenasCfg()->setNested("$world.espawns", []);
                 $this->getPlugin()->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getFolderName()} §einiziato", $sender);
                 return true;
-
-            case "popup":
-                $text = str_repeat(" ", (int)$args[0]) . "Ciao\n\n";
-                $sender->sendPopup($text);
-                return true;
-
-
-            case "tip":
-                $text = str_repeat(" ", (int)$args[0]) . "Ciao";
-                $sender->sendTip($text);
-                return true;
-
+                
             default:
                 throw new InvalidCommandSyntaxException();
         }
