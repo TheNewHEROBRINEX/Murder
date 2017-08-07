@@ -10,6 +10,7 @@ use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\event\player\PlayerDeathEvent;
+use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -143,6 +144,15 @@ class MurderListener implements Listener {
             $event->setCancelled();
             $event->getItem()->kill();
             $inv->sendContents($player);
+        }
+    }
+
+    /**
+     * @param PlayerDropItemEvent $event
+     */
+    public function onItemDrop(PlayerDropItemEvent $event){
+        if ($this->getPlugin()->getArenaByPlayer($event->getPlayer())){
+            $event->setCancelled();
         }
     }
 
