@@ -22,6 +22,7 @@ use pocketmine\nbt\tag\ListTag;
 use pocketmine\network\mcpe\protocol\InteractPacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\Player;
+use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entities\Corpse;
 use TheNewHEROBRINE\Murder\entities\MurderPlayer;
 
@@ -169,7 +170,6 @@ class MurderListener implements Listener {
         elseif ($damaged instanceof MurderPlayer and $arena = $this->getPlugin()->getArenaByPlayer($damaged)){
             //do this only if player is damaged by another one while in game
             if ($arena->isRunning() and $event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof MurderPlayer){
-                $kill = false;
                 /** @var MurderPlayer $damager */
                 //if player is attacked directly by the murderer using a wooden sword
                 if (($cause = $event->getCause()) == EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == Item::WOODEN_SWORD){
@@ -178,21 +178,21 @@ class MurderListener implements Listener {
                 }
                 //do this only if the player is damaged by a projectile (a bystander's gun shoot or a thrown murderer's sword)
                 elseif ($cause == EntityDamageEvent::CAUSE_PROJECTILE){
-                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
-                    $damaged->setHealth(0);
                     //if a bystander hits the murderer or another bystander
                     if ($arena->isBystander($damager)){
                         //murderer
                         if ($arena->isMurderer($damaged)){
-                            $arena->broadcastMessage($damager->getMurderName() . " ha ucciso l'assassino " . $damaged->getMurderName() . "!");
+                            $arena->broadcastMessage(TextFormat::BLUE . $damager->getMurderName() . TextFormat::WHITE . " ha ucciso l'assassino " . TextFormat::BLUE . $damaged->getMurderName() . TextFormat::WHITE . "!");
                         }
                         //bystander
                         else{
-                            $arena->broadcastMessage($damager->getDisplayName() . " ha ucciso un innocente!");
+                            $arena->broadcastMessage(TextFormat::BLUE . $damager->getDisplayName() . TextFormat::WHITE . " ha ucciso un innocente!");
                             $damager->getInventory()->remove(Item::get(Item::FISHING_ROD));
                             $damager->addEffect(Effect::getEffect(Effect::BLINDNESS)->setDuration(20 * 20));
                         }
                     }
+                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
+                    $damaged->setHealth(0);
                 }
             }
             //prevent other types of damage
