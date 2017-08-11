@@ -11,6 +11,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
+use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -131,19 +132,17 @@ class MurderListener implements Listener {
         $inv = $event->getInventory();
         $player = $inv->getHolder();
         $item = $event->getItem()->getItem();
-        if ($player instanceof Player and $arena = $this->getPlugin()->getArenaByPlayer($player) and $item->getId() == Item::EMERALD and $inv->contains(Item::get(Item::EMERALD, -1, 4))){
-            if ($arena->isBystander($player) and !$inv->contains(Item::get(Item::FISHING_ROD, -1, 1))){
+        if ($player instanceof Player and $arena = $this->getPlugin()->getArenaByPlayer($player) and $item->getId() == Item::EMERALD and $inv->contains(Item::get(Item::EMERALD, -1, 4)) and !$inv->contains(Item::get(Item::FISHING_ROD, -1, 1))){
+            if ($arena->isBystander($player)){
                 $inv->addItem(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
                 $this->getPlugin()->sendMessage("Hai ricevuto la pistola!", $player);
-                $inv->remove(Item::get(Item::EMERALD));
-                $inv->sendContents($player);
             }
             elseif ($arena->isMurderer($player)){
                 $inv->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
                 $this->getPlugin()->sendMessage("Hai ricevuto un altro coltello!", $player);
-                $inv->remove(Item::get(Item::EMERALD));
-                $inv->sendContents($player);
             }
+            $inv->remove(Item::get(Item::EMERALD));
+            $inv->sendContents($player);
             $event->setCancelled();
             $event->getItem()->kill();
         }
@@ -154,6 +153,16 @@ class MurderListener implements Listener {
      */
     public function onItemDrop(PlayerDropItemEvent $event){
         if ($this->getPlugin()->getArenaByPlayer($event->getPlayer())){
+            $event->setCancelled();
+        }
+    }
+
+    /**
+     * @param PlayerExhaustEvent $event
+     */
+    public function onExhaust(PlayerExhaustEvent $event){
+        $player = $event->getPlayer();
+        if ($player instanceof Player and $this->getPlugin()->getArenaByPlayer($player)){
             $event->setCancelled();
         }
     }
