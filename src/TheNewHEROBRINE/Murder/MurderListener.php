@@ -15,6 +15,7 @@ use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\Item;
 use pocketmine\level\sound\LaunchSound;
 use pocketmine\nbt\tag\CompoundTag;
@@ -129,19 +130,21 @@ class MurderListener implements Listener {
      * @param InventoryPickupItemEvent $event
      */
     public function onEmeraldPickup(InventoryPickupItemEvent $event) {
+        /** @var PlayerInventory $inv */
         $inv = $event->getInventory();
         $player = $inv->getHolder();
         $item = $event->getItem()->getItem();
         if ($player instanceof Player and $arena = $this->getPlugin()->getArenaByPlayer($player) and $item->getId() == Item::EMERALD and $inv->contains(Item::get(Item::EMERALD, -1, 4)) and !$inv->contains(Item::get(Item::FISHING_ROD, -1, 1))){
             if ($arena->isBystander($player)){
-                $inv->addItem(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
+                $inv->addItem($item = Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
                 $this->getPlugin()->sendMessage("Hai ricevuto la pistola!", $player);
             }
             elseif ($arena->isMurderer($player)){
                 $inv->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
                 $this->getPlugin()->sendMessage("Hai ricevuto un altro coltello!", $player);
             }
-            $inv->remove(Item::get(Item::EMERALD));
+            $inv->setHotbarSlotIndex(0, $inv->first($item));
+            $inv->removeItem(Item::get(Item::EMERALD, -1, 4));
             $inv->sendContents($player);
             $event->setCancelled();
             $event->getItem()->kill();

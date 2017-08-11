@@ -84,11 +84,10 @@ class MurderArena {
         elseif ($this->isRunning()){
             $padding = str_repeat(" ", 55);
             foreach ($this->getPlayers() as $player){
-                $tmp = $player->getInventory()->all(Item::get(Item::EMERALD, -1));
                 $player->sendPopup(
                     $padding . MurderMain::MESSAGE_PREFIX . "\n" .
                     $padding . TextFormat::AQUA . "Ruolo: " . TextFormat::GREEN . $this->getRole($player) . "\n" .
-                    $padding . TextFormat::AQUA . "Smeraldi: " . TextFormat::YELLOW . ($player->getInventory()->contains(Item::get(Item::EMERALD, -1)) ? array_shift($tmp)->getCount() : 0) . "/5\n" .
+                    $padding . TextFormat::AQUA . "Smeraldi: " . TextFormat::YELLOW . (($index = $player->getInventory()->first(Item::get(Item::EMERALD, -1))) !== -1 ? $player->getInventory()->getItem($index)->getCount() : 0) . "/5\n" .
                     $padding . TextFormat::AQUA . "Identità: " . "\n$padding" . TextFormat::GREEN . $player->getDisplayName() . str_repeat("\n", 3));
             }
             foreach ($this->getMurderer()->getLevel()->getNearbyEntities($this->getMurderer()->getBoundingBox()->grow(1, 0.5, 1), $this->getMurderer()) as $entity) {
@@ -182,10 +181,11 @@ class MurderArena {
         shuffle($random);
         $this->murderer = $this->getPlayers()[$random[0]];
         $this->bystanders[] = $this->getPlayers()[$random[1]];
-        $this->getMurderer()->getInventory()->setItem(0, Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
+        $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->getMurderer()->setButtonText("Lancia");
+        $this->getMurderer()->setFood($this->murderer->getMaxFood());
         $this->getMurderer()->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
-        $this->getBystanders()[0]->getInventory()->setItem(0, Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
+        $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
         $this->getBystanders()[0]->setButtonText("Spara");
         $this->getBystanders()[0]->setFood(6);
         $this->getBystanders()[0]->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Con un'arma segreta");
