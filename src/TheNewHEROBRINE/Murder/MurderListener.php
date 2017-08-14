@@ -140,7 +140,7 @@ class MurderListener implements Listener {
                 $this->getPlugin()->sendMessage("Hai ricevuto la pistola!", $player);
             }
             elseif ($arena->isMurderer($player)){
-                $inv->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
+                $inv->addItem($item = Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
                 $this->getPlugin()->sendMessage("Hai ricevuto un altro coltello!", $player);
             }
             $inv->setHotbarSlotIndex(0, $inv->first($item));

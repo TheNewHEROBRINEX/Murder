@@ -110,20 +110,22 @@ class MurderArena {
     public function join(Player $player) {
         if (!$this->isRunning()){
             if (!$this->getPlugin()->getArenaByPlayer($player)){
-                $this->players[] = $player;
-                $player->getInventory()->clearAll();
-                $player->getInventory()->sendContents($player);
-                $player->teleport($this->getPlugin()->getHub()->getSpawnLocation());
-                $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->getPlugin()->getJoinMessage()));
-                if (count($this->getPlayers()) >= 2 && $this->isIdle()){
-                    $this->state = self::GAME_STARTING;
+                if (count($this->getPlayers()) < count($this->spawns)){
+                    $this->players[] = $player;
+                    $player->getInventory()->clearAll();
+                    $player->getInventory()->sendContents($player);
+                    $player->teleport($this->getPlugin()->getHub()->getSpawnLocation());
+                    $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->getPlugin()->getJoinMessage()));
+                    if (count($this->getPlayers()) >= 2 && $this->isIdle()){
+                        $this->state = self::GAME_STARTING;
+                    }
+                }else{
+                    $player->sendMessage(TextFormat::RED . "Arena piena!");
                 }
-            }
-            else{
+            }else{
                 $player->sendMessage(TextFormat::RED . "Sei già in una partita!");
             }
-        }
-        else{
+        } else{
             $player->sendMessage(TextFormat::RED . "Partita in corso!");
         }
     }
@@ -181,10 +183,16 @@ class MurderArena {
         shuffle($random);
         $this->murderer = $this->getPlayers()[$random[0]];
         $this->bystanders[] = $this->getPlayers()[$random[1]];
+        $this->getMurderer()->getInventory()->clearAll();
+        $this->getMurderer()->getInventory()->setHeldItemIndex(0);
+        $this->getMurderer()->getInventory()->resetHotbar(true);
         $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->getMurderer()->setButtonText("Lancia");
         $this->getMurderer()->setFood($this->murderer->getMaxFood());
         $this->getMurderer()->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
+        $this->getBystanders()[0]->getInventory()->clearAll();
+        $this->getBystanders()[0]->getInventory()->setHeldItemIndex(0);
+        $this->getBystanders()[0]->getInventory()->resetHotbar(true);
         $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
         $this->getBystanders()[0]->setButtonText("Spara");
         $this->getBystanders()[0]->setFood(6);
