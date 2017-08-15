@@ -87,7 +87,7 @@ class MurderArena {
                 $player->sendPopup(
                     $padding . MurderMain::MESSAGE_PREFIX . "\n" .
                     $padding . TextFormat::AQUA . "Ruolo: " . TextFormat::GREEN . $this->getRole($player) . "\n" .
-                    $padding . TextFormat::AQUA . "Smeraldi: " . TextFormat::YELLOW . (($index = $player->getInventory()->first(Item::get(Item::EMERALD, -1))) !== -1 ? $player->getInventory()->getItem($index)->getCount() : 0) . "/5\n" .
+                    $padding . TextFormat::AQUA . "Smeraldi: " . TextFormat::YELLOW . $player->getItemCount() . "/5\n" .
                     $padding . TextFormat::AQUA . "Identità: " . "\n$padding" . TextFormat::GREEN . $player->getDisplayName() . str_repeat("\n", 3));
             }
             foreach ($this->getMurderer()->getLevel()->getNearbyEntities($this->getMurderer()->getBoundingBox()->grow(1, 0.5, 1), $this->getMurderer()) as $entity) {
@@ -357,7 +357,7 @@ class MurderArena {
     }
 
     /**
-     * @return Player[]
+     * @return MurderPlayer[]
      */
     public function getPlayers(): array {
         return $this->players;
