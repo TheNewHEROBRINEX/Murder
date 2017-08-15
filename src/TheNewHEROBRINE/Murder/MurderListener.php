@@ -6,6 +6,7 @@ use pocketmine\entity\Effect;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityLevelChangeEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerCreationEvent;
@@ -221,6 +222,20 @@ class MurderListener implements Listener {
             }
             //prevent other types of damage
             $event->setCancelled();
+        }
+    }
+
+    /**
+     * @param EntityLevelChangeEvent $event
+     */
+    public function onLevelChange(EntityLevelChangeEvent $event){
+        $entity = $event->getEntity();
+        $target = $event->getTarget();
+        if ($entity instanceof Player) {
+            $arena = $this->getPlugin()->getArenaByPlayer($entity);
+            if ($arena and $target !== $arena->getWorld() and $target !== $this->getPlugin()->getHub()){
+                $arena->quit($entity);
+            }
         }
     }
 

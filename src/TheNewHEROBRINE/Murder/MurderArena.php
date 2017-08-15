@@ -260,8 +260,8 @@ class MurderArena {
             $player->setGamemode($this->getPlugin()->getServer()->getDefaultGamemode());
             $player->setHealth($player->getMaxHealth());
             $player->setFood($player->getMaxFood());
-            $player->teleport($this->getPlugin()->getServer()->getDefaultLevel()->getSpawnLocation());
             unset($this->players[array_search($player, $this->getPlayers())]);
+            $player->teleport($this->getPlugin()->getServer()->getDefaultLevel()->getSpawnLocation());
         }
     }
 
