@@ -4,6 +4,7 @@ namespace TheNewHEROBRINE\Murder\entities\projectiles;
 
 use pocketmine\item\Item;
 use pocketmine\level\Level;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddItemEntityPacket;
 use pocketmine\Player;
@@ -43,9 +44,18 @@ class MurderKnifeProjectile extends MurderProjectile {
 
         $hasUpdate = parent::onUpdate($currentTick);
 
-        if ($this->age > 30 * 20 or $this->getOwningEntity() == null){
-            $this->kill();
-            $hasUpdate = true;
+        if ($this->isAlive()){
+            if ($this->hadCollision){
+                $this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
+                $this->kill();
+                return true;
+            }
+
+            if ($this->age > 30 * 20 or $this->getOwningEntity() == null){
+                $this->kill();
+                return true;
+            }
+
         }
 
         return $hasUpdate;

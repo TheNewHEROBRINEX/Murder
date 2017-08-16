@@ -9,7 +9,6 @@ use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entities\MurderPlayer;
-use TheNewHEROBRINE\Murder\entities\projectiles\MurderKnifeProjectile;
 
 class MurderArena {
 
@@ -89,12 +88,6 @@ class MurderArena {
                     $padding . TextFormat::AQUA . "Ruolo: " . TextFormat::GREEN . $this->getRole($player) . "\n" .
                     $padding . TextFormat::AQUA . "Smeraldi: " . TextFormat::YELLOW . $player->getItemCount() . "/5\n" .
                     $padding . TextFormat::AQUA . "Identità: " . "\n$padding" . TextFormat::GREEN . $player->getDisplayName() . str_repeat("\n", 3));
-            }
-            foreach ($this->getMurderer()->getLevel()->getNearbyEntities($this->getMurderer()->getBoundingBox()->grow(1, 0.5, 1), $this->getMurderer()) as $entity) {
-                if ($entity instanceof MurderKnifeProjectile){
-                    $this->getMurderer()->getInventory()->addItem(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
-                    $entity->kill();
-                }
             }
             if ($this->spawnEmerald == 0){
                 $this->spawnEmerald($this->espawns[array_rand($this->espawns)]);
