@@ -183,7 +183,8 @@ class MurderListener implements Listener {
      * @param PlayerDeathEvent $event
      */
     public function onDeath(PlayerDeathEvent $event) {
-        if ($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer())){
+        if ($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer()) and $arena->isRunning()){
+            Entity::createEntity("Corpse", $player->getLevel(), new CompoundTag(), $player)->spawnToAll();
             $arena->quit($player, true);
             $event->setDrops([]);
             $event->setDeathMessage("");
@@ -225,8 +226,8 @@ class MurderListener implements Listener {
                             $damager->addEffect(Effect::getEffect(Effect::BLINDNESS)->setDuration(20 * 20));
                         }
                     }
-                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
                     $damaged->setHealth(0);
+                    $damaged->addTitle(TextFormat::DARK_RED . "Sei morto!", TextFormat::RED . "Ucciso da " . TextFormat::BLUE . $damager->getName());
                 }
             }
             //prevent other types of damage
