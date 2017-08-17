@@ -76,6 +76,9 @@ class MurderMain extends PluginBase {
     }
 
     public function onDisable() {
+        foreach ($this->getArenas() as $arena) {
+            $arena->stop();
+        }
         foreach ($this->getServer()->getLevels() as $level) {
             foreach ($level->getEntities() as $entity) {
                 if ($entity instanceof MurderGunProjectile or $entity instanceof MurderKnifeProjectile or $entity instanceof Corpse){

@@ -149,7 +149,7 @@ class MurderArena {
                             $bystanders[] = TextFormat::BLUE . $bystander->getName();
                         }
                     }
-                    $bystanders = implode(TextFormat::WHITE . TextFormat::RESET . ", ", $bystanders) . TextFormat::WHITE;
+                    $bystanders = implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET;
                     $this->stop("Gli innocenti ($bystanders) hanno vinto la partita su " . $this);
                 }
                 elseif (count($this->getPlayers()) === 1){
@@ -226,7 +226,7 @@ class MurderArena {
     /**
      * @param string $message
      */
-    public function stop(string $message) {
+    public function stop(string $message = "") {
         if ($this->isRunning()){
             foreach ($this->getWorld()->getPlayers() as $player) {
                 if ($this->inArena($player)){
@@ -268,6 +268,7 @@ class MurderArena {
             $player->setGamemode($this->getPlugin()->getServer()->getDefaultGamemode());
             $player->setHealth($player->getMaxHealth());
             $player->setFood($player->getMaxFood());
+            $player->removeAllEffects();
             unset($this->players[array_search($player, $this->getPlayers())]);
             $player->teleport($this->getPlugin()->getServer()->getDefaultLevel()->getSpawnLocation());
         }
