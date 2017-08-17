@@ -2,6 +2,7 @@
 
 namespace TheNewHEROBRINE\Murder;
 
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -135,10 +136,24 @@ class MurderArena {
             $this->closePlayer($player);
             if ($this->isRunning()){
                 if ($this->isMurderer($player)){
-                    $this->stop("Gli innocenti hanno vinto la partita su " . $this);
+                    $bystanders = [];
+                    $event = $this->getMurderer()->getLastDamageCause();
+                    foreach ($this->getBystanders() as $bystander) {
+                        if ($event instanceof EntityDamageByEntityEvent and $event->getDamager() == $bystander) {
+                            $bystanders[] = TextFormat::BLUE . TextFormat::BOLD . $bystander->getName();
+                        }
+                        elseif (!$this->inArena($bystander)){
+                            $bystanders[] = TextFormat::BLUE . TextFormat::RED . $bystander->getName();
+                        }
+                        else {
+                            $bystanders[] = TextFormat::BLUE . $bystander->getName();
+                        }
+                    }
+                    $bystanders = implode(TextFormat::WHITE . TextFormat::RESET . ", ", $bystanders) . TextFormat::WHITE;
+                    $this->stop("Gli innocenti ($bystanders) hanno vinto la partita su " . $this);
                 }
                 elseif (count($this->getPlayers()) === 1){
-                    $this->stop("L'assassino ha vinto la partita su " . $this);
+                    $this->stop("L'assassino (" . TextFormat::BLUE . $this->getMurderer()->getName() .  TextFormat::WHITE . ") ha vinto la partita su " . $this);
                 }
             }
             elseif ($this->isStarting()){

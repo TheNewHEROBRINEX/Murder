@@ -216,6 +216,7 @@ class MurderListener implements Listener {
                         //murderer
                         if ($arena->isMurderer($damaged)){
                             $arena->broadcastMessage(TextFormat::BLUE . $damager->getMurderName() . TextFormat::WHITE . " ha ucciso l'assassino " . TextFormat::BLUE . $damaged->getMurderName() . TextFormat::WHITE . "!");
+                            $damaged->setLastDamageCause($event);
                         }
                         //bystander
                         else{
