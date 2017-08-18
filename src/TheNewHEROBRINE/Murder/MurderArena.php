@@ -191,29 +191,31 @@ class MurderArena {
         shuffle($random);
         $this->murderer = $this->getPlayers()[$random[0]];
         $this->bystanders[] = $this->getPlayers()[$random[1]];
-        $this->getMurderer()->getInventory()->clearAll();
-        $this->getMurderer()->getInventory()->setHeldItemIndex(0);
-        $this->getMurderer()->getInventory()->resetHotbar(true);
+        foreach ($random as $key) {
+            $player = $this->getPlayers()[$key];
+            $player->getInventory()->clearAll();
+            $player->getInventory()->setHeldItemIndex(0);
+            $player->getInventory()->resetHotbar(true);
+        }
         $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->getMurderer()->setButtonText("Lancia");
         $this->getMurderer()->setFood($this->murderer->getMaxFood());
-        $this->getMurderer()->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
-        $this->getBystanders()[0]->getInventory()->clearAll();
-        $this->getBystanders()[0]->getInventory()->setHeldItemIndex(0);
-        $this->getBystanders()[0]->getInventory()->resetHotbar(true);
+        $this->getMurderer()->addTitle(TextFormat::BOLD . TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
         $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
-        $this->getBystanders()[0]->setButtonText("Spara");
-        $this->getBystanders()[0]->setFood(6);
-        $this->getBystanders()[0]->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Con un'arma segreta");
+        $this->getBystanders()[0]->addTitle(TextFormat::BOLD . TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Con un'arma segreta");
         $spawns = $this->spawns;
         shuffle($spawns);
         foreach ($this->getPlayers() as $player) {
             $player->setGamemode($player::ADVENTURE);
-            if ($player !== $this->getMurderer() && $player != $this->getBystanders()[0]){
+            $player->setHealth($player->getMaxHealth());
+            $player->removeAllEffects();
+            if ($player !== $this->getMurderer()){
                 $player->setButtonText("Spara");
                 $player->setFood(6);
-                $player->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
-                $this->bystanders[] = $player;
+                if ($player !== $this->getBystanders()[0]){
+                    $player->addTitle(TextFormat::BOLD . TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
+                    $this->bystanders[] = $player;
+                }
             }
             $spawn = array_shift($spawns);
             $player->teleport(new Position($spawn[0], $spawn[1], $spawn[2], $this->getWorld()));
