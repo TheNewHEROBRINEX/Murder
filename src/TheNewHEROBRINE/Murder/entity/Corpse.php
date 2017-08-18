@@ -1,6 +1,6 @@
 <?php
 
-namespace TheNewHEROBRINE\Murder\entities;
+namespace TheNewHEROBRINE\Murder\entity;
 
 use pocketmine\entity\Human;
 use pocketmine\level\Level;

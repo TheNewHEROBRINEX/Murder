@@ -9,7 +9,7 @@ use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
-use TheNewHEROBRINE\Murder\entities\MurderPlayer;
+use TheNewHEROBRINE\Murder\entity\MurderPlayer;
 
 class MurderArena {
 

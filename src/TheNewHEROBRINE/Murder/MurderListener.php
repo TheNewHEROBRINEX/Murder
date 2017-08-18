@@ -26,8 +26,8 @@ use pocketmine\network\mcpe\protocol\InteractPacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
-use TheNewHEROBRINE\Murder\entities\Corpse;
-use TheNewHEROBRINE\Murder\entities\MurderPlayer;
+use TheNewHEROBRINE\Murder\entity\Corpse;
+use TheNewHEROBRINE\Murder\entity\MurderPlayer;
 
 class MurderListener implements Listener {
 
