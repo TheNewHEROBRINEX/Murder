@@ -13,6 +13,10 @@ use pocketmine\Player;
 
 class Corpse extends Human {
 
+    public $width = 0.0;
+    public $length = 0.0;
+    public $height = 0.0;
+
     /**
      * @param Level $level
      * @param CompoundTag $nbt
