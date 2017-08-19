@@ -3,7 +3,7 @@ namespace TheNewHEROBRINE\Murder;
 use pocketmine\scheduler\PluginTask;
 class MurderTimer extends PluginTask {
     /**
-     * @param int $tick
+     * @param int $ tick
      */
     public function onRun(int $tick) {
         if ($this->owner instanceof MurderMain){
@@ -13,3 +13,4 @@ class MurderTimer extends PluginTask {
         }
     }
 }
+
