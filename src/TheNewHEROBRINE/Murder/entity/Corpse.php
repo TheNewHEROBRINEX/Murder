@@ -12,7 +12,6 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\Player;
 
 class Corpse extends Human {
-
     /**
      * @param Level $level
      * @param CompoundTag $nbt
