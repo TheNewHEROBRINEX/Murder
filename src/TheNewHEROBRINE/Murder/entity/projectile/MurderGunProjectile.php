@@ -1,6 +1,6 @@
 <?php
 
-namespace TheNewHEROBRINE\Murder\entities\projectiles;
+namespace TheNewHEROBRINE\Murder\entity\projectile;
 
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\particle\MobSpellParticle;
@@ -15,10 +15,10 @@ class MurderGunProjectile extends MurderProjectile {
     }
 
     /**
-     * @param $currentTick
+     * @param int $currentTick
      * @return bool
      */
-    public function onUpdate($currentTick): bool{
+    public function onUpdate(int $currentTick): bool{
         if ($this->closed){
             return false;
         }

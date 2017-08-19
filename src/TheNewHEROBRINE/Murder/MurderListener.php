@@ -26,8 +26,8 @@ use pocketmine\network\mcpe\protocol\InteractPacket;
 use pocketmine\network\mcpe\protocol\UseItemPacket;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
-use TheNewHEROBRINE\Murder\entities\Corpse;
-use TheNewHEROBRINE\Murder\entities\MurderPlayer;
+use TheNewHEROBRINE\Murder\entity\Corpse;
+use TheNewHEROBRINE\Murder\entity\MurderPlayer;
 
 class MurderListener implements Listener {
 
@@ -183,7 +183,8 @@ class MurderListener implements Listener {
      * @param PlayerDeathEvent $event
      */
     public function onDeath(PlayerDeathEvent $event) {
-        if ($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer())){
+        if ($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer()) and $arena->isRunning()){
+            Entity::createEntity("Corpse", $player->getLevel(), new CompoundTag(), $player)->spawnToAll();
             $arena->quit($player, true);
             $event->setDrops([]);
             $event->setDeathMessage("");
@@ -206,8 +207,8 @@ class MurderListener implements Listener {
                 /** @var MurderPlayer $damager */
                 //if player is attacked directly by the murderer using a wooden sword
                 if (($cause = $event->getCause()) == EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == Item::WOODEN_SWORD){
-                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
                     $damaged->setHealth(0);
+                    $damaged->addTitle(TextFormat::BOLD . TextFormat::DARK_RED . "Sei morto!", TextFormat::RED . "Ucciso da " . TextFormat::BLUE . $damager->getName());
                 }
                 //do this only if the player is damaged by a projectile (a bystander's gun shoot or a thrown murderer's sword)
                 elseif ($cause == EntityDamageEvent::CAUSE_PROJECTILE){
@@ -216,6 +217,7 @@ class MurderListener implements Listener {
                         //murderer
                         if ($arena->isMurderer($damaged)){
                             $arena->broadcastMessage(TextFormat::BLUE . $damager->getMurderName() . TextFormat::WHITE . " ha ucciso l'assassino " . TextFormat::BLUE . $damaged->getMurderName() . TextFormat::WHITE . "!");
+                            $damaged->setLastDamageCause($event);
                         }
                         //bystander
                         else{
@@ -224,8 +226,8 @@ class MurderListener implements Listener {
                             $damager->addEffect(Effect::getEffect(Effect::BLINDNESS)->setDuration(20 * 20));
                         }
                     }
-                    Entity::createEntity("Corpse", $damaged->getLevel(), new CompoundTag(), $damaged)->spawnToAll();
                     $damaged->setHealth(0);
+                    $damaged->addTitle(TextFormat::BOLD . TextFormat::DARK_RED . "Sei morto!", TextFormat::RED . "Ucciso da " . TextFormat::BLUE . $damager->getName());
                 }
             }
             //prevent other types of damage
