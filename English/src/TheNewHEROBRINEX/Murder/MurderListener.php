@@ -66,7 +66,7 @@ class MurderListener implements Listener {
             $espawns = $this->getPlugin()->getArenasCfg()->getNested("$world.espawns");
             $espawns[] = [$x, $y, $z];
             $this->getPlugin()->getArenasCfg()->setNested("$world.espawns", $espawns);
-            $this->getPlugin()->sendMessage("§eEmerald spawner has been set at these coordniates: a§f $x $y $z. " . ((--$this->setespawns[$name][$world] == 1) ? "§eRimane§f " : "§eRimangono§f ") . $this->setespawns[$name][$world] . "§e emerald spawn da settare", $player);
+            $this->getPlugin()->sendMessage("§eEmerald spawner has been set at these coordinates: §f $x $y $z. " . ((--$this->setespawns[$name][$world] == 1) ? "§eRemains§f " : "§eRemain§f ") . $this->setespawns[$name][$world] . "§e emerald spawn has been set", $player);
             if ($this->setespawns[$name][$world] <= 0){
                 unset($this->setespawns[$name][$world]);
                 $this->getPlugin()->getArenasCfg()->save();
