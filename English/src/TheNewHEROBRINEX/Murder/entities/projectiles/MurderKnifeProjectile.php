@@ -1,19 +1,14 @@
 <?php
-
 namespace TheNewHEROBRINE\Murder\entities\projectiles;
-
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddItemEntityPacket;
 use pocketmine\Player;
-
 class MurderKnifeProjectile extends MurderProjectile {
-
     /** @var Item $knife */
     protected $knife;
-
     /**
      * @param Level $level
      * @param CompoundTag $nbt
@@ -25,14 +20,12 @@ class MurderKnifeProjectile extends MurderProjectile {
         }
         parent::__construct($level, $nbt, $murderer);
     }
-
     /**
      * @return string
      */
     public function getName(): string{
         return "MurderKnifeProjectile";
     }
-
     /**
      * @param $currentTick
      * @return bool
@@ -41,26 +34,20 @@ class MurderKnifeProjectile extends MurderProjectile {
         if ($this->closed){
             return false;
         }
-
         $hasUpdate = parent::onUpdate($currentTick);
-
         if ($this->isAlive()){
             if ($this->hadCollision){
                 $this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
                 $this->kill();
                 return true;
             }
-
             if ($this->age > 30 * 20 or $this->getOwningEntity() == null){
                 $this->kill();
                 return true;
             }
-
         }
-
         return $hasUpdate;
     }
-
     /**
      * @param Player $player
      */
@@ -76,9 +63,7 @@ class MurderKnifeProjectile extends MurderProjectile {
             $pk->speedZ = $this->motionZ;
             $pk->item = $this->knife;
             $player->dataPacket($pk);
-
             $this->sendData($player);
-
             parent::spawnTo($player);
         }
     }

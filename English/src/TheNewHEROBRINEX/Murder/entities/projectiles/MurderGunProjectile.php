@@ -1,19 +1,14 @@
 <?php
-
 namespace TheNewHEROBRINE\Murder\entities\projectiles;
-
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\particle\MobSpellParticle;
-
 class MurderGunProjectile extends MurderProjectile {
-
     /**
      * @return string
      */
     public function getName(): string{
         return "MurderGunProjectile";
     }
-
     /**
      * @param $currentTick
      * @return bool
@@ -22,11 +17,8 @@ class MurderGunProjectile extends MurderProjectile {
         if ($this->closed){
             return false;
         }
-
         $this->timings->startTiming();
-
         $hasUpdate = parent::onUpdate($currentTick);
-
         if ($this->age > 30 * 20 or $this->getOwningEntity() == null or $this->hadCollision){
             $this->kill();
             $hasUpdate = true;
@@ -42,12 +34,9 @@ class MurderGunProjectile extends MurderProjectile {
                     mt_rand(0, 255)));
             }
         }
-
         $this->timings->startTiming();
-
         return $hasUpdate;
     }
-
     /**
      * @param Player $player
      */

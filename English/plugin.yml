@@ -1,0 +1,18 @@
+name: Murder
+author: [TheNewHEROBRINEX, Thank you to Kenner-G (GitHub) for translating this plugin!]
+version: 0.9
+api: ["3.0.0-ALPHA7"]
+main: TheNewHEROBRINE\Murder\MurderMain
+load: POSTWORLD
+
+permissions:
+ murder:
+  children:
+   murder.command:
+    children:
+     murder.command.join:
+      default: true
+     murder.command.quit:
+      default: true
+     murder.command.setarena:
+      default: op
