@@ -55,7 +55,7 @@ class MurderArena {
         if ($this->isStarting()){
             if ($this->countdown == 0){
                 $this->start();
-                $this->broadcastMessage("La partita è iniziata!");
+                $this->broadcastMessage("The game is starting!");
             }
             $this->broadcastPopup(TextFormat::YELLOW . "Inizio tra " . TextFormat::WHITE . $this->countdown . TextFormat::YELLOW . "s");
             $this->countdown--;
@@ -65,9 +65,9 @@ class MurderArena {
             foreach ($this->getPlayers() as $player){
                 $player->sendPopup(
                     $padding . MurderMain::MESSAGE_PREFIX . "\n" .
-                    $padding . TextFormat::AQUA . "Ruolo: " . TextFormat::GREEN . $this->getRole($player) . "\n" .
-                    $padding . TextFormat::AQUA . "Smeraldi: " . TextFormat::YELLOW . $player->getItemCount() . "/5\n" .
-                    $padding . TextFormat::AQUA . "Identità: " . "\n$padding" . TextFormat::GREEN . $player->getDisplayName() . str_repeat("\n", 3));
+                    $padding . TextFormat::AQUA . "Role: " . TextFormat::GREEN . $this->getRole($player) . "\n" .
+                    $padding . TextFormat::AQUA . "Emeralds: " . TextFormat::YELLOW . $player->getItemCount() . "/5\n" .
+                    $padding . TextFormat::AQUA . "Name: " . "\n$padding" . TextFormat::GREEN . $player->getDisplayName() . str_repeat("\n", 3));
             }
             if ($this->spawnEmerald == 0){
                 $this->spawnEmerald($this->espawns[array_rand($this->espawns)]);
@@ -92,13 +92,13 @@ class MurderArena {
                         $this->state = self::GAME_STARTING;
                     }
                 }else{
-                    $player->sendMessage(TextFormat::RED . "Arena piena!");
+                    $player->sendMessage(TextFormat::RED . "That arena is full!");
                 }
             }else{
-                $player->sendMessage(TextFormat::RED . "Sei già in una partita!");
+                $player->sendMessage(TextFormat::RED . "You are already in a game!");
             }
         } else{
-            $player->sendMessage(TextFormat::RED . "Partita in corso!");
+            $player->sendMessage(TextFormat::RED . "The game has already started!");
         }
     }
     /**
@@ -113,10 +113,10 @@ class MurderArena {
             $this->closePlayer($player);
             if ($this->isRunning()){
                 if ($this->isMurderer($player)){
-                    $this->stop("Gli innocenti hanno vinto la partita su " . $this);
+                    $this->stop("The innocent have won the match: " . $this);
                 }
                 elseif (count($this->getPlayers()) === 1){
-                    $this->stop("L'assassino ha vinto la partita su " . $this);
+                    $this->stop("The murderer won the match: " . $this);
                 }
             }
             elseif ($this->isStarting()){
@@ -156,25 +156,25 @@ class MurderArena {
         $this->getMurderer()->getInventory()->clearAll();
         $this->getMurderer()->getInventory()->setHeldItemIndex(0);
         $this->getMurderer()->getInventory()->resetHotbar(true);
-        $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
+        $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Knife"));
         $this->getMurderer()->setButtonText("Lancia");
         $this->getMurderer()->setFood($this->murderer->getMaxFood());
-        $this->getMurderer()->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
+        $this->getMurderer()->addTitle(TextFormat::RED . "Murderer", TextFormat::RED . "You are the murderer, KILL EVERYONE!");
         $this->getBystanders()[0]->getInventory()->clearAll();
         $this->getBystanders()[0]->getInventory()->setHeldItemIndex(0);
         $this->getBystanders()[0]->getInventory()->resetHotbar(true);
-        $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
-        $this->getBystanders()[0]->setButtonText("Spara");
+        $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::FISHING_ROD)->setCustomName("Gun"));
+        $this->getBystanders()[0]->setButtonText("Shoot");
         $this->getBystanders()[0]->setFood(6);
-        $this->getBystanders()[0]->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Con un'arma segreta");
+        $this->getBystanders()[0]->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "With a secret weapon!");
         $spawns = $this->spawns;
         shuffle($spawns);
         foreach ($this->getPlayers() as $player) {
             $player->setGamemode($player::ADVENTURE);
             if ($player !== $this->getMurderer() && $player != $this->getBystanders()[0]){
-                $player->setButtonText("Spara");
+                $player->setButtonText("Shoot");
                 $player->setFood(6);
-                $player->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
+                $player->addTitle(TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Kill the murderer!");
                 $this->bystanders[] = $player;
             }
             $spawn = array_shift($spawns);
