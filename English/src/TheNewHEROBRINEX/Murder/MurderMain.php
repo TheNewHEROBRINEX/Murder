@@ -32,18 +32,18 @@ class MurderMain extends PluginBase {
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->getServer()->getCommandMap()->register("murder", new MurderCommand($this));
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, [
-            "join" => TextFormat::BLUE . "{player}" . TextFormat::WHITE . " è entrato in partita",
-            "quit" => TextFormat::BLUE . "{player}" . TextFormat::WHITE . " è uscito dalla partita",
+            "join" => TextFormat::BLUE . "{player}" . TextFormat::WHITE . " has joined the match!",
+            "quit" => TextFormat::BLUE . "{player}" . TextFormat::WHITE . " left the match!",
             "countdown" => 40,
             "maxGameTime" => 1200,
             "hub" => "MurderHub"]
         );
         $this->countdown = $this->getConfig()->get("countdown", 40);
-        $this->joinMessage = $this->getConfig()->get("join", TextFormat::BLUE . "{player}" . TextFormat::WHITE . " è entrato in partita");
-        $this->quitMessage = $this->getConfig()->get("quit", TextFormat::BLUE . "{player}" . TextFormat::WHITE . " è uscito dalla partita");
+        $this->joinMessage = $this->getConfig()->get("join", TextFormat::BLUE . "{player}" . TextFormat::WHITE . " has joined the match!");
+        $this->quitMessage = $this->getConfig()->get("quit", TextFormat::BLUE . "{player}" . TextFormat::WHITE . " left the match!");
         $hub = $this->getConfig()->get("hub", "MurderHub");
         if (!$this->getServer()->isLevelGenerated($hub)){
-            $this->getServer()->getLogger()->error("Il mondo $hub non esiste. Cambia l'hub nelle config");
+            $this->getServer()->getLogger()->error("The world $hub does not exist. Change the the world in the config file.");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
         }
