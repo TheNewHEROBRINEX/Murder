@@ -57,7 +57,7 @@ class MurderArena {
                 $this->start();
                 $this->broadcastMessage("The game is starting!");
             }
-            $this->broadcastPopup(TextFormat::YELLOW . "Inizio tra " . TextFormat::WHITE . $this->countdown . TextFormat::YELLOW . "s");
+            $this->broadcastPopup(TextFormat::YELLOW . "Begining in " . TextFormat::WHITE . $this->countdown . TextFormat::YELLOW . "s");
             $this->countdown--;
         }
         elseif ($this->isRunning()){
