@@ -1,6 +1,6 @@
 <?php
 
-namespace TheNewHEROBRINE\Murder\entities;
+namespace TheNewHEROBRINE\Murder\entity;
 
 use pocketmine\entity\Human;
 use pocketmine\level\Level;
@@ -12,7 +12,6 @@ use pocketmine\nbt\tag\StringTag;
 use pocketmine\Player;
 
 class Corpse extends Human {
-
     /**
      * @param Level $level
      * @param CompoundTag $nbt
