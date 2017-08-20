@@ -16,7 +16,7 @@
 2. Restart your PocketMine server.
 3. In the config.yml file, change hub to match the name of the world you'd like to use (make sure you save the config.yml file).
 4. Restart your PocketMine server.
-5. Join your PocketMine server and teleport to the world you want to use as arena.
+5. Join your PocketMine server and teleport to the world area you'd like to use as the arena.
 6. Run the command `/murder setarena {numberofplayers} {numberofemeralds}` (do not include the braces "{}")
 EXAMPLE: > /murder setarena 5 10  
 7. Tap the spawns of the players (depending on the number you chose {numberofplayers}) and then the spawns (depending on the number you chose {numberofemeralds}) of the emeralds.
