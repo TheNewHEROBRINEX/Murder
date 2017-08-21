@@ -2,7 +2,7 @@
 
 namespace TheNewHEROBRINE\Murder;
 
-use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -10,6 +10,7 @@ use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entity\MurderPlayer;
+use TheNewHEROBRINE\Murder\entity\projectile\MurderGunProjectile;
 
 class MurderArena {
 
@@ -129,31 +130,40 @@ class MurderArena {
      * @param bool $silent
      */
     public function quit(Player $player, $silent = false) {
+        /** @var MurderPlayer $player */
         if ($this->inArena($player)){
             if (!$silent){
-                $this->broadcastMessage(str_replace("{player}", $player->getName() !== $player->getDisplayName() ? $player->getDisplayName() . " (" . $player->getName() . ") " : $player->getName(), $this->getPlugin()->getQuitMessage()));
+                $this->broadcastMessage(str_replace("{player}", $player->getMurderName(), $this->getPlugin()->getQuitMessage()));
             }
             $this->closePlayer($player);
             if ($this->isRunning()){
                 if ($this->isMurderer($player)){
                     $bystanders = [];
                     $event = $this->getMurderer()->getLastDamageCause();
+                    $lastDamageCause = new \ReflectionProperty(get_class($player), "lastDamageCause");
+                    $lastDamageCause->setAccessible(true);
+                    $lastDamageCause->setValue($player, null);
                     foreach ($this->getBystanders() as $bystander) {
-                        if ($event instanceof EntityDamageByEntityEvent and $event->getDamager() == $bystander) {
-                            $bystanders[] = TextFormat::BLUE . TextFormat::BOLD . $bystander->getName();
+                        $name = $bystander->getName();
+                        if ($this->inArena($bystander)) {
+                            $name = TextFormat::BLUE . $name;
+                            if ($event instanceof EntityDamageByChildEntityEvent and $event->getChild() instanceof MurderGunProjectile and $event->getDamager() == $bystander) {
+                                $name = TextFormat::BOLD . $name;
+                            }
+                        }else {
+                            $name = TextFormat::RED . $name;
                         }
-                        elseif (!$this->inArena($bystander)){
-                            $bystanders[] = TextFormat::BLUE . TextFormat::RED . $bystander->getName();
+                        if ($this->getBystanders()[0] == $bystander) {
+                            $name = TextFormat::ITALIC . $name;
                         }
-                        else {
-                            $bystanders[] = TextFormat::BLUE . $bystander->getName();
-                        }
+                        $bystanders[] = $name;
                     }
                     $bystanders = implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET;
                     $this->stop("Gli innocenti ($bystanders) hanno vinto la partita su " . $this);
+                    $this->getPlugin()->getServer()->broadcastMessage(str_replace("§", "&", "Gli innocenti ($bystanders) hanno vinto la partita su " . $this)); //debug
                 }
                 elseif (count($this->getPlayers()) === 1){
-                    $this->stop("L'assassino (" . TextFormat::BLUE . $this->getMurderer()->getName() .  TextFormat::WHITE . ") ha vinto la partita su " . $this);
+                    $this->stop("L'assassino " . TextFormat::DARK_RED . $this->getMurderer()->getName() .  TextFormat::RESET . " ha vinto la partita su " . $this);
                 }
             }
             elseif ($this->isStarting()){
