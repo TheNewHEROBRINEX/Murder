@@ -158,9 +158,9 @@ class MurderArena {
                         }
                         $bystanders[] = $name;
                     }
-                    $bystanders = implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET;
-                    $this->stop("Gli innocenti ($bystanders) hanno vinto la partita su " . $this);
-                    $this->getPlugin()->getServer()->broadcastMessage(str_replace("§", "&", "Gli innocenti ($bystanders) hanno vinto la partita su " . $this)); //debug
+                    $this->stop(count($bystanders) == 1 ?
+                        "L'innocente" . implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET . " ha vinto la partita su " . $this :
+                        "Gli innocenti " . implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET . " hanno vinto la partita su " . $this);
                 }
                 elseif (count($this->getPlayers()) === 1){
                     $this->stop("L'assassino " . TextFormat::DARK_RED . $this->getMurderer()->getName() .  TextFormat::RESET . " ha vinto la partita su " . $this);
