@@ -44,7 +44,7 @@ class MurderKnifeProjectile extends MurderProjectile {
 
         $hasUpdate = parent::onUpdate($currentTick);
 
-        if ($this->isAlive()){
+        if (!$this->isClosed() and $this->isAlive()){
             if ($this->hadCollision){
                 $this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
                 $this->kill();
