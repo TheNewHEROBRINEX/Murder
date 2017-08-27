@@ -119,6 +119,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
         return false;
     }
 
+    /** @noinspection PhpDocSignatureInspection */
     /**
      * @return MurderMain
      */
