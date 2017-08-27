@@ -159,7 +159,7 @@ class MurderArena {
                         $bystanders[] = $name;
                     }
                     $this->stop(count($bystanders) == 1 ?
-                        "L'innocente" . implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET . " ha vinto la partita su " . $this :
+                        "L'innocente " . implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET . " ha vinto la partita su " . $this :
                         "Gli innocenti " . implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET . " hanno vinto la partita su " . $this);
                 }
                 elseif (count($this->getPlayers()) === 1){
