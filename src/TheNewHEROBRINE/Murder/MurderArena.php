@@ -78,8 +78,10 @@ class MurderArena {
                 $this->start();
                 $this->broadcastMessage("La partita è iniziata!");
             }
+            else {
             $this->broadcastPopup(TextFormat::YELLOW . "Inizio tra " . TextFormat::WHITE . $this->countdown . TextFormat::YELLOW . "s");
             $this->countdown--;
+            }
         }
 
         elseif ($this->isRunning()){
