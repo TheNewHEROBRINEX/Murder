@@ -28,7 +28,7 @@ class MurderGunProjectile extends MurderProjectile {
         $hasUpdate = parent::onUpdate($currentTick);
 
         if ($this->age > 30 * 20 or $this->getOwningEntity() == null or $this->hadCollision){
-            $this->kill();
+            $this->flagForDespawn();
             $hasUpdate = true;
         }
         else{
@@ -51,8 +51,7 @@ class MurderGunProjectile extends MurderProjectile {
     /**
      * @param Player $player
      */
-    public function spawnTo(Player $player) {
-        parent::spawnTo($player);
+    public function sendSpawnPacket(Player $player): void {
         //invisible, only particles
     }
 }

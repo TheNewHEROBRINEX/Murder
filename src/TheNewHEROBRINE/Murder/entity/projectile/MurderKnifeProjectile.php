@@ -47,12 +47,12 @@ class MurderKnifeProjectile extends MurderProjectile {
         if (!$this->isClosed() and $this->isAlive()){
             if ($this->hadCollision){
                 $this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
-                $this->kill();
+                $this->flagForDespawn();
                 return true;
             }
 
             if ($this->age > 30 * 20 or $this->getOwningEntity() == null){
-                $this->kill();
+                $this->flagForDespawn();
                 return true;
             }
 
@@ -64,22 +64,17 @@ class MurderKnifeProjectile extends MurderProjectile {
     /**
      * @param Player $player
      */
-    public function spawnTo(Player $player) {
-        if ($this->knife !== null){
+    protected function sendSpawnPacket(Player $player): void {
+        if ($this->knife !== null) {
             $pk = new AddItemEntityPacket();
             $pk->entityRuntimeId = $this->getId();
-            $pk->x = $this->x;
-            $pk->y = $this->y;
-            $pk->z = $this->z;
-            $pk->speedX = $this->motionX;
-            $pk->speedY = $this->motionY;
-            $pk->speedZ = $this->motionZ;
+            $pk->position = $this->asVector3();
+            $pk->motion = $this->getMotion();
             $pk->item = $this->knife;
+            $pk->metadata = $this->dataProperties;
             $player->dataPacket($pk);
 
             $this->sendData($player);
-
-            parent::spawnTo($player);
         }
     }
 }

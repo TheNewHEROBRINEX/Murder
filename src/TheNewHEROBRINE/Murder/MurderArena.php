@@ -180,20 +180,19 @@ class MurderArena {
         $this->state = self::GAME_RUNNING;
         $skins = [];
         foreach ($this->getPlayers() as $player) {
-            $skins[$player->getName()] = $player->getSkinData();
+            $skins[$player->getName()] = $player->getSkin();
         }
         $this->skins = $skins;
-        if (count(array_unique($this->getSkins())) > 1){
-            do {
-                shuffle($skins);
-            } while (array_values($this->getSkins()) == $skins);
-        }
+        do {
+            shuffle($skins);
+        } while (array_values($this->getSkins()) == $skins);
         $players = $this->getPlayers();
         do {
             shuffle($players);
         } while ($this->getPlayers() == $players);
         foreach ($this->getPlayers() as $player) {
-            $player->setSkin(array_shift($skins), $player->getSkinId());
+            $player->setSkin(array_shift($skins));
+            $player->sendSkin($this->getPlayers());
             $name = array_shift($players)->getName();
             $player->setDisplayName($name);
             $player->setNameTag($name);
@@ -206,8 +205,8 @@ class MurderArena {
         foreach ($random as $key) {
             $player = $this->getPlayers()[$key];
             $player->getInventory()->clearAll();
-            $player->getInventory()->setHeldItemIndex(0);
-            $player->getInventory()->resetHotbar(true);
+         // $player->getInventory()->setHeldItemIndex(0);
+         // $player->getInventory()->resetHotbar(true);
         }
         $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->getMurderer()->setButtonText("Lancia");
@@ -274,7 +273,8 @@ class MurderArena {
             $player->setNameTag($player->getName());
             $player->setDisplayName($player->getName());
             if (isset($this->getSkins()[$player->getName()])){
-                $player->setSkin($this->getSkins()[$player->getName()], $player->getSkinId());
+                $player->setSkin($this->getSkins()[$player->getName()]);
+                $player->sendSkin();
             }
             $player->getInventory()->clearAll();
             $player->getInventory()->sendContents($player);

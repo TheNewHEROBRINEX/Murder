@@ -3,7 +3,7 @@
 namespace TheNewHEROBRINE\Murder\entity\projectile;
 
 use pocketmine\entity\Entity;
-use pocketmine\entity\Projectile;
+use pocketmine\entity\projectile\Projectile;
 use TheNewHEROBRINE\Murder\entity\Corpse;
 
 abstract class MurderProjectile extends Projectile {
