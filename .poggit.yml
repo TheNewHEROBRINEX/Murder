@@ -2,6 +2,7 @@
 branches:
 - master
 - dev
+- 1.2-WIP
 projects:
   Murder:
     path: ""
