@@ -183,13 +183,9 @@ class MurderArena {
             $skins[$player->getName()] = $player->getSkin();
         }
         $this->skins = $skins;
-        do {
-            shuffle($skins);
-        } while (array_values($this->getSkins()) == $skins);
+        shuffle($skins);
         $players = $this->getPlayers();
-        do {
-            shuffle($players);
-        } while ($this->getPlayers() == $players);
+        shuffle($players);
         foreach ($this->getPlayers() as $player) {
             $player->setSkin(array_shift($skins));
             $player->sendSkin($this->getPlayers());
@@ -205,11 +201,8 @@ class MurderArena {
         foreach ($random as $key) {
             $player = $this->getPlayers()[$key];
             $player->getInventory()->clearAll();
-         // $player->getInventory()->setHeldItemIndex(0);
-         // $player->getInventory()->resetHotbar(true);
         }
         $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
-        $this->getMurderer()->setButtonText("Lancia");
         $this->getMurderer()->setFood($this->murderer->getMaxFood());
         $this->getMurderer()->addTitle(TextFormat::BOLD . TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
         $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
@@ -221,7 +214,6 @@ class MurderArena {
             $player->setHealth($player->getMaxHealth());
             $player->removeAllEffects();
             if ($player !== $this->getMurderer()){
-                $player->setButtonText("Spara");
                 $player->setFood(6);
                 if ($player !== $this->getBystanders()[0]){
                     $player->addTitle(TextFormat::BOLD . TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
@@ -258,7 +250,7 @@ class MurderArena {
             $this->spawnEmerald = 10;
             $this->state = self::GAME_IDLE;
             foreach ($this->getWorld()->getEntities() as $entity) {
-                $entity->close();
+                $entity->flagForDespawn();
             }
         }
     }
@@ -278,7 +270,6 @@ class MurderArena {
             }
             $player->getInventory()->clearAll();
             $player->getInventory()->sendContents($player);
-            $player->setButtonText("");
             $player->setGamemode($this->getPlugin()->getServer()->getDefaultGamemode());
             $player->setHealth($player->getMaxHealth());
             $player->setFood($player->getMaxFood());

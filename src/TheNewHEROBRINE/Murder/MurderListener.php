@@ -44,29 +44,13 @@ class MurderListener implements Listener {
      */
     public function onInteract(PlayerInteractEvent $event) {
         $player = $event->getPlayer();
-        if ($this->getPlugin()->getArenaByPlayer($player) and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD) {
+        if ($this->getPlugin()->getArenaByPlayer($player) and $event->getAction() == PlayerInteractEvent::RIGHT_CLICK_AIR and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD) {
             $nbt = Entity::createBaseNBT(
                 $player->add(0, $player->getEyeHeight(), 0),
                 $player->getDirectionVector(),
                 ($player->yaw > 180 ? 360 : 0) - $player->yaw,
                 -$player->pitch
             );
-            /*$nbt = new CompoundTag("", [
-                "Pos" => new ListTag("Pos", [
-                    new DoubleTag("", $player->x),
-                    new DoubleTag("", $player->y + $player->getEyeHeight()),
-                    new DoubleTag("", $player->z)
-                ]),
-                "Motion" => new ListTag("Motion", [
-                    new DoubleTag("", -sin($player->yaw / 180 * M_PI) * cos($player->pitch / 180 * M_PI)),
-                    new DoubleTag("", -sin($player->pitch / 180 * M_PI)),
-                    new DoubleTag("", cos($player->yaw / 180 * M_PI) * cos($player->pitch / 180 * M_PI))
-                ]),
-                "Rotation" => new ListTag("Rotation", [
-                    new FloatTag("", $player->yaw),
-                    new FloatTag("", $player->pitch)
-                ]),
-            ]);*/
             $projectile = Entity::createEntity($item->getId() == $item::FISHING_ROD ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
             $projectile->setMotion($projectile->getMotion()->multiply(2.5));
             $projectile->spawnToAll();
@@ -110,40 +94,6 @@ class MurderListener implements Listener {
 
     }
 
-    /*
-    public function onShoot(DataPacketReceiveEvent $event) {
-        $player = $event->getPlayer();
-        $packet = $event->getPacket();
-        if ($this->getPlugin()->getArenaByPlayer($player) and ($packet instanceof UseItemPacket and $packet->face === -1 or $packet instanceof InteractPacket and $packet->action === InteractPacket::ACTION_RIGHT_CLICK) and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD){
-            $nbt = new CompoundTag("", [
-                "Pos" => new ListTag("Pos", [
-                    new DoubleTag("", $player->x),
-                    new DoubleTag("", $player->y + $player->getEyeHeight()),
-                    new DoubleTag("", $player->z)
-                ]),
-                "Motion" => new ListTag("Motion", [
-                    new DoubleTag("", -sin($player->yaw / 180 * M_PI) * cos($player->pitch / 180 * M_PI)),
-                    new DoubleTag("", -sin($player->pitch / 180 * M_PI)),
-                    new DoubleTag("", cos($player->yaw / 180 * M_PI) * cos($player->pitch / 180 * M_PI))
-                ]),
-                "Rotation" => new ListTag("Rotation", [
-                    new FloatTag("", $player->yaw),
-                    new FloatTag("", $player->pitch)
-                ]),
-            ]);
-            $projectile = Entity::createEntity($item->getId() == $item::FISHING_ROD ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
-            $projectile->setMotion($projectile->getMotion()->multiply(2.5));
-            $projectile->spawnToAll();
-            $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
-            if ($item->getId() == $item::WOODEN_SWORD){
-                $player->getInventory()->setItemInHand(Item::get(Item::AIR));
-            }
-            $event->setCancelled(true);
-        }
-    }*/
-
-
-
     /**
      * @param PlayerQuitEvent $event
      */
@@ -177,7 +127,7 @@ class MurderListener implements Listener {
                     $inv->removeItem(Item::get(Item::EMERALD, -1, 4));
                     $inv->sendContents($player);
                     $event->setCancelled();
-                    $event->getItem()->kill();
+                    $event->getItem()->flagForDespawn();
                 }
             }
             

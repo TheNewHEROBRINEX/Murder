@@ -41,6 +41,7 @@ class MurderMain extends PluginBase {
     private $quitMessage;
 
     public function onEnable() {
+        /** @noinspection PhpUsageOfSilenceOperatorInspection */
         @mkdir($this->getDataFolder());
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->getServer()->getCommandMap()->register("murder", new MurderCommand($this));
@@ -82,7 +83,7 @@ class MurderMain extends PluginBase {
         foreach ($this->getServer()->getLevels() as $level) {
             foreach ($level->getEntities() as $entity) {
                 if ($entity instanceof MurderGunProjectile or $entity instanceof MurderKnifeProjectile or $entity instanceof Corpse){
-                    $entity->kill();
+                    $entity->flagForDespawn();
                 }
             }
         }

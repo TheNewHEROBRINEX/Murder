@@ -7,11 +7,17 @@ use pocketmine\entity\projectile\Projectile;
 use TheNewHEROBRINE\Murder\entity\Corpse;
 
 abstract class MurderProjectile extends Projectile {
-    public $width = 0.5;
-    public $length = 0.5;
-    public $height = 0.5;
 
+    /** @var float $width */
+    public $width = 0.25;
+
+    /** @var float $height */
+    public $height = 0.25;
+
+    /** @var float $gravity */
     protected $gravity = 0;
+
+    /** @var float $drag */
     protected $drag = 0;
 
     /**

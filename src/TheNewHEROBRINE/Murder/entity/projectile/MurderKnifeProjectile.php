@@ -73,8 +73,6 @@ class MurderKnifeProjectile extends MurderProjectile {
             $pk->item = $this->knife;
             $pk->metadata = $this->dataProperties;
             $player->dataPacket($pk);
-
-            $this->sendData($player);
         }
     }
 }
