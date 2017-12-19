@@ -16,8 +16,8 @@ use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\item\Item;
-use pocketmine\level\sound\LaunchSound;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entity\Corpse;
@@ -54,9 +54,10 @@ class MurderListener implements Listener {
             $projectile = Entity::createEntity($item->getId() == $item::FISHING_ROD ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
             $projectile->setMotion($projectile->getMotion()->multiply(2.5));
             $projectile->spawnToAll();
-            $player->getLevel()->addSound(new LaunchSound($player), $player->getLevel()->getPlayers());
             if ($item->getId() == $item::WOODEN_SWORD){
                 $player->getInventory()->setItemInHand(Item::get(Item::AIR));
+            }else {
+                $player->getLevel()->broadcastLevelSoundEvent($player, LevelSoundEventPacket::SOUND_EXPLODE);
             }
             $event->setCancelled(true);
             return;
