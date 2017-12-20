@@ -2,6 +2,7 @@
 
 namespace TheNewHEROBRINE\Murder\entity\projectile;
 
+use pocketmine\level\Level;
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\particle\MobSpellParticle;
 
@@ -31,7 +32,7 @@ class MurderGunProjectile extends MurderProjectile {
             $this->flagForDespawn();
             $hasUpdate = true;
         }
-        else{
+        elseif ($this->level instanceof Level) {
             for ($i = 0; $i < 30; $i++) {
                 $this->level->addParticle(new MobSpellParticle($this->add(
                     $this->width / 2 + mt_rand(-100, 100) / 500,
