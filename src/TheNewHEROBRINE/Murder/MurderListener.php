@@ -16,8 +16,12 @@ use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\item\Item;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\protocol\AddEntityPacket;
+use pocketmine\network\mcpe\protocol\EntityEventPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\RemoveEntityPacket;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entity\Corpse;
@@ -56,6 +60,23 @@ class MurderListener implements Listener {
             $projectile->spawnToAll();
             if ($item->getId() == $item::WOODEN_SWORD){
                 $player->getInventory()->setItemInHand(Item::get(Item::AIR));
+                $pk = new AddEntityPacket();
+                $pk->entityRuntimeId = Entity::$entityCount;
+                $pk->type = 33;
+                $pk->position = $player->asVector3();
+                $pk->motion = new Vector3(0, 0, 0);
+                $pk->yaw = 0;
+                $pk->pitch = 0;
+                $pk->metadata = [Entity::DATA_FLAGS => [Entity::DATA_TYPE_LONG, 1 << Entity::DATA_FLAG_INVISIBLE]];
+                $player->getServer()->broadcastPacket($player->getLevel()->getPlayers(), $pk);
+                $pk = new EntityEventPacket();
+                $pk->entityRuntimeId = Entity::$entityCount;
+                $pk->event = EntityEventPacket::HURT_ANIMATION;
+                $pk->data = 0;
+                $player->getServer()->broadcastPacket($player->getLevel()->getPlayers(), $pk);
+                $pk = new RemoveEntityPacket();
+                $pk->entityUniqueId = Entity::$entityCount;
+                $player->getServer()->broadcastPacket($player->getLevel()->getPlayers(), $pk);
             }else {
                 $player->getLevel()->broadcastLevelSoundEvent($player, LevelSoundEventPacket::SOUND_EXPLODE);
             }
