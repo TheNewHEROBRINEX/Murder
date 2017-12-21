@@ -2,57 +2,37 @@
 
 namespace TheNewHEROBRINE\Murder\entity\projectile;
 
+use pocketmine\entity\projectile\Arrow;
 use pocketmine\level\Level;
-use pocketmine\Player;
 use TheNewHEROBRINE\Murder\particle\MobSpellParticle;
 
-class MurderGunProjectile extends MurderProjectile {
+class MurderGunProjectile extends Arrow {
 
     /**
      * @return string
      */
-    public function getName(): string{
+    public function getName(): string {
         return "MurderGunProjectile";
     }
 
     /**
-     * @param int $currentTick
+     * @param int $tickDiff
      * @return bool
      */
-    public function onUpdate(int $currentTick): bool{
-        if ($this->closed){
+    public function entityBaseTick(int $tickDiff = 1): bool {
+        if ($this->closed) {
             return false;
         }
 
-        $this->timings->startTiming();
+        $hasUpdate = parent::entityBaseTick($tickDiff);
 
-        $hasUpdate = parent::onUpdate($currentTick);
-
-        if ($this->age > 30 * 20 or $this->getOwningEntity() == null or $this->hadCollision){
+        if ($this->age > 200 or $this->getOwningEntity() == null or $this->hadCollision) {
             $this->flagForDespawn();
-            $hasUpdate = true;
+            return true;
+        } elseif ($this->level instanceof Level) {
+            $this->level->addParticle(new MobSpellParticle($this));
         }
-        elseif ($this->level instanceof Level) {
-            for ($i = 0; $i < 30; $i++) {
-                $this->level->addParticle(new MobSpellParticle($this->add(
-                    $this->width / 2 + mt_rand(-100, 100) / 500,
-                    $this->height / 2 + mt_rand(-100, 100) / 500,
-                    $this->width / 2 + mt_rand(-100, 100) / 500),
-                    mt_rand(0, 255),
-                    mt_rand(0, 255),
-                    mt_rand(0, 255)));
-            }
-        }
-
-        $this->timings->startTiming();
 
         return $hasUpdate;
-    }
-
-    /**
-     * @param Player $player
-     */
-    public function sendSpawnPacket(Player $player): void {
-        //invisible, only particles
     }
 }

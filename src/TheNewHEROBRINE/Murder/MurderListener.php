@@ -48,14 +48,14 @@ class MurderListener implements Listener {
      */
     public function onInteract(PlayerInteractEvent $event) {
         $player = $event->getPlayer();
-        if ($this->getPlugin()->getArenaByPlayer($player) and $event->getAction() == PlayerInteractEvent::RIGHT_CLICK_AIR and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::FISHING_ROD) {
+        if ($this->getPlugin()->getArenaByPlayer($player) and $event->getAction() == PlayerInteractEvent::RIGHT_CLICK_AIR and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::WOODEN_HOE) {
             $nbt = Entity::createBaseNBT(
                 $player->add(0, $player->getEyeHeight(), 0),
                 $player->getDirectionVector(),
                 ($player->yaw > 180 ? 360 : 0) - $player->yaw,
                 -$player->pitch
             );
-            $projectile = Entity::createEntity($item->getId() == $item::FISHING_ROD ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
+            $projectile = Entity::createEntity($item->getId() == $item::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
             $projectile->setMotion($projectile->getMotion()->multiply(2.5));
             $projectile->spawnToAll();
             if ($item->getId() == $item::WOODEN_SWORD){
@@ -136,9 +136,9 @@ class MurderListener implements Listener {
                 $inv = $player->getInventory();
                 $count = $player->getItemCount() + 1;
                 $this->getPlugin()->sendMessage("Hai trovato uno smeraldo! " . TextFormat::GREEN . "($count/5)", $player);
-                if ($count == 5 and !$inv->contains(Item::get(Item::FISHING_ROD, -1, 1))){
+                if ($count == 5 and !$inv->contains(Item::get(Item::WOODEN_HOE, -1, 1))){
                     if ($arena->isBystander($player)){
-                        $inv->addItem($item = Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
+                        $inv->addItem($item = Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
                         $this->getPlugin()->sendMessage("Hai ricevuto la pistola!", $player);
                     }
                     elseif ($arena->isMurderer($player)){
@@ -221,7 +221,7 @@ class MurderListener implements Listener {
                         //bystander
                         else{
                             $arena->broadcastMessage(TextFormat::BLUE . $damager->getDisplayName() . TextFormat::WHITE . " ha ucciso un innocente!");
-                            $damager->getInventory()->remove(Item::get(Item::FISHING_ROD));
+                            $damager->getInventory()->remove(Item::get(Item::WOODEN_HOE));
                             $damager->addEffect(Effect::getEffect(Effect::BLINDNESS)->setDuration(20 * 20));
                         }
                     }

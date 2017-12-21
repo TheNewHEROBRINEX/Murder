@@ -2,17 +2,40 @@
 
 namespace TheNewHEROBRINE\Murder\entity\projectile;
 
+use pocketmine\entity\Entity;
+use pocketmine\entity\projectile\Projectile;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddItemEntityPacket;
 use pocketmine\Player;
+use TheNewHEROBRINE\Murder\entity\Corpse;
 
-class MurderKnifeProjectile extends MurderProjectile {
+class MurderKnifeProjectile extends Projectile {
+
+    /** @var float $width */
+    public $width = 0.25;
+
+    /** @var float $height */
+    public $height = 0.25;
+
+    /** @var float $gravity */
+    protected $gravity = 0;
+
+    /** @var float $drag */
+    protected $drag = 0;
 
     /** @var Item $knife */
     protected $knife;
+
+    /**
+     * @param Entity $entity
+     * @return bool
+     */
+    public function canCollideWith(Entity $entity): bool {
+        return parent::canCollideWith($entity) ? !$entity instanceof Corpse : false;
+    }
 
     /**
      * @param Level $level
@@ -34,15 +57,20 @@ class MurderKnifeProjectile extends MurderProjectile {
     }
 
     /**
-     * @param int $currentTick
+     * @param int $tickDiff
      * @return bool
      */
-    public function onUpdate(int $currentTick): bool{
+    public function entityBaseTick(int $tickDiff = 1) : bool {
         if ($this->closed){
             return false;
         }
 
-        $hasUpdate = parent::onUpdate($currentTick);
+        $hasUpdate = parent::entityBaseTick($tickDiff);
+
+        if ($this->getOwningEntity() == null){
+            $this->flagForDespawn();
+            return true;
+        }
 
         if (!$this->isClosed() and $this->isAlive()){
             if ($this->hadCollision){
@@ -50,13 +78,8 @@ class MurderKnifeProjectile extends MurderProjectile {
                 $this->flagForDespawn();
                 return true;
             }
-
-            if ($this->age > 30 * 20 or $this->getOwningEntity() == null){
-                $this->flagForDespawn();
-                return true;
-            }
-
         }
+
 
         return $hasUpdate;
     }

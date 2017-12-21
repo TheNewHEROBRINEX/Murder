@@ -205,7 +205,7 @@ class MurderArena {
         $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
         $this->getMurderer()->setFood($this->murderer->getMaxFood());
         $this->getMurderer()->addTitle(TextFormat::BOLD . TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
-        $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::FISHING_ROD)->setCustomName("Pistola"));
+        $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
         $this->getBystanders()[0]->addTitle(TextFormat::BOLD . TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Con un'arma segreta");
         $spawns = $this->spawns;
         shuffle($spawns);
