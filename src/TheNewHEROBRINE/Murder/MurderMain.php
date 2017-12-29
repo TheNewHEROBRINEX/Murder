@@ -22,6 +22,9 @@ class MurderMain extends PluginBase {
     /** @var Config $arenasCfg */
     private $arenasCfg;
 
+    /** @var Config $language */
+    private $language;
+
     /** @var  MurderArena[] $arenas */
     private $arenas = [];
 
@@ -34,30 +37,22 @@ class MurderMain extends PluginBase {
     /** @var int $countdown */
     private $countdown;
 
-    /** @var string $joinMessage */
-    private $joinMessage;
-
-    /** @var string $quitMessage */
-    private $quitMessage;
-
     public function onEnable() {
         /** @noinspection PhpUsageOfSilenceOperatorInspection */
         @mkdir($this->getDataFolder());
-        $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
-        $this->getServer()->getCommandMap()->register("murder", new MurderCommand($this));
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, [
-            "join" => TextFormat::BLUE . "{player}" . TextFormat::WHITE . " è entrato in partita",
-            "quit" => TextFormat::BLUE . "{player}" . TextFormat::WHITE . " è uscito dalla partita",
+            "language" => "eng",
             "countdown" => 40,
             "maxGameTime" => 1200,
             "hub" => "MurderHub"]
         );
         $this->countdown = $this->getConfig()->get("countdown", 40);
-        $this->joinMessage = $this->getConfig()->get("join", TextFormat::BLUE . "{player}" . TextFormat::WHITE . " è entrato in partita");
-        $this->quitMessage = $this->getConfig()->get("quit", TextFormat::BLUE . "{player}" . TextFormat::WHITE . " è uscito dalla partita");
+        $this->loadLanguage();
+        $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
+        $this->getServer()->getCommandMap()->register(strtolower($this->getName()), new MurderCommand($this));
         $hub = $this->getConfig()->get("hub", "MurderHub");
         if (!$this->getServer()->isLevelGenerated($hub)){
-            $this->getServer()->getLogger()->error("Il mondo $hub non esiste. Cambia l'hub nelle config");
+            $this->getServer()->getLogger()->error($this->translateString("console.hubNotExist", [$hub]));
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
         }
@@ -89,6 +84,16 @@ class MurderMain extends PluginBase {
         }
     }
 
+    private function loadLanguage(): void {
+        $lang = $this->getConfig()->get("language",  "eng");
+        $pathToLangs = $this->getFile() . "resources" . DIRECTORY_SEPARATOR . "lang" . DIRECTORY_SEPARATOR;
+        if (!file_exists($pathToLangs . "$lang.ini")) {
+            $this->getLogger()->error("No valid language has been selected. English has been auto selected.");
+            $lang = "eng";
+        }
+        $this->language = new Config($pathToLangs . "$lang.ini", Config::PROPERTIES);
+    }
+
     /**
      * @param string $name
      * @param array $spawns
@@ -97,6 +102,31 @@ class MurderMain extends PluginBase {
      */
     public function addArena(string $name, array $spawns, array $espawns): MurderArena {
         return $this->arenas[$name] = new MurderArena($this, $name, $spawns, $espawns);
+    }
+
+    /**
+     * @param string $str
+     * @param array $params
+     * @return string
+     */
+    public function translateString(string $str, array $params = []): string {
+        $str = $this->getLanguage()->get($str);
+        foreach($params as $i => $p){
+            $str = str_replace("{%$i}", $p, $str);
+        }
+        return self::colorize($str);
+    }
+
+    /**
+     * Replaces placeholders of § with the correct character. Only valid codes (as in the constants of the TextFormat class) will be converted.
+     *
+     * @param string $string
+     * @param string $placeholder default "&"
+     *
+     * @return string
+     */
+    public static function colorize(string $string, string $placeholder = "&") : string {
+        return preg_replace('/' . preg_quote($placeholder) . '([0-9a-fk-or])/u', TextFormat::ESCAPE . '$1', $string);
     }
 
     /**
@@ -193,23 +223,16 @@ class MurderMain extends PluginBase {
     }
 
     /**
-     * @return string
-     */
-    public function getJoinMessage(): string {
-        return $this->joinMessage;
-    }
-
-    /**
-     * @return string
-     */
-    public function getQuitMessage(): string {
-        return $this->quitMessage;
-    }
-
-    /**
      * @return MurderListener
      */
     public function getListener(): MurderListener {
         return $this->listener;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getLanguage(): Config {
+        return $this->language;
     }
 }

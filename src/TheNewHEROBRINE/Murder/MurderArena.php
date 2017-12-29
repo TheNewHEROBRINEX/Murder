@@ -76,11 +76,11 @@ class MurderArena {
         if ($this->isStarting()){
             if ($this->countdown == 0){
                 $this->start();
-                $this->broadcastMessage("La partita è iniziata!");
+                $this->broadcastMessage($this->getPlugin()->translateString("game.started"));
             }
             else {
-            $this->broadcastPopup(TextFormat::YELLOW . "Inizio tra " . TextFormat::WHITE . $this->countdown . TextFormat::YELLOW . "s");
-            $this->countdown--;
+                $this->broadcastPopup($this->getPlugin()->translateString("game.starting", [$this->countdown]));
+                $this->countdown--;
             }
         }
 
@@ -89,9 +89,11 @@ class MurderArena {
             foreach ($this->getPlayers() as $player){
                 $player->sendPopup(
                     $padding . MurderMain::MESSAGE_PREFIX . "\n" .
-                    $padding . TextFormat::AQUA . "Ruolo: " . TextFormat::GREEN . $this->getRole($player) . "\n" .
-                    $padding . TextFormat::AQUA . "Smeraldi: " . TextFormat::YELLOW . $player->getItemCount() . "/5\n" .
-                    $padding . TextFormat::AQUA . "Identità: " . "\n$padding" . TextFormat::GREEN . $player->getDisplayName() . str_repeat("\n", 3));
+                    $padding . TextFormat::AQUA . $this->getPlugin()->translateString("game.popup.role") . ": " . TextFormat::GREEN . $this->getRole($player) . "\n" .
+                    $padding . TextFormat::AQUA . $this->getPlugin()->translateString("game.popup.emeralds") . ": " . TextFormat::YELLOW . $player->getItemCount() . "/5\n" .
+                    $padding . TextFormat::AQUA . $this->getPlugin()->translateString("game.popup.identity") . ": " . "\n" .
+                    $padding . TextFormat::GREEN . $player->getDisplayName() .
+                    str_repeat("\n", 3));
             }
             if ($this->spawnEmerald == 0){
                 $this->spawnEmerald($this->espawns[array_rand($this->espawns)]);
@@ -112,18 +114,18 @@ class MurderArena {
                     $player->getInventory()->clearAll();
                     $player->getInventory()->sendContents($player);
                     $player->teleport($this->getPlugin()->getHub()->getSpawnLocation());
-                    $this->broadcastMessage(str_replace("{player}", $player->getName(), $this->getPlugin()->getJoinMessage()));
+                    $this->broadcastMessage($this->getPlugin()->translateString("game.join", [$player->getName()]));
                     if (count($this->getPlayers()) >= 2 && $this->isIdle()){
                         $this->state = self::GAME_STARTING;
                     }
                 }else{
-                    $player->sendMessage(TextFormat::RED . "Arena piena!");
+                    $player->sendMessage($this->getPlugin()->translateString("game.full"));
                 }
             }else{
-                $player->sendMessage(TextFormat::RED . "Sei già in una partita!");
+                $player->sendMessage($this->getPlugin()->translateString("game.alreadyIn"));
             }
         } else{
-            $player->sendMessage(TextFormat::RED . "Partita in corso!");
+            $player->sendMessage($this->getPlugin()->translateString("game.running"));
         }
     }
 
@@ -135,7 +137,7 @@ class MurderArena {
         /** @var MurderPlayer $player */
         if ($this->inArena($player)){
             if (!$silent){
-                $this->broadcastMessage(str_replace("{player}", $player->getMurderName(), $this->getPlugin()->getQuitMessage()));
+                $this->broadcastMessage($this->getPlugin()->translateString("game.quit", [$player->getName()]));
             }
             $this->closePlayer($player);
             if ($this->isRunning()){
@@ -160,12 +162,10 @@ class MurderArena {
                         }
                         $bystanders[] = $name;
                     }
-                    $this->stop(count($bystanders) == 1 ?
-                        "L'innocente " . implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET . " ha vinto la partita su " . $this :
-                        "Gli innocenti " . implode(TextFormat::RESET . ", ", $bystanders) . TextFormat::RESET . " hanno vinto la partita su " . $this);
+                    $this->stop($this->getPlugin()->translateString("game.win.bystanders", [implode(TextFormat::RESET . ", ", $bystanders), $this->getName()]));
                 }
                 elseif (count($this->getPlayers()) === 1){
-                    $this->stop("L'assassino " . TextFormat::DARK_RED . $this->getMurderer()->getName() .  TextFormat::RESET . " ha vinto la partita su " . $this);
+                    $this->stop($this->getPlugin()->translateString("game.win.murderer", [$this->getMurderer()->getName(), $this->getName()]));
                 }
             }
             elseif ($this->isStarting()){
@@ -202,11 +202,11 @@ class MurderArena {
             $player = $this->getPlayers()[$key];
             $player->getInventory()->clearAll();
         }
-        $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName("Coltello"));
+        $this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
         $this->getMurderer()->setFood($this->murderer->getMaxFood());
-        $this->getMurderer()->addTitle(TextFormat::BOLD . TextFormat::RED . "Murderer", TextFormat::RED . "Uccidi tutti");
-        $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::WOODEN_HOE)->setCustomName("Pistola"));
-        $this->getBystanders()[0]->addTitle(TextFormat::BOLD . TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Con un'arma segreta");
+        $this->getMurderer()->addTitle(TextFormat::BOLD . TextFormat::RED . $this->getPlugin()->translateString("game.murderer"), $this->getPlugin()->translateString("game.startSubtitle.murderer"));
+        $this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
+        $this->getBystanders()[0]->addTitle(TextFormat::BOLD . TextFormat::AQUA . $this->getPlugin()->translateString("game.bystander"), $this->getPlugin()->translateString("game.startSubtitle.detective"));
         $spawns = $this->spawns;
         shuffle($spawns);
         foreach ($this->getPlayers() as $player) {
@@ -216,7 +216,7 @@ class MurderArena {
             if ($player !== $this->getMurderer()){
                 $player->setFood(6);
                 if ($player !== $this->getBystanders()[0]){
-                    $player->addTitle(TextFormat::BOLD . TextFormat::AQUA . "Bystander", TextFormat::AQUA . "Uccidi il murderer");
+                    $player->addTitle(TextFormat::BOLD . TextFormat::AQUA . $this->getPlugin()->translateString("game.bystander"), $this->getPlugin()->translateString("game.startSubtitle.bystander"));
                     $this->bystanders[] = $player;
                 }
             }
@@ -300,7 +300,7 @@ class MurderArena {
      */
     public function getRole(Player $player): string {
         if ($this->inArena($player)){
-            return $this->isMurderer($player) ? "Murderer" : "Bystander";
+            return $this->isMurderer($player) ? $this->getPlugin()->translateString("game.murder") : $this->getPlugin()->translateString("game.bystander");
         }
         return null;
     }
