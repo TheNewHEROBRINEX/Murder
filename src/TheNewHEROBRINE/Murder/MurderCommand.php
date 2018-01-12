@@ -20,7 +20,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
      * @param MurderMain $plugin
      */
     public function __construct(MurderMain $plugin) {
-        parent::__construct("murder", "Comando principale del minigame Murder", "/murder join {arena}|quit|setarena {players} {emeralds}", ["mdr"]);
+        parent::__construct("murder", $plugin->translateString("command.description"), $plugin->translateString("command.usage"), ["mdr"]);
         $this->setPermission("murder.command.join;murder.command.quit;murder.command.setarena");
         $this->plugin = $plugin;
     }
@@ -37,7 +37,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
         }
 
         if (!$sender instanceof Player){
-            $sender->sendMessage(TextFormat::RED . "Puoi eseguire questo comando solo in-game!");
+            $sender->sendMessage($this->getPlugin()->translateString("command.inGameOnly"));
             return true;
         }
 
@@ -62,7 +62,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     $arena->join($sender);
                 }
                 else{
-                    $sender->sendMessage(TextFormat::RED . "L'arena $args[0] non esiste!");
+                    $sender->sendMessage($this->getPlugin()->translateString("game.notExisting", [$args[0]]));
                 }
                 return true;
 
@@ -79,7 +79,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                     $arena->quit($sender);
                 }
                 else{
-                    $sender->sendMessage(TextFormat::RED . "Non sei in nessuna partita di Murder!");
+                    $sender->sendMessage($this->getPlugin()->translateString("command.notInGame"));
                 }
                 return true;
 
@@ -98,7 +98,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                 $this->getPlugin()->getListener()->setespawns[$name][$world] = (int)$args[1];
                 $this->getPlugin()->getArenasCfg()->setNested("$world.spawns", []);
                 $this->getPlugin()->getArenasCfg()->setNested("$world.espawns", []);
-                $this->getPlugin()->sendMessage("§eSettaggio di§f $args[0] §espawn per il mondo§f {$sender->getLevel()->getFolderName()} §einiziato", $sender);
+                $this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.playersSpawns.started", [$args[0], $sender->getLevel()->getFolderName()]), $sender);
                 return true;
                 
             default:
