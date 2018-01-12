@@ -300,7 +300,7 @@ class MurderArena {
      */
     public function getRole(Player $player): string {
         if ($this->inArena($player)){
-            return $this->isMurderer($player) ? $this->getPlugin()->translateString("game.murder") : $this->getPlugin()->translateString("game.bystander");
+            return $this->isMurderer($player) ? $this->getPlugin()->translateString("game.murderer") : $this->getPlugin()->translateString("game.bystander");
         }
         return null;
     }
