@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder;
 
@@ -50,6 +51,7 @@ class MurderMain extends PluginBase {
         $this->loadLanguage();
         $this->getServer()->getPluginManager()->registerEvents($this->listener = new MurderListener($this), $this);
         $this->getServer()->getCommandMap()->register(strtolower($this->getName()), new MurderCommand($this));
+        /** @var string $hub */
         $hub = $this->getConfig()->get("hub", "MurderHub");
         if (!$this->getServer()->isLevelGenerated($hub)){
             $this->getServer()->getLogger()->error($this->translateString("console.hubNotExist", [$hub]));
@@ -110,23 +112,12 @@ class MurderMain extends PluginBase {
      * @return string
      */
     public function translateString(string $str, array $params = []): string {
+        /** @var string $str */
         $str = $this->getLanguage()->get($str);
         foreach($params as $i => $p){
             $str = str_replace("{%$i}", $p, $str);
         }
-        return self::colorize($str);
-    }
-
-    /**
-     * Replaces placeholders of § with the correct character. Only valid codes (as in the constants of the TextFormat class) will be converted.
-     *
-     * @param string $string
-     * @param string $placeholder default "&"
-     *
-     * @return string
-     */
-    public static function colorize(string $string, string $placeholder = "&") : string {
-        return preg_replace('/' . preg_quote($placeholder) . '([0-9a-fk-or])/u', TextFormat::ESCAPE . '$1', $string);
+        return TextFormat::colorize($str);
     }
 
     /**

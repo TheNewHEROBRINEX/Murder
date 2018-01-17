@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder;
 
@@ -56,8 +57,8 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
                 }
 
                 if ($arena = $this->getPlugin()->getArenaByName($args[0])){
-                    if (!$this->getPlugin()->getServer()->isLevelLoaded($arena)){
-                        $this->getPlugin()->getServer()->loadLevel($arena);
+                    if (!$this->getPlugin()->getServer()->isLevelLoaded($arena->getName())){
+                        $this->getPlugin()->getServer()->loadLevel($arena->getName());
                     }
                     $arena->join($sender);
                 }

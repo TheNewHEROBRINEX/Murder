@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder;
 
@@ -296,13 +297,10 @@ class MurderArena {
 
     /**
      * @param Player $player
-     * @return string|null
+     * @return string
      */
-    public function getRole(Player $player): string {
-        if ($this->inArena($player)){
-            return $this->isMurderer($player) ? $this->getPlugin()->translateString("game.murderer") : $this->getPlugin()->translateString("game.bystander");
-        }
-        return null;
+    private function getRole(Player $player): string {
+        return $this->isMurderer($player) ? $this->getPlugin()->translateString("game.murderer") : $this->getPlugin()->translateString("game.bystander");
     }
 
     /**
@@ -336,16 +334,16 @@ class MurderArena {
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function isIdle(): int {
+    public function isIdle(): bool {
         return $this->state == self::GAME_IDLE;
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function isStarting(): int {
+    public function isStarting(): bool {
         return $this->state == self::GAME_STARTING;
     }
 

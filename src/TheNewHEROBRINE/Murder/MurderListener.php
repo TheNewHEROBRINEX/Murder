@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder;
 
 use pocketmine\entity\Effect;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Human;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityLevelChangeEvent;
@@ -18,6 +20,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\protocol\AddEntityPacket;
 use pocketmine\network\mcpe\protocol\EntityEventPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -182,7 +185,14 @@ class MurderListener implements Listener {
      */
     public function onDeath(PlayerDeathEvent $event) {
         if ($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer()) and $arena->isRunning()){
-            Entity::createEntity("Corpse", $player->getLevel(), new CompoundTag(), $player)->spawnToAll();
+            $nbt = Entity::createBaseNBT($player, null, $player->yaw, $player->pitch);
+            $player->saveNBT();
+            $nbt->Inventory = clone $player->namedtag->Inventory;
+            $nbt->Skin = new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkin()->getSkinData()), "Name" => new StringTag("Name", $player->getSkin()->getSkinId())]);
+            $corpse = Entity::createEntity("Corpse", $player->getLevel(), $nbt);
+            $corpse->setDataProperty(Human::DATA_PLAYER_BED_POSITION, Human::DATA_TYPE_POS, [(int)$player->x, (int)$player->y, (int)$player->z]);
+            $corpse->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
+            $corpse->spawnToAll();
             $arena->quit($player, true);
             $event->setDrops([]);
             $event->setDeathMessage("");

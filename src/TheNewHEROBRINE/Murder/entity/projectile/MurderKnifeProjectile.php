@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder\entity\projectile;
 
@@ -84,6 +85,7 @@ class MurderKnifeProjectile extends Projectile {
         return $hasUpdate;
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     /**
      * @param Player $player
      */
