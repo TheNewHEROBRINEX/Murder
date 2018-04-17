@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace TheNewHEROBRINE\Murder;
 
 use pocketmine\entity\Effect;
+use pocketmine\entity\EffectInstance;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Human;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -17,6 +18,7 @@ use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
@@ -131,11 +133,12 @@ class MurderListener implements Listener {
      * @param InventoryPickupItemEvent $event
      */
     public function onItemPickup(InventoryPickupItemEvent $event) {
-        $player = $event->getInventory()->getHolder();
+		/** @var PlayerInventory $inv */
+    	$inv = $event->getInventory();
+        $player = $inv->getHolder();
         $item = $event->getItem()->getItem();
         if ($player instanceof MurderPlayer and $arena = $this->getPlugin()->getArenaByPlayer($player)) {
             if ($item->getId() == Item::EMERALD) {
-                $inv = $player->getInventory();
                 $count = $player->getItemCount() + 1;
                 $this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.emerald", [$count]), $player);
                 if ($count == 5 and !$inv->contains(Item::get(Item::WOODEN_HOE, -1, 1))){
@@ -187,10 +190,11 @@ class MurderListener implements Listener {
         if ($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer()) and $arena->isRunning()){
             $nbt = Entity::createBaseNBT($player, null, $player->yaw, $player->pitch);
             $player->saveNBT();
-            $nbt->Inventory = clone $player->namedtag->Inventory;
-            $nbt->Skin = new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkin()->getSkinData()), "Name" => new StringTag("Name", $player->getSkin()->getSkinId())]);
+            $nbt->setTag(clone $player->namedtag->getTag("Inventory"));
+            $nbt->setTag(new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkin()->getSkinData()), "Name" => new StringTag("Name", $player->getSkin()->getSkinId())]));
+            /** @var Corpse $corpse */
             $corpse = Entity::createEntity("Corpse", $player->getLevel(), $nbt);
-            $corpse->setDataProperty(Human::DATA_PLAYER_BED_POSITION, Human::DATA_TYPE_POS, [(int)$player->x, (int)$player->y, (int)$player->z]);
+            $corpse->getDataPropertyManager()->setBlockPos(Human::DATA_PLAYER_BED_POSITION, new Vector3((int)$player->x, (int)$player->y, (int)$player->z));
             $corpse->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
             $corpse->spawnToAll();
             $arena->quit($player, true);
@@ -231,7 +235,7 @@ class MurderListener implements Listener {
                         else{
                             $arena->broadcastMessage($this->getPlugin()->translateString("game.kill.bystander", [$damager->getName()]));
                             $damager->getInventory()->remove(Item::get(Item::WOODEN_HOE));
-                            $damager->addEffect(Effect::getEffect(Effect::BLINDNESS)->setDuration(20 * 20));
+                            $damager->addEffect((new EffectInstance(Effect::getEffect(Effect::BLINDNESS)))->setDuration(20 * 20));
                         }
                     }
                     $damaged->setHealth(0);

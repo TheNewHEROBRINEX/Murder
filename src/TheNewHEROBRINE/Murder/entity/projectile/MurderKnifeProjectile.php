@@ -3,10 +3,12 @@ declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder\entity\projectile;
 
+use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\entity\projectile\Projectile;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
+use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddItemEntityPacket;
@@ -73,19 +75,20 @@ class MurderKnifeProjectile extends Projectile {
             return true;
         }
 
-        if (!$this->isClosed() and $this->isAlive()){
-            if ($this->hadCollision){
-                $this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
-                $this->flagForDespawn();
-                return true;
-            }
-        }
-
-
         return $hasUpdate;
     }
 
-    /** @noinspection PhpMissingParentCallCommonInspection */
+	/**
+	 * @param Block $blockHit
+	 * @param RayTraceResult $hitResult
+	 */
+    public function onHitBlock(Block $blockHit, RayTraceResult $hitResult): void{
+		parent::onHitBlock($blockHit, $hitResult);
+		$this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
+		$this->flagForDespawn();
+	}
+
+	/** @noinspection PhpMissingParentCallCommonInspection */
     /**
      * @param Player $player
      */
@@ -96,7 +99,7 @@ class MurderKnifeProjectile extends Projectile {
             $pk->position = $this->asVector3();
             $pk->motion = $this->getMotion();
             $pk->item = $this->knife;
-            $pk->metadata = $this->dataProperties;
+            $pk->metadata = $this->getDataPropertyManager()->getAll();
             $player->dataPacket($pk);
         }
     }
