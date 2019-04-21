@@ -152,7 +152,7 @@ class MurderArena {
                         $name = $bystander->getName();
                         if ($this->inArena($bystander)) {
                             $name = TextFormat::BLUE . $name;
-                            if ($event instanceof EntityDamageByChildEntityEvent and $event->getChild() instanceof MurderGunProjectile and $event->getDamager() == $bystander) {
+                            if ($event instanceof EntityDamageByChildEntityEvent and $event->getChild() instanceof MurderGunProjectile and $event->getDamager() === $bystander) {
                                 $name = TextFormat::BOLD . $name;
                             }
                         }else {

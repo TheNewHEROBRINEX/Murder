@@ -67,7 +67,7 @@ class MurderMain extends PluginBase {
             $this->getServer()->loadLevel($name);
             $this->addArena($name, $arena["spawns"], $arena["espawns"]);
         }
-        $this->getServer()->getScheduler()->scheduleRepeatingTask(new MurderTimer($this), 20);
+        $this->getScheduler()->scheduleRepeatingTask(new MurderTimer($this), 20);
         Entity::registerEntity(MurderKnifeProjectile::class, true);
         Entity::registerEntity(MurderGunProjectile::class, true);
         Entity::registerEntity(Corpse::class, true);

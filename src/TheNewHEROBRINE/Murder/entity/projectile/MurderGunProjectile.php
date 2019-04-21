@@ -10,39 +10,41 @@ use TheNewHEROBRINE\Murder\particle\MobSpellParticle;
 
 class MurderGunProjectile extends Arrow{
 
-	/**
-	 * @return string
-	 */
-	public function getName(): string{
-		return "MurderGunProjectile";
-	}
+    protected $gravity = 0;
+    protected $drag = 0;
 
-	/**
-	 * @param int $tickDiff
-	 * @return bool
-	 */
-	public function entityBaseTick(int $tickDiff = 1): bool{
-		if ($this->closed){
-			return false;
-		}
+    /**
+     * @return string
+     */
+    public function getName(): string{
+        return "MurderGunProjectile";
+    }
 
-		$hasUpdate = parent::entityBaseTick($tickDiff);
+    /**
+     * @param int $tickDiff
+     * @return bool
+     */
+    public function entityBaseTick(int $tickDiff = 1): bool{
+        if ($this->closed){
+            return false;
+        }
 
-		if ($this->age > 200 or $this->getOwningEntity() == null){
-			$this->flagForDespawn();
-			return true;
-		} elseif ($this->level instanceof Level){
-			$this->level->addParticle(new MobSpellParticle($this));
-		}
+        $hasUpdate = parent::entityBaseTick($tickDiff);
 
-		return $hasUpdate;
-	}
+        if ($this->ticksLived > 200 or $this->getOwningEntity() === null){
+            $this->flagForDespawn();
+            return true;
+        } elseif ($this->level instanceof Level){
+            $this->level->addParticle(new MobSpellParticle($this));
+        }
+        return $hasUpdate;
+    }
 
-	/** @noinspection PhpMissingParentCallCommonInspection */
-	/**
-	 * @param ProjectileHitEvent $event
-	 */
-	public function onHit(ProjectileHitEvent $event): void{
-		$this->flagForDespawn();
-	}
+    /** @noinspection PhpMissingParentCallCommonInspection */
+    /**
+     * @param ProjectileHitEvent $event
+     */
+    public function onHit(ProjectileHitEvent $event): void{
+        $this->flagForDespawn();
+    }
 }

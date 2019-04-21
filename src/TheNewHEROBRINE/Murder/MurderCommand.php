@@ -33,7 +33,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand {
      * @return bool
      */
     public function execute(CommandSender $sender, string $commandLabel, array $args) {
-        if (!$this->testPermission($sender)){
+        if ($this->plugin->isDisabled() or !$this->testPermission($sender)){
             return true;
         }
 
