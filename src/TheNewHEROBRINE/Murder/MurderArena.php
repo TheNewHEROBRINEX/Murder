@@ -10,6 +10,7 @@ use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
+use ReflectionProperty;
 use TheNewHEROBRINE\Murder\entity\MurderPlayer;
 use TheNewHEROBRINE\Murder\entity\projectile\MurderGunProjectile;
 
@@ -86,7 +87,7 @@ class MurderArena {
         }
 
         elseif ($this->isRunning()){
-            $padding = str_repeat(" ", 55);
+          /*$padding = str_repeat(" ", 55);
             foreach ($this->getPlayers() as $player){
                 $player->sendPopup(
                     $padding . MurderMain::MESSAGE_PREFIX . "\n" .
@@ -95,7 +96,7 @@ class MurderArena {
                     $padding . TextFormat::AQUA . $this->getPlugin()->translateString("game.popup.identity") . ": " . "\n" .
                     $padding . TextFormat::GREEN . $player->getDisplayName() .
                     str_repeat("\n", 3));
-            }
+            }*/
             if ($this->spawnEmerald == 0){
                 $this->spawnEmerald($this->espawns[array_rand($this->espawns)]);
                 $this->spawnEmerald = 10;
@@ -145,7 +146,7 @@ class MurderArena {
                 if ($this->isMurderer($player)){
                     $bystanders = [];
                     $event = $this->getMurderer()->getLastDamageCause();
-                    $lastDamageCause = new \ReflectionProperty(get_class($player), "lastDamageCause");
+                    $lastDamageCause = new ReflectionProperty(get_class($player), "lastDamageCause");
                     $lastDamageCause->setAccessible(true);
                     $lastDamageCause->setValue($player, null);
                     foreach ($this->getBystanders() as $bystander) {
@@ -275,7 +276,7 @@ class MurderArena {
             $player->setHealth($player->getMaxHealth());
             $player->setFood($player->getMaxFood());
             $player->removeAllEffects();
-            unset($this->players[array_search($player, $this->getPlayers())]);
+            unset($this->players[array_search($player, $this->getPlayers(), true)]);
             $player->teleport($this->getPlugin()->getServer()->getDefaultLevel()->getSpawnLocation());
         }
     }
@@ -292,14 +293,14 @@ class MurderArena {
      * @return bool
      */
     public function inArena(Player $player): bool {
-        return in_array($player, $this->getPlayers());
+        return in_array($player, $this->getPlayers(), true);
     }
 
     /**
      * @param Player $player
      * @return string
      */
-    private function getRole(Player $player): string {
+    public function getRole(Player $player): string {
         return $this->isMurderer($player) ? $this->getPlugin()->translateString("game.murderer") : $this->getPlugin()->translateString("game.bystander");
     }
 
@@ -330,7 +331,7 @@ class MurderArena {
      * @return bool
      */
     public function isBystander(Player $player): bool {
-        return in_array($player, $this->getBystanders());
+        return in_array($player, $this->getBystanders(), true);
     }
 
     /**

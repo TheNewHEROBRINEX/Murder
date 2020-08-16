@@ -11,7 +11,7 @@ use pocketmine\level\Level;
 use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\network\mcpe\protocol\AddItemEntityPacket;
+use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\entity\Corpse;
 
@@ -94,7 +94,7 @@ class MurderKnifeProjectile extends Projectile {
      */
     protected function sendSpawnPacket(Player $player): void {
         if ($this->knife !== null) {
-            $pk = new AddItemEntityPacket();
+            $pk = new AddItemActorPacket();
             $pk->entityRuntimeId = $this->getId();
             $pk->position = $this->asVector3();
             $pk->motion = $this->getMotion();
