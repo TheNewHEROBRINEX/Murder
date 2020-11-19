@@ -74,7 +74,7 @@ class MurderArena{
 		$this->countdown = $this->getPlugin()->getCountdown();
 	}
 
-	public function tick(){
+	public function tick() : void{
 		if($this->isStarting()){
 			if($this->countdown == 0){
 				$this->start();
@@ -105,7 +105,7 @@ class MurderArena{
 	/**
 	 * @param Player $player
 	 */
-	public function join(Player $player){
+	public function join(Player $player) : void{
 		if(!$this->isRunning()){
 			if(!$this->getPlugin()->getArenaByPlayer($player)){
 				if(count($this->getPlayers()) < count($this->spawns)){
@@ -132,7 +132,7 @@ class MurderArena{
 	 * @param Player $player
 	 * @param bool   $silent
 	 */
-	public function quit(Player $player, $silent = false){
+	public function quit(Player $player, $silent = false) : void{
 		/** @var MurderPlayer $player */
 		if($this->inArena($player)){
 			if(!$silent){
@@ -173,7 +173,7 @@ class MurderArena{
 		}
 	}
 
-	public function start(){
+	public function start() : void{
 		$this->state = self::GAME_RUNNING;
 		$skins = [];
 		foreach($this->getPlayers() as $player){
@@ -228,7 +228,7 @@ class MurderArena{
 	/**
 	 * @param string $message
 	 */
-	public function stop(string $message = ""){
+	public function stop(string $message = "") : void{
 		if($this->isRunning()){
 			foreach($this->getWorld()->getPlayers() as $player){
 				if($this->inArena($player)){
@@ -254,7 +254,7 @@ class MurderArena{
 	/**
 	 * @param Player $player
 	 */
-	public function closePlayer(Player $player){
+	public function closePlayer(Player $player) : void{
 		/** @var MurderPlayer $player */
 		if($this->inArena($player)){
 			$player->setNameTagAlwaysVisible(true);
@@ -278,7 +278,7 @@ class MurderArena{
 	/**
 	 * @param array $espawn
 	 */
-	public function spawnEmerald(array $espawn){
+	public function spawnEmerald(array $espawn) : void{
 		$this->getWorld()->dropItem(new Vector3($espawn[0], $espawn[1], $espawn[2]), Item::get(Item::EMERALD));
 	}
 
@@ -303,14 +303,14 @@ class MurderArena{
 	/**
 	 * @param string $msg
 	 */
-	public function broadcastMessage(string $msg){
+	public function broadcastMessage(string $msg) : void{
 		$this->getPlugin()->broadcastMessage($msg, $this->getPlayers());
 	}
 
 	/**
 	 * @param string $msg
 	 */
-	public function broadcastPopup(string $msg){
+	public function broadcastPopup(string $msg) : void{
 		$this->getPlugin()->broadcastPopup($msg, $this->getPlayers());
 	}
 

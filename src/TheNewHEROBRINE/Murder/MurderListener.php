@@ -36,8 +36,10 @@ class MurderListener implements Listener{
 
 	/** @var array $setspawns */
 	public $setspawns;
+
 	/** @var array $setespawns */
 	public $setespawns;
+
 	/** @var MurderMain $plugin */
 	private $plugin;
 
@@ -51,7 +53,7 @@ class MurderListener implements Listener{
 	/**
 	 * @param PlayerInteractEvent $event
 	 */
-	public function onInteract(PlayerInteractEvent $event){
+	public function onInteract(PlayerInteractEvent $event) : void{
 		$player = $event->getPlayer();
 		if($this->getPlugin()->getArenaByPlayer($player) and $event->getAction() == PlayerInteractEvent::RIGHT_CLICK_AIR and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::WOODEN_HOE){
 			$nbt = Entity::createBaseNBT(
@@ -124,7 +126,7 @@ class MurderListener implements Listener{
 	/**
 	 * @param PlayerQuitEvent $event
 	 */
-	public function onQuit(PlayerQuitEvent $event){
+	public function onQuit(PlayerQuitEvent $event) : void{
 		if($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer())){
 			$arena->quit($player);
 		}
@@ -133,7 +135,7 @@ class MurderListener implements Listener{
 	/**
 	 * @param InventoryPickupItemEvent $event
 	 */
-	public function onItemPickup(InventoryPickupItemEvent $event){
+	public function onItemPickup(InventoryPickupItemEvent $event) : void{
 		/** @var PlayerInventory $inv */
 		$inv = $event->getInventory();
 		$player = $inv->getHolder();
@@ -165,7 +167,7 @@ class MurderListener implements Listener{
 	/**
 	 * @param PlayerDropItemEvent $event
 	 */
-	public function onItemDrop(PlayerDropItemEvent $event){
+	public function onItemDrop(PlayerDropItemEvent $event) : void{
 		if($this->getPlugin()->getArenaByPlayer($event->getPlayer())){
 			$event->setCancelled();
 		}
@@ -174,7 +176,7 @@ class MurderListener implements Listener{
 	/**
 	 * @param PlayerExhaustEvent $event
 	 */
-	public function onExhaust(PlayerExhaustEvent $event){
+	public function onExhaust(PlayerExhaustEvent $event) : void{
 		$player = $event->getPlayer();
 		if($player instanceof Player and $this->getPlugin()->getArenaByPlayer($player)){
 			$event->setCancelled();
@@ -184,7 +186,7 @@ class MurderListener implements Listener{
 	/**
 	 * @param PlayerDeathEvent $event
 	 */
-	public function onDeath(PlayerDeathEvent $event){
+	public function onDeath(PlayerDeathEvent $event) : void{
 		if($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer()) and $arena->isRunning()){
 			$nbt = Entity::createBaseNBT($player, null, $player->yaw, $player->pitch);
 			$player->saveNBT();
@@ -206,7 +208,7 @@ class MurderListener implements Listener{
 	 *
 	 * @param EntityDamageEvent $event
 	 */
-	public function onDamage(EntityDamageEvent $event){
+	public function onDamage(EntityDamageEvent $event) : void{
 		//players can't hit corpses
 		if(($damaged = $event->getEntity()) instanceof Corpse){
 			$event->setCancelled();
@@ -246,7 +248,7 @@ class MurderListener implements Listener{
 	/**
 	 * @param EntityLevelChangeEvent $event
 	 */
-	public function onLevelChange(EntityLevelChangeEvent $event){
+	public function onLevelChange(EntityLevelChangeEvent $event) : void{
 		$entity = $event->getEntity();
 		$target = $event->getTarget();
 		if($entity instanceof Player){
@@ -260,7 +262,7 @@ class MurderListener implements Listener{
 	/**
 	 * @param PlayerCreationEvent $event
 	 */
-	public function onPlayerCreation(PlayerCreationEvent $event){
+	public function onPlayerCreation(PlayerCreationEvent $event) : void{
 		$event->setPlayerClass(MurderPlayer::class);
 	}
 

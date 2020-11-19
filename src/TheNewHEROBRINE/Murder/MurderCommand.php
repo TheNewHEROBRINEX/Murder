@@ -33,14 +33,14 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args) : void{
 		if($this->plugin->isDisabled() or !$this->testPermission($sender)){
-			return true;
+			return;
 		}
 
 		if(!$sender instanceof Player){
 			$sender->sendMessage($this->getPlugin()->translateString("command.inGameOnly"));
-			return true;
+			return;
 		}
 
 		if(count($args) === 0 or count($args) > 3){
@@ -50,7 +50,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 		switch(array_shift($args)){
 			case "join":
 				if($this->badPerm($sender, "join")){
-					return false;
+					return;
 				}
 
 				if(count($args) !== 1){
@@ -65,11 +65,11 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 				}else{
 					$sender->sendMessage($this->getPlugin()->translateString("game.notExisting", [$args[0]]));
 				}
-				return true;
+				return;
 
 			case "quit":
 				if($this->badPerm($sender, "quit")){
-					return false;
+					return;
 				}
 
 				if(count($args)){
@@ -81,11 +81,11 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 				}else{
 					$sender->sendMessage($this->getPlugin()->translateString("command.notInGame"));
 				}
-				return true;
+				return;
 
 			case "setarena":
 				if($this->badPerm($sender, "setarena")){
-					return false;
+					return;
 				}
 
 				if(count($args) < 2 or !ctype_digit(implode("", $args))){
@@ -99,7 +99,7 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 				$this->getPlugin()->getArenasCfg()->setNested("$world.spawns", []);
 				$this->getPlugin()->getArenasCfg()->setNested("$world.espawns", []);
 				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.playersSpawns.started", [$args[0], $sender->getLevel()->getFolderName()]), $sender);
-				return true;
+				return;
 
 			default:
 				throw new InvalidCommandSyntaxException();
