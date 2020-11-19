@@ -26,7 +26,7 @@ class MurderMain extends PluginBase{
 	/** @var Config $language */
 	private $language;
 
-	/** @var  MurderArena[] $arenas */
+	/** @var MurderArena[] $arenas */
 	private $arenas = [];
 
 	/** @var MurderListener $listener */
@@ -96,21 +96,15 @@ class MurderMain extends PluginBase{
 	}
 
 	/**
-	 * @param string $name
-	 * @param array  $spawns
-	 * @param array  $espawns
-	 *
-	 * @return MurderArena
+	 * @param int[][] $spawns
+	 * @param int[][] $espawns
 	 */
 	public function addArena(string $name, array $spawns, array $espawns) : MurderArena{
 		return $this->arenas[$name] = new MurderArena($this, $name, $spawns, $espawns);
 	}
 
 	/**
-	 * @param string $str
-	 * @param array  $params
-	 *
-	 * @return string
+	 * @param string[] $params
 	 */
 	public function translateString(string $str, array $params = []) : string{
 		/** @var string $str */
@@ -121,19 +115,14 @@ class MurderMain extends PluginBase{
 		return TextFormat::colorize($str);
 	}
 
-	/**
-	 * @param string $text
-	 * @param Player $recipient
-	 */
 	public function sendMessage(string $text, Player $recipient) : void{
 		$recipient->sendMessage(self::MESSAGE_PREFIX . " " . $text);
 	}
 
 	/**
-	 * @param string        $text
 	 * @param Player[]|null $recipients
 	 */
-	public function broadcastMessage(string $text, $recipients = null) : void{
+	public function broadcastMessage(string $text, ?array $recipients = null) : void{
 		if($recipients === null){
 			$recipients = $this->getServer()->getOnlinePlayers();
 		}
@@ -141,19 +130,14 @@ class MurderMain extends PluginBase{
 			$this->sendMessage($text, $recipient);
 	}
 
-	/**
-	 * @param string $text
-	 * @param Player $recipient
-	 */
 	public function sendPopup(string $text, Player $recipient) : void{
 		$recipient->sendPopup($text);
 	}
 
 	/**
-	 * @param string        $text
 	 * @param Player[]|null $recipients
 	 */
-	public function broadcastPopup(string $text, $recipients = null) : void{
+	public function broadcastPopup(string $text, ?array $recipients = null) : void{
 		if($recipients === null){
 			$recipients = $this->getServer()->getOnlinePlayers();
 		}
@@ -161,11 +145,6 @@ class MurderMain extends PluginBase{
 			$this->sendPopup($text, $recipient);
 	}
 
-	/**
-	 * @param Player $player
-	 *
-	 * @return MurderArena|null
-	 */
 	public function getArenaByPlayer(Player $player) : ?MurderArena{
 		foreach($this->getArenas() as $arena)
 			if($arena->inArena($player)){
@@ -175,11 +154,6 @@ class MurderMain extends PluginBase{
 		return null;
 	}
 
-	/**
-	 * @param string $name
-	 *
-	 * @return MurderArena|null
-	 */
 	public function getArenaByName(string $name) : ?MurderArena{
 		if(isset($this->getArenas()[$name])){
 			return $this->getArenas()[$name];
@@ -188,9 +162,6 @@ class MurderMain extends PluginBase{
 		return null;
 	}
 
-	/**
-	 * @return Config
-	 */
 	public function getArenasCfg() : Config{
 		return $this->arenasCfg;
 	}
@@ -202,30 +173,18 @@ class MurderMain extends PluginBase{
 		return $this->arenas;
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getCountdown() : int{
 		return $this->countdown;
 	}
 
-	/**
-	 * @return Level
-	 */
 	public function getHub() : Level{
 		return $this->hub;
 	}
 
-	/**
-	 * @return MurderListener
-	 */
 	public function getListener() : MurderListener{
 		return $this->listener;
 	}
 
-	/**
-	 * @return Config
-	 */
 	public function getLanguage() : Config{
 		return $this->language;
 	}

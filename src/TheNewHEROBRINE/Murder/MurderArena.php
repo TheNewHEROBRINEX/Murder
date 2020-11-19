@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder;
 
+use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
@@ -38,7 +39,7 @@ class MurderArena{
 	/** @var MurderPlayer[] $players */
 	private $players = [];
 
-	/** @var array $skins */
+	/** @var Skin[] $skins */
 	private $skins = [];
 
 	/** @var MurderPlayer $murderer */
@@ -47,10 +48,10 @@ class MurderArena{
 	/** @var MurderPlayer[] $bystanders */
 	private $bystanders;
 
-	/** @var array $spawns */
+	/** @var int[][] $spawns */
 	private $spawns;
 
-	/** @var array $espawns */
+	/** @var int[][] $espawns */
 	private $espawns;
 
 	/** @var Level $world */
@@ -60,10 +61,8 @@ class MurderArena{
 	private $spawnEmerald = 10;
 
 	/**
-	 * @param MurderMain $plugin
-	 * @param string     $name
-	 * @param array      $spawns
-	 * @param array      $espawns
+	 * @param int[][]      $spawns
+	 * @param int[][]      $espawns
 	 */
 	public function __construct(MurderMain $plugin, string $name, array $spawns, array $espawns){
 		$this->spawns = $spawns;
@@ -102,9 +101,6 @@ class MurderArena{
 		}
 	}
 
-	/**
-	 * @param Player $player
-	 */
 	public function join(Player $player) : void{
 		if(!$this->isRunning()){
 			if(!$this->getPlugin()->getArenaByPlayer($player)){
@@ -128,11 +124,7 @@ class MurderArena{
 		}
 	}
 
-	/**
-	 * @param Player $player
-	 * @param bool   $silent
-	 */
-	public function quit(Player $player, $silent = false) : void{
+	public function quit(Player $player, bool $silent = false) : void{
 		/** @var MurderPlayer $player */
 		if($this->inArena($player)){
 			if(!$silent){
@@ -225,9 +217,6 @@ class MurderArena{
 		}
 	}
 
-	/**
-	 * @param string $message
-	 */
 	public function stop(string $message = "") : void{
 		if($this->isRunning()){
 			foreach($this->getWorld()->getPlayers() as $player){
@@ -251,9 +240,6 @@ class MurderArena{
 		}
 	}
 
-	/**
-	 * @param Player $player
-	 */
 	public function closePlayer(Player $player) : void{
 		/** @var MurderPlayer $player */
 		if($this->inArena($player)){
@@ -276,86 +262,48 @@ class MurderArena{
 	}
 
 	/**
-	 * @param array $espawn
+	 * @param int[] $espawn
 	 */
 	public function spawnEmerald(array $espawn) : void{
 		$this->getWorld()->dropItem(new Vector3($espawn[0], $espawn[1], $espawn[2]), Item::get(Item::EMERALD));
 	}
 
-	/**
-	 * @param Player $player
-	 *
-	 * @return bool
-	 */
 	public function inArena(Player $player) : bool{
 		return in_array($player, $this->getPlayers(), true);
 	}
 
-	/**
-	 * @param Player $player
-	 *
-	 * @return string
-	 */
 	public function getRole(Player $player) : string{
 		return $this->isMurderer($player) ? $this->getPlugin()->translateString("game.murderer") : $this->getPlugin()->translateString("game.bystander");
 	}
 
-	/**
-	 * @param string $msg
-	 */
 	public function broadcastMessage(string $msg) : void{
 		$this->getPlugin()->broadcastMessage($msg, $this->getPlayers());
 	}
 
-	/**
-	 * @param string $msg
-	 */
 	public function broadcastPopup(string $msg) : void{
 		$this->getPlugin()->broadcastPopup($msg, $this->getPlayers());
 	}
 
-	/**
-	 * @param Player $player
-	 *
-	 * @return bool
-	 */
 	public function isMurderer(Player $player) : bool{
 		return $this->getMurderer() === $player;
 	}
 
-	/**
-	 * @param Player $player
-	 *
-	 * @return bool
-	 */
 	public function isBystander(Player $player) : bool{
 		return in_array($player, $this->getBystanders(), true);
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isIdle() : bool{
 		return $this->state == self::GAME_IDLE;
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isStarting() : bool{
 		return $this->state == self::GAME_STARTING;
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isRunning() : bool{
 		return $this->state == self::GAME_RUNNING;
 	}
 
-	/**
-	 * @return MurderPlayer
-	 */
 	public function getMurderer() : MurderPlayer{
 		return $this->murderer;
 	}
@@ -374,37 +322,25 @@ class MurderArena{
 		return $this->players;
 	}
 
-	/**
-	 * @return Level
-	 */
 	public function getWorld() : Level{
 		return $this->world;
 	}
 
 	/**
-	 * @return array
+	 * @return Skin[]
 	 */
 	public function getSkins() : array{
 		return $this->skins;
 	}
 
-	/**
-	 * @return MurderMain
-	 */
 	public function getPlugin() : MurderMain{
 		return $this->plugin;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string{
 		return $this->name;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function __toString() : string{
 		return $this->getName();
 	}

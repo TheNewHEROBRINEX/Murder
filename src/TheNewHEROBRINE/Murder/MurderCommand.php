@@ -6,6 +6,7 @@ namespace TheNewHEROBRINE\Murder;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
+use pocketmine\command\utils\CommandException;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\TranslationContainer;
 use pocketmine\Player;
@@ -17,9 +18,6 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 	/** @var MurderMain $plugin */
 	private $plugin;
 
-	/**
-	 * @param MurderMain $plugin
-	 */
 	public function __construct(MurderMain $plugin){
 		parent::__construct("murder", $plugin->translateString("command.description"), $plugin->translateString("command.usage"), ["mdr"]);
 		$this->setPermission("murder.command.join;murder.command.quit;murder.command.setarena");
@@ -27,11 +25,9 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 	}
 
 	/**
-	 * @param CommandSender $sender
-	 * @param string        $commandLabel
-	 * @param array         $args
+	 * @param string[] $args
 	 *
-	 * @return bool
+	 * @throws InvalidCommandSyntaxException
 	 */
 	public function execute(CommandSender $sender, string $commandLabel, array $args) : void{
 		if($this->plugin->isDisabled() or !$this->testPermission($sender)){
@@ -106,12 +102,6 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 		}
 	}
 
-	/**
-	 * @param CommandSender $sender
-	 * @param string        $perm
-	 *
-	 * @return bool
-	 */
 	private function badPerm(CommandSender $sender, string $perm) : bool{
 		if(!$sender->hasPermission("murder.command.$perm")){
 			$sender->sendMessage(new TranslationContainer(TextFormat::RED . "%commands.generic.permission"));
@@ -120,10 +110,6 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 		return false;
 	}
 
-	/** @noinspection PhpDocSignatureInspection */
-	/**
-	 * @return MurderMain
-	 */
 	public function getPlugin() : Plugin{
 		return $this->plugin;
 	}

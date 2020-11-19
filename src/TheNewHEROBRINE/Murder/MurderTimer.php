@@ -14,9 +14,6 @@ class MurderTimer extends Task{
 		$this->plugin = $plugin;
 	}
 
-	/**
-	 * @param int $tick
-	 */
 	public function onRun(int $tick) : void{
 		if($this->plugin instanceof MurderMain){
 			foreach($this->plugin->getArenas() as $arena){
