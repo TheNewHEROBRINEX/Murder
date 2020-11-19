@@ -1,8 +1,8 @@
 --- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/TheNewHEROBRINEX/Murder
 branches:
-- master
-- dev
-- 1.2-WIP
+  - master
+  - dev
+  - 1.2-WIP
 projects:
   Murder:
     path: ""

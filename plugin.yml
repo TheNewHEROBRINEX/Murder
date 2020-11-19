@@ -5,13 +5,13 @@ api: 3.9.0
 main: TheNewHEROBRINE\Murder\MurderMain
 
 permissions:
- murder:
-  children:
-   murder.command:
+  murder:
     children:
-     murder.command.join:
-      default: true
-     murder.command.quit:
-      default: true
-     murder.command.setarena:
-      default: op
+      murder.command:
+        children:
+          murder.command.join:
+            default: true
+          murder.command.quit:
+            default: true
+          murder.command.setarena:
+            default: op

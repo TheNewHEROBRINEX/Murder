@@ -15,92 +15,92 @@ use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\entity\Corpse;
 
-class MurderKnifeProjectile extends Projectile {
+class MurderKnifeProjectile extends Projectile{
 
-    /** @var float $width */
-    public $width = 0.25;
+	/** @var float $width */
+	public $width = 0.25;
 
-    /** @var float $height */
-    public $height = 0.25;
+	/** @var float $height */
+	public $height = 0.25;
 
-    /** @var float $gravity */
-    protected $gravity = 0;
+	/** @var float $gravity */
+	protected $gravity = 0;
 
-    /** @var float $drag */
-    protected $drag = 0;
+	/** @var float $drag */
+	protected $drag = 0;
 
-    /** @var Item $knife */
-    protected $knife;
-
-    /**
-     * @param Entity $entity
-     * @return bool
-     */
-    public function canCollideWith(Entity $entity): bool {
-        return parent::canCollideWith($entity) ? !$entity instanceof Corpse : false;
-    }
-
-    /**
-     * @param Level $level
-     * @param CompoundTag $nbt
-     * @param Player|null $murderer
-     */
-    public function __construct(Level $level, CompoundTag $nbt, Player $murderer = null) {
-        if ($murderer !== null){
-            $this->knife = $murderer->getInventory()->getItemInHand();
-        }
-        parent::__construct($level, $nbt, $murderer);
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string{
-        return "MurderKnifeProjectile";
-    }
-
-    /**
-     * @param int $tickDiff
-     * @return bool
-     */
-    public function entityBaseTick(int $tickDiff = 1) : bool {
-        if ($this->closed){
-            return false;
-        }
-
-        $hasUpdate = parent::entityBaseTick($tickDiff);
-
-        if ($this->getOwningEntity() == null){
-            $this->flagForDespawn();
-            return true;
-        }
-
-        return $hasUpdate;
-    }
+	/** @var Item $knife */
+	protected $knife;
 
 	/**
-	 * @param Block $blockHit
+	 * @param Entity $entity
+	 * @return bool
+	 */
+	public function canCollideWith(Entity $entity) : bool{
+		return parent::canCollideWith($entity) ? !$entity instanceof Corpse : false;
+	}
+
+	/**
+	 * @param Level       $level
+	 * @param CompoundTag $nbt
+	 * @param Player|null $murderer
+	 */
+	public function __construct(Level $level, CompoundTag $nbt, Player $murderer = null){
+		if($murderer !== null){
+			$this->knife = $murderer->getInventory()->getItemInHand();
+		}
+		parent::__construct($level, $nbt, $murderer);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName() : string{
+		return "MurderKnifeProjectile";
+	}
+
+	/**
+	 * @param int $tickDiff
+	 * @return bool
+	 */
+	public function entityBaseTick(int $tickDiff = 1) : bool{
+		if($this->closed){
+			return false;
+		}
+
+		$hasUpdate = parent::entityBaseTick($tickDiff);
+
+		if($this->getOwningEntity() == null){
+			$this->flagForDespawn();
+			return true;
+		}
+
+		return $hasUpdate;
+	}
+
+	/**
+	 * @param Block          $blockHit
 	 * @param RayTraceResult $hitResult
 	 */
-    public function onHitBlock(Block $blockHit, RayTraceResult $hitResult): void{
+	public function onHitBlock(Block $blockHit, RayTraceResult $hitResult) : void{
 		parent::onHitBlock($blockHit, $hitResult);
 		$this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
 		$this->flagForDespawn();
 	}
 
 	/** @noinspection PhpMissingParentCallCommonInspection */
-    /**
-     * @param Player $player
-     */
-    protected function sendSpawnPacket(Player $player): void {
-        if ($this->knife !== null) {
-            $pk = new AddItemActorPacket();
-            $pk->entityRuntimeId = $this->getId();
-            $pk->position = $this->asVector3();
-            $pk->motion = $this->getMotion();
-            $pk->item = $this->knife;
-            $pk->metadata = $this->getDataPropertyManager()->getAll();
-            $player->dataPacket($pk);
-        }
-    }
+	/**
+	 * @param Player $player
+	 */
+	protected function sendSpawnPacket(Player $player) : void{
+		if($this->knife !== null){
+			$pk = new AddItemActorPacket();
+			$pk->entityRuntimeId = $this->getId();
+			$pk->position = $this->asVector3();
+			$pk->motion = $this->getMotion();
+			$pk->item = $this->knife;
+			$pk->metadata = $this->getDataPropertyManager()->getAll();
+			$player->dataPacket($pk);
+		}
+	}
 }

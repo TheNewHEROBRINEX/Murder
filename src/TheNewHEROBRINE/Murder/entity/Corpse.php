@@ -5,6 +5,6 @@ namespace TheNewHEROBRINE\Murder\entity;
 
 use pocketmine\entity\Human;
 
-class Corpse extends Human {
+class Corpse extends Human{
 
 }
