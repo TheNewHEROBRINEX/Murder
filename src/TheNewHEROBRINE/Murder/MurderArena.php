@@ -75,7 +75,7 @@ class MurderArena{
 
 	public function tick() : void{
 		if($this->isStarting()){
-			if($this->countdown == 0){
+			if($this->countdown === 0){
 				$this->start();
 				$this->broadcastMessage($this->getPlugin()->translateString("game.started"));
 			}else{
@@ -93,7 +93,7 @@ class MurderArena{
 					  $padding . TextFormat::GREEN . $player->getDisplayName() .
 					  str_repeat("\n", 3));
 			  }*/
-			if($this->spawnEmerald == 0){
+			if($this->spawnEmerald === 0){
 				$this->spawnEmerald($this->espawns[array_rand($this->espawns)]);
 				$this->spawnEmerald = 10;
 			}
@@ -148,7 +148,7 @@ class MurderArena{
 						}else{
 							$name = TextFormat::RED . $name;
 						}
-						if($this->getBystanders()[0] == $bystander){
+						if($this->getBystanders()[0] === $bystander){
 							$name = TextFormat::ITALIC . $name;
 						}
 						$bystanders[] = $name;
@@ -293,15 +293,15 @@ class MurderArena{
 	}
 
 	public function isIdle() : bool{
-		return $this->state == self::GAME_IDLE;
+		return $this->state === self::GAME_IDLE;
 	}
 
 	public function isStarting() : bool{
-		return $this->state == self::GAME_STARTING;
+		return $this->state === self::GAME_STARTING;
 	}
 
 	public function isRunning() : bool{
-		return $this->state == self::GAME_RUNNING;
+		return $this->state === self::GAME_RUNNING;
 	}
 
 	public function getMurderer() : MurderPlayer{

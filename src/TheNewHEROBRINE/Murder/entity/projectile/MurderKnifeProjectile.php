@@ -54,7 +54,7 @@ class MurderKnifeProjectile extends Projectile{
 
 		$hasUpdate = parent::entityBaseTick($tickDiff);
 
-		if($this->getOwningEntity() == null){
+		if($this->getOwningEntity() === null){
 			$this->flagForDespawn();
 			return true;
 		}
