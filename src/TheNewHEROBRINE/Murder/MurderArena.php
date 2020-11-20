@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder;
 
+use pocketmine\entity\Entity;
+use pocketmine\entity\Human;
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\item\ItemFactory;
@@ -13,6 +15,7 @@ use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use ReflectionProperty;
+use TheNewHEROBRINE\Murder\entity\Corpse;
 use TheNewHEROBRINE\Murder\entity\projectile\MurderGunProjectile;
 use function array_rand;
 use function array_search;
@@ -242,7 +245,9 @@ class MurderArena{
 			$this->spawnEmerald = 10;
 			$this->state = self::GAME_IDLE;
 			foreach($this->getWorld()->getEntities() as $entity){
-				$entity->flagForDespawn();
+				if(!$entity instanceof Player){
+					$entity->flagForDespawn();
+				}
 			}
 		}
 	}
@@ -265,6 +270,12 @@ class MurderArena{
 			unset($this->players[array_search($player, $this->getPlayers(), true)]);
 			$player->teleport($this->getPlugin()->getServer()->getDefaultLevel()->getSpawnLocation());
 		}
+	}
+
+	public function spawnCorpse(Human $player) : void{
+		/** @var Corpse $corpse */
+		$corpse = Entity::createEntity("Corpse", $player->getLevel(), Entity::createBaseNBT($player, null, $player->yaw, $player->pitch), $player);
+		$corpse->spawnToAll();
 	}
 
 	/**

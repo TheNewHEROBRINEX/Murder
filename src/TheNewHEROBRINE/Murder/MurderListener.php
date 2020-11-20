@@ -7,13 +7,11 @@ use pocketmine\entity\Effect;
 use pocketmine\entity\EffectInstance;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityIds;
-use pocketmine\entity\Human;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityLevelChangeEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -22,8 +20,6 @@ use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
-use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -78,7 +74,6 @@ class MurderListener implements Listener{
 			}else{
 				$player->getLevel()->broadcastLevelSoundEvent($player, LevelSoundEventPacket::SOUND_EXPLODE);
 			}
-			$event->setCancelled();
 		}else{
 			$x = $event->getBlock()->getX();
 			$y = $event->getBlock()->getFloorY() + 1;
@@ -174,24 +169,6 @@ class MurderListener implements Listener{
 		}
 	}
 
-	public function onDeath(PlayerDeathEvent $event) : void{
-		$arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer());
-		if($arena !== null and $arena->isRunning()){
-			$nbt = Entity::createBaseNBT($player, null, $player->yaw, $player->pitch);
-			$player->saveNBT();
-			$nbt->setTag(clone $player->namedtag->getTag("Inventory"));
-			$nbt->setTag(new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkin()->getSkinData()), "Name" => new StringTag("Name", $player->getSkin()->getSkinId())]));
-			/** @var Corpse $corpse */
-			$corpse = Entity::createEntity("Corpse", $player->getLevel(), $nbt);
-			$corpse->getDataPropertyManager()->setBlockPos(Human::DATA_PLAYER_BED_POSITION, $player->floor());
-			$corpse->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
-			$corpse->spawnToAll();
-			$arena->quit($player, true);
-			$event->setDrops([]);
-			$event->setDeathMessage("");
-		}
-	}
-
 	public function onDamage(EntityDamageEvent $event) : void{
 		$damaged = $event->getEntity();
 		//players can't hit corpses
@@ -206,7 +183,8 @@ class MurderListener implements Listener{
 						$cause = $event->getCause();
 						//if player is directly attacked by the murderer with the knife
 						if($cause === EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() === ItemIds::WOODEN_SWORD){
-							$damaged->setHealth(0);
+							$arena->spawnCorpse($damaged);
+							$arena->quit($damaged, true);
 							$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
 						}elseif($cause === EntityDamageEvent::CAUSE_PROJECTILE){ //do this only if the player is damaged by a projectile (a bystander's gun shoot or a thrown murderer's knife)
 							//if a bystander hits the murderer or another bystander
@@ -218,9 +196,10 @@ class MurderListener implements Listener{
 									$arena->broadcastMessage($this->getPlugin()->translateString("game.kill.bystander", [$damager->getDisplayName()]));
 									$damager->getInventory()->remove(ItemFactory::get(ItemIds::WOODEN_HOE));
 									$damager->addEffect((new EffectInstance(Effect::getEffect(Effect::BLINDNESS)))->setDuration(20 * 20));
+									$arena->spawnCorpse($damaged);
 								}
 							}
-							$damaged->setHealth(0);
+							$arena->quit($damaged, true);
 							$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
 						}
 					}
