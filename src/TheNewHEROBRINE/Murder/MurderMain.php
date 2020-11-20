@@ -39,8 +39,6 @@ class MurderMain extends PluginBase{
 	private $countdown;
 
 	public function onEnable() : void{
-		/** @noinspection PhpUsageOfSilenceOperatorInspection */
-		@mkdir($this->getDataFolder());
 		$this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, [
 			"language" => "eng",
 			"countdown" => 40,

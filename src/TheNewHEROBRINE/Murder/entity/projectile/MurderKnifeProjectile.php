@@ -33,7 +33,7 @@ class MurderKnifeProjectile extends Projectile{
 	protected $knife;
 
 	public function canCollideWith(Entity $entity) : bool{
-		return parent::canCollideWith($entity) ? !$entity instanceof Corpse : false;
+		return $entity instanceof Player and !$this->onGround;
 	}
 
 	public function __construct(Level $level, CompoundTag $nbt, Player $murderer = null){
@@ -41,10 +41,6 @@ class MurderKnifeProjectile extends Projectile{
 			$this->knife = $murderer->getInventory()->getItemInHand();
 		}
 		parent::__construct($level, $nbt, $murderer);
-	}
-
-	public function getName() : string{
-		return "MurderKnifeProjectile";
 	}
 
 	public function entityBaseTick(int $tickDiff = 1) : bool{

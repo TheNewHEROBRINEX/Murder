@@ -6,6 +6,8 @@ namespace TheNewHEROBRINE\Murder;
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIds;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\math\Vector3;
@@ -189,11 +191,11 @@ class MurderArena{
 			$player = $this->getPlayers()[$key];
 			$player->getInventory()->clearAll();
 		}
-		$this->getMurderer()->getInventory()->setItemInHand(Item::get(Item::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
+		$this->getMurderer()->getInventory()->setItemInHand(ItemFactory::get(ItemIds::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
 		$this->getMurderer()->setFood($this->murderer->getMaxFood());
-		$this->getMurderer()->addTitle(TextFormat::BOLD . TextFormat::RED . $this->getPlugin()->translateString("game.murderer"), $this->getPlugin()->translateString("game.startSubtitle.murderer"));
-		$this->getBystanders()[0]->getInventory()->setItemInHand(Item::get(Item::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
-		$this->getBystanders()[0]->addTitle(TextFormat::BOLD . TextFormat::AQUA . $this->getPlugin()->translateString("game.bystander"), $this->getPlugin()->translateString("game.startSubtitle.detective"));
+		$this->getMurderer()->sendTitle(TextFormat::BOLD . TextFormat::RED . $this->getPlugin()->translateString("game.murderer"), $this->getPlugin()->translateString("game.startSubtitle.murderer"));
+		$this->getBystanders()[0]->getInventory()->setItemInHand(ItemFactory::get(ItemIds::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
+		$this->getBystanders()[0]->sendTitle(TextFormat::BOLD . TextFormat::AQUA . $this->getPlugin()->translateString("game.bystander"), $this->getPlugin()->translateString("game.startSubtitle.detective"));
 		$spawns = $this->spawns;
 		shuffle($spawns);
 		foreach($this->getPlayers() as $player){
@@ -203,7 +205,7 @@ class MurderArena{
 			if($player !== $this->getMurderer()){
 				$player->setFood(6);
 				if($player !== $this->getBystanders()[0]){
-					$player->addTitle(TextFormat::BOLD . TextFormat::AQUA . $this->getPlugin()->translateString("game.bystander"), $this->getPlugin()->translateString("game.startSubtitle.bystander"));
+					$player->sendTitle(TextFormat::BOLD . TextFormat::AQUA . $this->getPlugin()->translateString("game.bystander"), $this->getPlugin()->translateString("game.startSubtitle.bystander"));
 					$this->bystanders[] = $player;
 				}
 			}
@@ -262,7 +264,7 @@ class MurderArena{
 	 * @param int[] $espawn
 	 */
 	public function spawnEmerald(array $espawn) : void{
-		$this->getWorld()->dropItem(new Vector3($espawn[0], $espawn[1], $espawn[2]), Item::get(Item::EMERALD));
+		$this->getWorld()->dropItem(new Vector3($espawn[0], $espawn[1], $espawn[2]), ItemFactory::get(ItemIds::EMERALD));
 	}
 
 	public function inArena(Player $player) : bool{

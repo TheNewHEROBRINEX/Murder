@@ -49,31 +49,27 @@ class MurderListener implements Listener{
 
 	public function onInteract(PlayerInteractEvent $event) : void{
 		$player = $event->getPlayer();
-		if($this->getPlugin()->getArenaByPlayer($player) and $event->getAction() === PlayerInteractEvent::RIGHT_CLICK_AIR and ($item = $player->getInventory()->getItemInHand())->getId() === $item::WOODEN_SWORD || $item->getId() === $item::WOODEN_HOE){
+		if($this->getPlugin()->getArenaByPlayer($player) and $event->getAction() === PlayerInteractEvent::RIGHT_CLICK_AIR and ($item = $player->getInventory()->getItemInHand())->getId() === ItemIds::WOODEN_SWORD || $item->getId() === ItemIds::WOODEN_HOE){
 			$nbt = Entity::createBaseNBT(
 				$player->add(0, $player->getEyeHeight(), 0),
 				$player->getDirectionVector(),
 				($player->yaw > 180 ? 360 : 0) - $player->yaw,
 				-$player->pitch
 			);
-			$projectile = Entity::createEntity($item->getId() === $item::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
+			$projectile = Entity::createEntity($item->getId() === ItemIds::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
 			$projectile->setMotion($projectile->getMotion()->multiply(2.5));
 			$projectile->spawnToAll();
-			if($item->getId() === $item::WOODEN_SWORD){
-				$player->getInventory()->setItemInHand(Item::get(Item::AIR));
+			if($item->getId() === ItemIds::WOODEN_SWORD){
+				$player->getInventory()->setItemInHand(ItemFactory::get(ItemIds::AIR));
 				$pk = new AddActorPacket();
 				$pk->entityRuntimeId = Entity::$entityCount;
 				$pk->type = AddActorPacket::LEGACY_ID_MAP_BC[EntityIds::CREEPER];
 				$pk->position = $player->asVector3();
-				$pk->motion = new Vector3(0, 0, 0);
-				$pk->yaw = 0;
-				$pk->pitch = 0;
 				$pk->metadata = [Entity::DATA_FLAGS => [Entity::DATA_TYPE_LONG, 1 << Entity::DATA_FLAG_INVISIBLE]];
 				$player->getServer()->broadcastPacket($player->getLevel()->getPlayers(), $pk);
 				$pk = new ActorEventPacket();
 				$pk->entityRuntimeId = Entity::$entityCount;
 				$pk->event = ActorEventPacket::HURT_ANIMATION;
-				$pk->data = 0;
 				$player->getServer()->broadcastPacket($player->getLevel()->getPlayers(), $pk);
 				$pk = new RemoveActorPacket();
 				$pk->entityUniqueId = Entity::$entityCount;
@@ -81,9 +77,10 @@ class MurderListener implements Listener{
 			}else{
 				$player->getLevel()->broadcastLevelSoundEvent($player, LevelSoundEventPacket::SOUND_EXPLODE);
 			}
-			$event->setCancelled(true);
+			$event->setCancelled();
 			return;
 		}
+
 		$world = $player->getLevel()->getFolderName();
 		$name = $player->getName();
 		$block = $event->getBlock();
@@ -130,7 +127,7 @@ class MurderListener implements Listener{
 			if($player instanceof Player){
 				$arena = $this->getPlugin()->getArenaByPlayer($player);
 				$item = $event->getItem()->getItem();
-				if($arena instanceof MurderArena and $item->getId() === Item::EMERALD){
+				if($arena instanceof MurderArena and $item->getId() === ItemIds::EMERALD){
 					$emeraldCount = 0;
 					/** @var Item $slot */
 					foreach($player->getInventory()->all(ItemFactory::get(ItemIds::EMERALD, -1)) as $slot){
@@ -138,21 +135,21 @@ class MurderListener implements Listener{
 					}
 					$emeraldCount += 1;
 					$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.emerald", [$emeraldCount]), $player);
-					if($emeraldCount === 5 and !$inventory->contains(Item::get(Item::WOODEN_HOE, -1, 1))){
+					if($emeraldCount === 5 and !$inventory->contains(ItemFactory::get(ItemIds::WOODEN_HOE, -1))){
 						if($arena->isBystander($player)){
-							$inventory->addItem($item = Item::get(Item::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
+							$inventory->addItem($item = ItemFactory::get(ItemIds::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
 							$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.gun"), $player);
 						}elseif($arena->isMurderer($player)){
-							$inventory->addItem($item = Item::get(Item::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
+							$inventory->addItem($item = ItemFactory::get(ItemIds::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
 							$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.knife"), $player);
 						}
 						$inventory->equipItem(0);
-						$inventory->removeItem(Item::get(Item::EMERALD, -1, 4));
+						$inventory->removeItem(ItemFactory::get(ItemIds::EMERALD, -1, 4));
 						$inventory->sendContents($player);
 						$event->setCancelled();
 						$event->getItem()->flagForDespawn();
 					}
-				}elseif($item->getId() === Item::WOODEN_SWORD and $arena->isBystander($player)){
+				}elseif($item->getId() === ItemIds::WOODEN_SWORD and $arena->isBystander($player)){
 					$event->setCancelled();
 				}
 			}
@@ -180,7 +177,7 @@ class MurderListener implements Listener{
 			$nbt->setTag(new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkin()->getSkinData()), "Name" => new StringTag("Name", $player->getSkin()->getSkinId())]));
 			/** @var Corpse $corpse */
 			$corpse = Entity::createEntity("Corpse", $player->getLevel(), $nbt);
-			$corpse->getDataPropertyManager()->setBlockPos(Human::DATA_PLAYER_BED_POSITION, new Vector3((int)$player->x, (int)$player->y, (int)$player->z));
+			$corpse->getDataPropertyManager()->setBlockPos(Human::DATA_PLAYER_BED_POSITION, $player->floor());
 			$corpse->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
 			$corpse->spawnToAll();
 			$arena->quit($player, true);
@@ -199,9 +196,9 @@ class MurderListener implements Listener{
 			if($arena->isRunning() and $event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof Player){
 				/** @var Player $damager */
 				//if player is attacked directly by the murderer using a wooden sword
-				if(($cause = $event->getCause()) === EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == Item::WOODEN_SWORD){
+				if(($cause = $event->getCause()) === EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == ItemIds::WOODEN_SWORD){
 					$damaged->setHealth(0);
-					$damaged->addTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
+					$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
 				}//do this only if the player is damaged by a projectile (a bystander's gun shoot or a thrown murderer's sword)
 				elseif($cause === EntityDamageEvent::CAUSE_PROJECTILE){
 					//if a bystander hits the murderer or another bystander
@@ -213,12 +210,12 @@ class MurderListener implements Listener{
 						}//bystander
 						else{
 							$arena->broadcastMessage($this->getPlugin()->translateString("game.kill.bystander", [$damager->getDisplayName()]));
-							$damager->getInventory()->remove(Item::get(Item::WOODEN_HOE));
+							$damager->getInventory()->remove(ItemFactory::get(ItemIds::WOODEN_HOE));
 							$damager->addEffect((new EffectInstance(Effect::getEffect(Effect::BLINDNESS)))->setDuration(20 * 20));
 						}
 					}
 					$damaged->setHealth(0);
-					$damaged->addTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
+					$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
 				}
 			}
 			//prevent other types of damage
