@@ -17,25 +17,25 @@ class MurderMain extends PluginBase{
 
 	const MESSAGE_PREFIX = TextFormat::GRAY . "[" . TextFormat::YELLOW . "Murder" . TextFormat::GRAY . "]" . TextFormat::WHITE;
 
-	/** @var Config $config */
+	/** @var Config */
 	private $config;
 
-	/** @var Config $arenasCfg */
+	/** @var Config */
 	private $arenasCfg;
 
-	/** @var Config $language */
+	/** @var Config */
 	private $language;
 
-	/** @var MurderArena[] $arenas */
+	/** @var MurderArena[] */
 	private $arenas = [];
 
-	/** @var MurderListener $listener */
+	/** @var MurderListener */
 	private $listener;
 
-	/** @var Level $hub */
+	/** @var Level */
 	private $hub;
 
-	/** @var int $countdown */
+	/** @var int */
 	private $countdown;
 
 	public function onEnable() : void{

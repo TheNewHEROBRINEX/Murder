@@ -7,7 +7,7 @@ use pocketmine\scheduler\Task;
 
 class MurderTimer extends Task{
 
-	/** @var MurderMain $plugin */
+	/** @var MurderMain */
 	private $plugin;
 
 	public function __construct(MurderMain $plugin){

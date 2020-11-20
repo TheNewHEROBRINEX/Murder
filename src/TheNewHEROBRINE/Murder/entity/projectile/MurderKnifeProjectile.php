@@ -17,19 +17,19 @@ use TheNewHEROBRINE\Murder\entity\Corpse;
 
 class MurderKnifeProjectile extends Projectile{
 
-	/** @var float $width */
+	/** @var float */
 	public $width = 0.25;
 
-	/** @var float $height */
+	/** @var float */
 	public $height = 0.25;
 
-	/** @var float $gravity */
+	/** @var float */
 	protected $gravity = 0;
 
-	/** @var float $drag */
+	/** @var float */
 	protected $drag = 0;
 
-	/** @var Item $knife */
+	/** @var Item */
 	protected $knife;
 
 	public function canCollideWith(Entity $entity) : bool{

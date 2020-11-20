@@ -21,48 +21,48 @@ class MurderArena{
 	const GAME_STARTING = 1;
 	const GAME_RUNNING = 2;
 
-	/** @var MurderMain $plugin */
+	/** @var MurderMain */
 	private $plugin;
 
-	/** @var string $name */
+	/** @var string */
 	private $name;
 
-	/** @var int $countdown */
+	/** @var int */
 	private $countdown;
 
-	// /** @var int $maxTime */
+	// /** @var int */
 	// private $maxTime;
 
-	/** @var int $status */
+	/** @var int */
 	private $state = self::GAME_IDLE;
 
-	/** @var MurderPlayer[] $players */
+	/** @var MurderPlayer[] */
 	private $players = [];
 
-	/** @var Skin[] $skins */
+	/** @var Skin[] */
 	private $skins = [];
 
-	/** @var MurderPlayer $murderer */
+	/** @var MurderPlayer */
 	private $murderer;
 
-	/** @var MurderPlayer[] $bystanders */
+	/** @var MurderPlayer[] */
 	private $bystanders;
 
-	/** @var int[][] $spawns */
+	/** @var int[][] */
 	private $spawns;
 
-	/** @var int[][] $espawns */
+	/** @var int[][] */
 	private $espawns;
 
-	/** @var Level $world */
+	/** @var Level */
 	private $world;
 
-	/** @var int $spawnEmerald */
+	/** @var int */
 	private $spawnEmerald = 10;
 
 	/**
-	 * @param int[][]      $spawns
-	 * @param int[][]      $espawns
+	 * @param int[][] $spawns
+	 * @param int[][] $espawns
 	 */
 	public function __construct(MurderMain $plugin, string $name, array $spawns, array $espawns){
 		$this->spawns = $spawns;

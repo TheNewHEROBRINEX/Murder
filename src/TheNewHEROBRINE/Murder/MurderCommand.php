@@ -6,7 +6,6 @@ namespace TheNewHEROBRINE\Murder;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
-use pocketmine\command\utils\CommandException;
 use pocketmine\command\utils\InvalidCommandSyntaxException;
 use pocketmine\lang\TranslationContainer;
 use pocketmine\Player;
@@ -15,7 +14,7 @@ use pocketmine\utils\TextFormat;
 
 class MurderCommand extends Command implements PluginIdentifiableCommand{
 
-	/** @var MurderMain $plugin */
+	/** @var MurderMain */
 	private $plugin;
 
 	public function __construct(MurderMain $plugin){
@@ -110,6 +109,9 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 		return false;
 	}
 
+	/**
+	 * @return MurderMain
+	 */
 	public function getPlugin() : Plugin{
 		return $this->plugin;
 	}

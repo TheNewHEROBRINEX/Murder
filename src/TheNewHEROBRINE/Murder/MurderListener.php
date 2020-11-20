@@ -34,13 +34,13 @@ use TheNewHEROBRINE\Murder\entity\MurderPlayer;
 
 class MurderListener implements Listener{
 
-	/** @var int[][][][] $setspawns */
+	/** @var int[][] */
 	public $setspawns;
 
-	/** @var int[][][][] $setespawns */
+	/** @var int[][] */
 	public $setespawns;
 
-	/** @var MurderMain $plugin */
+	/** @var MurderMain */
 	private $plugin;
 
 	public function __construct(MurderMain $plugin){
