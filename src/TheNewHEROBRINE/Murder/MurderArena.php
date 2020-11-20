@@ -5,7 +5,6 @@ namespace TheNewHEROBRINE\Murder;
 
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
-use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\level\Level;
@@ -104,7 +103,7 @@ class MurderArena{
 
 	public function join(Player $player) : void{
 		if(!$this->isRunning()){
-			if(!$this->getPlugin()->getArenaByPlayer($player)){
+			if($this->getPlugin()->getArenaByPlayer($player) === null){
 				if(count($this->getPlayers()) < count($this->spawns)){
 					$this->players[] = $player;
 					$player->getInventory()->clearAll();

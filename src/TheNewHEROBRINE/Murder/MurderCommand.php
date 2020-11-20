@@ -52,7 +52,8 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 					throw new InvalidCommandSyntaxException();
 				}
 
-				if($arena = $this->getPlugin()->getArenaByName($args[0])){
+				$arena = $this->getPlugin()->getArenaByName($args[0]);
+				if($arena !== null){
 					if(!$this->getPlugin()->getServer()->isLevelLoaded($arena->getName())){
 						$this->getPlugin()->getServer()->loadLevel($arena->getName());
 					}
@@ -71,7 +72,8 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 					throw new InvalidCommandSyntaxException();
 				}
 
-				if($arena = $this->getPlugin()->getArenaByPlayer($sender)){
+				$arena = $this->getPlugin()->getArenaByName($args[0]);
+				if($arena !== null){
 					$arena->quit($sender);
 				}else{
 					$sender->sendMessage($this->getPlugin()->translateString("command.notInGame"));

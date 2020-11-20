@@ -22,7 +22,6 @@ use pocketmine\inventory\PlayerInventory;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
-use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
@@ -31,6 +30,7 @@ use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\RemoveActorPacket;
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\entity\Corpse;
+use function count;
 
 class MurderListener implements Listener{
 
@@ -49,7 +49,8 @@ class MurderListener implements Listener{
 
 	public function onInteract(PlayerInteractEvent $event) : void{
 		$player = $event->getPlayer();
-		if($this->getPlugin()->getArenaByPlayer($player) and $event->getAction() === PlayerInteractEvent::RIGHT_CLICK_AIR and ($item = $player->getInventory()->getItemInHand())->getId() === ItemIds::WOODEN_SWORD || $item->getId() === ItemIds::WOODEN_HOE){
+		$item = $player->getInventory()->getItemInHand();
+		if($this->getPlugin()->getArenaByPlayer($player) !== null and $event->getAction() === PlayerInteractEvent::RIGHT_CLICK_AIR and ($item->getId() === ItemIds::WOODEN_SWORD or $item->getId() === ItemIds::WOODEN_HOE)){
 			$nbt = Entity::createBaseNBT(
 				$player->add(0, $player->getEyeHeight(), 0),
 				$player->getDirectionVector(),
@@ -78,44 +79,48 @@ class MurderListener implements Listener{
 				$player->getLevel()->broadcastLevelSoundEvent($player, LevelSoundEventPacket::SOUND_EXPLODE);
 			}
 			$event->setCancelled();
-			return;
-		}
-
-		$world = $player->getLevel()->getFolderName();
-		$name = $player->getName();
-		$block = $event->getBlock();
-		$x = $block->getX();
-		$y = $block->getFloorY() + 1;
-		$z = $block->getZ();
-		if(isset($this->setspawns[$name][$world])){
-			$spawns = $this->getPlugin()->getArenasCfg()->getNested("$world.spawns");
-			$spawns[] = [$x, $y, $z];
-			$this->getPlugin()->getArenasCfg()->setNested("$world.spawns", $spawns);
-			$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.playersSpawns.spawnSet", [$world, $x, $y, $z, --$this->setspawns[$name][$world]]), $player);
-			if($this->setspawns[$name][$world] <= 0){
-				unset($this->setspawns[$name][$world]);
-				$this->getPlugin()->getArenasCfg()->save();
-				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.emeraldsSpawns.started", [$this->setespawns[$name][$world], $player->getLevel()->getFolderName()]), $player);
+		}else{
+			$x = $event->getBlock()->getX();
+			$y = $event->getBlock()->getFloorY() + 1;
+			$z = $event->getBlock()->getZ();
+			$world = $player->getLevel()->getFolderName();
+			$playerName = $player->getName();
+			if(isset($this->setspawns[$playerName][$world])){
+				$spawns = $this->getPlugin()->getArenasCfg()->getNested("$world.spawns");
+				$spawns[] = [$x, $y, $z];
+				$this->getPlugin()->getArenasCfg()->setNested("$world.spawns", $spawns);
+				$this->setspawns[$playerName][$world]--;
+				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.playersSpawns.spawnSet", [$world, $x, $y, $z, $this->setspawns[$playerName][$world]]), $player);
+				if($this->setspawns[$playerName][$world] === 0){
+					unset($this->setspawns[$playerName][$world]);
+					if(count($this->setspawns[$playerName]) === 0){
+						unset($this->setspawns[$playerName]);
+					}
+					$this->getPlugin()->getArenasCfg()->save();
+					$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.emeraldsSpawns.started", [$this->setespawns[$playerName][$world], $player->getLevel()->getFolderName()]), $player);
+				}
+			}elseif(isset($this->setespawns[$playerName][$world])){
+				$espawns = $this->getPlugin()->getArenasCfg()->getNested("$world.espawns");
+				$espawns[] = [$x, $y, $z];
+				$this->getPlugin()->getArenasCfg()->setNested("$world.espawns", $espawns);
+				$this->setespawns[$playerName][$world]--;
+				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.emeraldsSpawns.spawnSet", [$world, $x, $y, $z, $this->setespawns[$playerName][$world]]), $player);
+				if($this->setespawns[$playerName][$world] === 0){
+					unset($this->setespawns[$playerName][$world]);
+					if(count($this->setespawns[$playerName]) === 0){
+						unset($this->setespawns[$playerName]);
+					}
+					$this->getPlugin()->getArenasCfg()->save();
+				}
+				$this->getPlugin()->addArena($world, $this->getPlugin()->getArenasCfg()->getNested("$world.spawns"), $this->getPlugin()->getArenasCfg()->getNested("$world.espawns"));
 			}
-			return;
 		}
-
-		if(isset($this->setespawns[$name][$world])){
-			$espawns = $this->getPlugin()->getArenasCfg()->getNested("$world.espawns");
-			$espawns[] = [$x, $y, $z];
-			$this->getPlugin()->getArenasCfg()->setNested("$world.espawns", $espawns);
-			$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.emeraldsSpawns.spawnSet", [$world, $x, $y, $z, --$this->setespawns[$name][$world]]), $player);
-			if($this->setespawns[$name][$world] <= 0){
-				unset($this->setespawns[$name][$world]);
-				$this->getPlugin()->getArenasCfg()->save();
-			}
-			$this->getPlugin()->addArena($world, $this->getPlugin()->getArenasCfg()->getNested("$world.spawns"), $this->getPlugin()->getArenasCfg()->getNested("$world.espawns"));
-		}
-
 	}
 
 	public function onQuit(PlayerQuitEvent $event) : void{
-		if($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer())){
+		$player = $event->getPlayer();
+		$arena = $this->getPlugin()->getArenaByPlayer($player);
+		if($arena !== null){
 			$arena->quit($player);
 		}
 	}
@@ -157,20 +162,21 @@ class MurderListener implements Listener{
 	}
 
 	public function onItemDrop(PlayerDropItemEvent $event) : void{
-		if($this->getPlugin()->getArenaByPlayer($event->getPlayer())){
+		if($this->getPlugin()->getArenaByPlayer($event->getPlayer()) !== null){
 			$event->setCancelled();
 		}
 	}
 
 	public function onExhaust(PlayerExhaustEvent $event) : void{
 		$player = $event->getPlayer();
-		if($player instanceof Player and $this->getPlugin()->getArenaByPlayer($player)){
+		if($player instanceof Player and $this->getPlugin()->getArenaByPlayer($player) !== null){
 			$event->setCancelled();
 		}
 	}
 
 	public function onDeath(PlayerDeathEvent $event) : void{
-		if($arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer()) and $arena->isRunning()){
+		$arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer());
+		if($arena !== null and $arena->isRunning()){
 			$nbt = Entity::createBaseNBT($player, null, $player->yaw, $player->pitch);
 			$player->saveNBT();
 			$nbt->setTag(clone $player->namedtag->getTag("Inventory"));
@@ -187,39 +193,41 @@ class MurderListener implements Listener{
 	}
 
 	public function onDamage(EntityDamageEvent $event) : void{
+		$damaged = $event->getEntity();
 		//players can't hit corpses
-		if(($damaged = $event->getEntity()) instanceof Corpse){
+		if($damaged instanceof Corpse){
 			$event->setCancelled();
-		}//do this only for players that are currently playing murder
-		elseif($damaged instanceof Player and $arena = $this->getPlugin()->getArenaByPlayer($damaged)){
-			//do this only if player is damaged by another one while in game
-			if($arena->isRunning() and $event instanceof EntityDamageByEntityEvent and ($damager = $event->getDamager()) instanceof Player){
-				/** @var Player $damager */
-				//if player is attacked directly by the murderer using a wooden sword
-				if(($cause = $event->getCause()) === EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() == ItemIds::WOODEN_SWORD){
-					$damaged->setHealth(0);
-					$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
-				}//do this only if the player is damaged by a projectile (a bystander's gun shoot or a thrown murderer's sword)
-				elseif($cause === EntityDamageEvent::CAUSE_PROJECTILE){
-					//if a bystander hits the murderer or another bystander
-					if($arena->isBystander($damager)){
-						//murderer
-						if($arena->isMurderer($damaged)){
-							$arena->broadcastMessage($this->getPlugin()->translateString("game.kill.murderer", [$arena->getFullName($damager), $arena->getFullName($damaged)]));
-							$damaged->setLastDamageCause($event);
-						}//bystander
-						else{
-							$arena->broadcastMessage($this->getPlugin()->translateString("game.kill.bystander", [$damager->getDisplayName()]));
-							$damager->getInventory()->remove(ItemFactory::get(ItemIds::WOODEN_HOE));
-							$damager->addEffect((new EffectInstance(Effect::getEffect(Effect::BLINDNESS)))->setDuration(20 * 20));
+		}elseif($damaged instanceof Player){
+			$arena = $this->getPlugin()->getArenaByPlayer($damaged);
+			if($arena !== null){ //do this only for players that are currently playing murder
+				if($arena->isRunning() and $event instanceof EntityDamageByEntityEvent){ //do this only if player is damaged by another one while in game
+					$damager = $event->getDamager();
+					if($damager instanceof Player){
+						$cause = $event->getCause();
+						//if player is directly attacked by the murderer with the knife
+						if($cause === EntityDamageEvent::CAUSE_ENTITY_ATTACK and $arena->isMurderer($damager) and $damager->getInventory()->getItemInHand()->getId() === ItemIds::WOODEN_SWORD){
+							$damaged->setHealth(0);
+							$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
+						}elseif($cause === EntityDamageEvent::CAUSE_PROJECTILE){ //do this only if the player is damaged by a projectile (a bystander's gun shoot or a thrown murderer's knife)
+							//if a bystander hits the murderer or another bystander
+							if($arena->isBystander($damager)){
+								if($arena->isMurderer($damaged)){ //the murderer
+									$arena->broadcastMessage($this->getPlugin()->translateString("game.kill.murderer", [$arena->getFullName($damager), $arena->getFullName($damaged)]));
+									$damaged->setLastDamageCause($event);
+								}else{ //a bystander
+									$arena->broadcastMessage($this->getPlugin()->translateString("game.kill.bystander", [$damager->getDisplayName()]));
+									$damager->getInventory()->remove(ItemFactory::get(ItemIds::WOODEN_HOE));
+									$damager->addEffect((new EffectInstance(Effect::getEffect(Effect::BLINDNESS)))->setDuration(20 * 20));
+								}
+							}
+							$damaged->setHealth(0);
+							$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
 						}
 					}
-					$damaged->setHealth(0);
-					$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
 				}
+				//prevent other types of damage
+				$event->setCancelled();
 			}
-			//prevent other types of damage
-			$event->setCancelled();
 		}
 	}
 

@@ -13,7 +13,6 @@ use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\Player;
-use TheNewHEROBRINE\Murder\entity\Corpse;
 
 class MurderKnifeProjectile extends Projectile{
 
