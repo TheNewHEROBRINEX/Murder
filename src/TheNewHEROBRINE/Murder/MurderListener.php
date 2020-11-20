@@ -177,12 +177,10 @@ class MurderListener implements Listener{
 	public function onDeath(PlayerDeathEvent $event) : void{
 		$arena = $this->getPlugin()->getArenaByPlayer($player = $event->getPlayer());
 		if($arena !== null and $arena->isRunning()){
-			$nbt = Entity::createBaseNBT($player, null, $player->yaw, $player->pitch);
-			$player->saveNBT();
-			$nbt->setTag(clone $player->namedtag->getTag("Inventory"));
-			$nbt->setTag(new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkin()->getSkinData()), "Name" => new StringTag("Name", $player->getSkin()->getSkinId())]));
 			/** @var Corpse $corpse */
-			$corpse = Entity::createEntity("Corpse", $player->getLevel(), $nbt);
+			$corpse = Entity::createEntity("Corpse", $player->getLevel(), Entity::createBaseNBT($player, null, $player->yaw, $player->pitch));
+			$corpse->setSkin($player->getSkin());
+			$corpse->getInventory()->setItemInHand($player->getInventory()->getItemInHand());
 			$corpse->getDataPropertyManager()->setBlockPos(Human::DATA_PLAYER_BED_POSITION, $player->floor());
 			$corpse->setDataFlag(Human::DATA_PLAYER_FLAGS, Human::DATA_PLAYER_FLAG_SLEEP, true, Human::DATA_TYPE_BYTE);
 			$corpse->spawnToAll();
