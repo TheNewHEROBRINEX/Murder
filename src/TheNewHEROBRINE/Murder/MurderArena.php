@@ -12,7 +12,6 @@ use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use ReflectionProperty;
-use TheNewHEROBRINE\Murder\entity\MurderPlayer;
 use TheNewHEROBRINE\Murder\entity\projectile\MurderGunProjectile;
 
 class MurderArena{
@@ -36,16 +35,16 @@ class MurderArena{
 	/** @var int */
 	private $state = self::GAME_IDLE;
 
-	/** @var MurderPlayer[] */
+	/** @var Player[] */
 	private $players = [];
 
 	/** @var Skin[] */
 	private $skins = [];
 
-	/** @var MurderPlayer */
+	/** @var Player|null */
 	private $murderer;
 
-	/** @var MurderPlayer[] */
+	/** @var Player[] */
 	private $bystanders;
 
 	/** @var int[][] */
@@ -125,7 +124,6 @@ class MurderArena{
 	}
 
 	public function quit(Player $player, bool $silent = false) : void{
-		/** @var MurderPlayer $player */
 		if($this->inArena($player)){
 			if(!$silent){
 				$this->broadcastMessage($this->getPlugin()->translateString("game.quit", [$player->getName()]));
@@ -241,7 +239,6 @@ class MurderArena{
 	}
 
 	public function closePlayer(Player $player) : void{
-		/** @var MurderPlayer $player */
 		if($this->inArena($player)){
 			$player->setNameTagAlwaysVisible(true);
 			$player->setNameTag($player->getName());
@@ -276,6 +273,10 @@ class MurderArena{
 		return $this->isMurderer($player) ? $this->getPlugin()->translateString("game.murderer") : $this->getPlugin()->translateString("game.bystander");
 	}
 
+	public function getFullName(Player $player) : string{
+		return ($player->getDisplayName() !== $player->getName()) ? ($player->getDisplayName() . " (" . $player->getName() . ")") : $player->getName();
+	}
+
 	public function broadcastMessage(string $msg) : void{
 		$this->getPlugin()->broadcastMessage($msg, $this->getPlayers());
 	}
@@ -304,19 +305,19 @@ class MurderArena{
 		return $this->state === self::GAME_RUNNING;
 	}
 
-	public function getMurderer() : MurderPlayer{
+	public function getMurderer() : Player{
 		return $this->murderer;
 	}
 
 	/**
-	 * @return MurderPlayer[]
+	 * @return Player[]
 	 */
 	public function getBystanders() : array{
 		return $this->bystanders;
 	}
 
 	/**
-	 * @return MurderPlayer[]
+	 * @return Player[]
 	 */
 	public function getPlayers() : array{
 		return $this->players;
