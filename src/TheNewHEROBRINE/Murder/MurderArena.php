@@ -14,6 +14,14 @@ use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use ReflectionProperty;
 use TheNewHEROBRINE\Murder\entity\projectile\MurderGunProjectile;
+use function array_rand;
+use function array_search;
+use function array_shift;
+use function count;
+use function get_class;
+use function implode;
+use function in_array;
+use function shuffle;
 
 class MurderArena{
 

@@ -12,6 +12,10 @@ use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entity\Corpse;
 use TheNewHEROBRINE\Murder\entity\projectile\MurderGunProjectile;
 use TheNewHEROBRINE\Murder\entity\projectile\MurderKnifeProjectile;
+use function file_exists;
+use function str_replace;
+use function strtolower;
+use const DIRECTORY_SEPARATOR;
 
 class MurderMain extends PluginBase{
 

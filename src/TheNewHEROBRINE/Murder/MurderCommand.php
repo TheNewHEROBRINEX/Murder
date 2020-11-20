@@ -11,6 +11,9 @@ use pocketmine\lang\TranslationContainer;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
+use function array_shift;
+use function count;
+use function implode;
 
 class MurderCommand extends Command implements PluginIdentifiableCommand{
 
