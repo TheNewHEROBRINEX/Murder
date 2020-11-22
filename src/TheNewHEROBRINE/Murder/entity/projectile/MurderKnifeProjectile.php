@@ -3,17 +3,18 @@ declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder\entity\projectile;
 
+use pocketmine\block\Block;
 use pocketmine\entity\Entity;
-use pocketmine\entity\projectile\Projectile;
-use pocketmine\event\entity\ProjectileHitEvent;
+use pocketmine\entity\projectile\Throwable;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
+use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\Player;
 
-class MurderKnifeProjectile extends Projectile{
+class MurderKnifeProjectile extends Throwable{
 
 	/** @var float */
 	public $width = 0.25;
@@ -61,8 +62,13 @@ class MurderKnifeProjectile extends Projectile{
 		return $hasUpdate;
 	}
 
-	public function onHit(ProjectileHitEvent $event) : void{
-		$this->flagForDespawn();
+	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult) : void{
+		parent::onHitEntity($entityHit, $hitResult);
+		$this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
+	}
+
+	protected function onHitBlock(Block $blockHit, RayTraceResult $hitResult) : void{
+		parent::onHitBlock($blockHit, $hitResult);
 		$this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
 	}
 

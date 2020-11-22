@@ -24,6 +24,7 @@ use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\RemoveActorPacket;
+use pocketmine\network\mcpe\protocol\TakeItemActorPacket;
 use pocketmine\Player;
 use TheNewHEROBRINE\Murder\entity\Corpse;
 use function count;
@@ -126,9 +127,10 @@ class MurderListener implements Listener{
 			$player = $inventory->getHolder();
 			if($player instanceof Player){
 				$arena = $this->getPlugin()->getArenaByPlayer($player);
-				$item = $event->getItem()->getItem();
+				$itemEntity = $event->getItem();
+				$itemDropped = $itemEntity->getItem();
 				if($arena instanceof MurderArena){
-					if($item->getId() === ItemIds::EMERALD){
+					if($itemDropped->getId() === ItemIds::EMERALD){
 						$emeraldCount = 0;
 						/** @var Item $slot */
 						foreach($player->getInventory()->all(ItemFactory::get(ItemIds::EMERALD, -1)) as $slot){
@@ -136,21 +138,28 @@ class MurderListener implements Listener{
 						}
 						$emeraldCount += 1;
 						$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.emerald", [$emeraldCount]), $player);
-						if($emeraldCount === 5 and !$inventory->contains(ItemFactory::get(ItemIds::WOODEN_HOE, -1))){
+						if($emeraldCount >= 5 and !$inventory->contains(ItemFactory::get(ItemIds::WOODEN_HOE, -1))){
 							if($arena->isBystander($player)){
-								$inventory->addItem($item = ItemFactory::get(ItemIds::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
+								$pickedupItem = ItemFactory::get(ItemIds::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun"));
 								$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.gun"), $player);
-							}elseif($arena->isMurderer($player)){
-								$inventory->addItem($item = ItemFactory::get(ItemIds::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
+							}else{
+								$pickedupItem = ItemFactory::get(ItemIds::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife"));
 								$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.knife"), $player);
 							}
-							$inventory->equipItem(0);
 							$inventory->removeItem(ItemFactory::get(ItemIds::EMERALD, -1, 4));
-							$inventory->sendContents($player);
+							$inventory->addItem($pickedupItem);
 							$event->setCancelled();
-							$event->getItem()->flagForDespawn();
+							$pk = new TakeItemActorPacket(); //play sound and despawn anyway
+							$pk->eid = $player->getId();
+							$pk->target = $itemEntity->getId();
+							$this->getPlugin()->getServer()->broadcastPacket($player->getViewers(), $pk);
+							$itemEntity->flagForDespawn();
 						}
-					}elseif($item->getId() === ItemIds::WOODEN_SWORD and $arena->isBystander($player)){
+					}elseif($itemDropped->getId() === ItemIds::WOODEN_SWORD){
+						if(!$arena->isMurderer($player)){
+							$event->setCancelled();
+						}
+					}else{
 						$event->setCancelled();
 					}
 				}
@@ -200,6 +209,8 @@ class MurderListener implements Listener{
 									$damager->addEffect((new EffectInstance(Effect::getEffect(Effect::BLINDNESS)))->setDuration(20 * 20));
 									$arena->spawnCorpse($damaged);
 								}
+							}else{
+								$arena->spawnCorpse($damaged);
 							}
 							$arena->quit($damaged, true);
 							$damaged->sendTitle($this->getPlugin()->translateString("game.death.title"), $this->getPlugin()->translateString("game.death.subtitle", [$damager->getName()]));
