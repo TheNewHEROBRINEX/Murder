@@ -71,11 +71,11 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 					return;
 				}
 
-				if(count($args)){
+				if(count($args) > 0){
 					throw new InvalidCommandSyntaxException();
 				}
 
-				$arena = $this->getPlugin()->getArenaByName($args[0]);
+				$arena = $this->getPlugin()->getArenaByPlayer($sender);
 				if($arena !== null){
 					$arena->quit($sender);
 				}else{
