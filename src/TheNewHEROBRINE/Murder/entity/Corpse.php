@@ -11,10 +11,10 @@ class Corpse extends Human{
 	public function __construct(Level $level, CompoundTag $nbt, Human $deadHuman = null){
 		if($deadHuman instanceof Human){
 			$this->setSkin($deadHuman->getSkin());
+			parent::__construct($level, $nbt);
 			$this->getInventory()->setItemInHand($deadHuman->getInventory()->getItemInHand());
 			$this->propertyManager->setBlockPos(self::DATA_PLAYER_BED_POSITION, $deadHuman->floor());
 			$this->setPlayerFlag(self::DATA_PLAYER_FLAG_SLEEP, true);
-			parent::__construct($level, $nbt);
 		}else{
 			$this->close();
 		}

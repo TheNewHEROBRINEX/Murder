@@ -201,10 +201,10 @@ class MurderArena{
 			$player = $this->getPlayers()[$key];
 			$player->getInventory()->clearAll();
 		}
-		$this->getMurderer()->getInventory()->setItemInHand(ItemFactory::get(ItemIds::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
+		$this->getMurderer()->getInventory()->setItem(0, ItemFactory::get(ItemIds::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
 		$this->getMurderer()->setFood($this->murderer->getMaxFood());
 		$this->getMurderer()->sendTitle(TextFormat::BOLD . TextFormat::RED . $this->getPlugin()->translateString("game.murderer"), $this->getPlugin()->translateString("game.startSubtitle.murderer"));
-		$this->getBystanders()[0]->getInventory()->setItemInHand(ItemFactory::get(ItemIds::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
+		$this->getBystanders()[0]->getInventory()->setItem(0, ItemFactory::get(ItemIds::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
 		$this->getBystanders()[0]->sendTitle(TextFormat::BOLD . TextFormat::AQUA . $this->getPlugin()->translateString("game.bystander"), $this->getPlugin()->translateString("game.startSubtitle.detective"));
 		$spawns = $this->spawns;
 		shuffle($spawns);

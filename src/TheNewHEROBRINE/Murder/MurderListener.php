@@ -54,7 +54,7 @@ class MurderListener implements Listener{
 				-$player->pitch
 			);
 			$projectile = Entity::createEntity($item->getId() === ItemIds::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
-			$projectile->setMotion($projectile->getMotion()->multiply(2.5));
+			$projectile->setMotion($projectile->getMotion()->multiply(1.5));
 			$projectile->spawnToAll();
 			if($item->getId() === ItemIds::WOODEN_SWORD){
 				$player->getInventory()->setItemInHand(ItemFactory::get(ItemIds::AIR));
@@ -127,30 +127,32 @@ class MurderListener implements Listener{
 			if($player instanceof Player){
 				$arena = $this->getPlugin()->getArenaByPlayer($player);
 				$item = $event->getItem()->getItem();
-				if($arena instanceof MurderArena and $item->getId() === ItemIds::EMERALD){
-					$emeraldCount = 0;
-					/** @var Item $slot */
-					foreach($player->getInventory()->all(ItemFactory::get(ItemIds::EMERALD, -1)) as $slot){
-						$emeraldCount += $slot->getCount();
-					}
-					$emeraldCount += 1;
-					$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.emerald", [$emeraldCount]), $player);
-					if($emeraldCount === 5 and !$inventory->contains(ItemFactory::get(ItemIds::WOODEN_HOE, -1))){
-						if($arena->isBystander($player)){
-							$inventory->addItem($item = ItemFactory::get(ItemIds::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
-							$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.gun"), $player);
-						}elseif($arena->isMurderer($player)){
-							$inventory->addItem($item = ItemFactory::get(ItemIds::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
-							$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.knife"), $player);
+				if($arena instanceof MurderArena){
+					if($item->getId() === ItemIds::EMERALD){
+						$emeraldCount = 0;
+						/** @var Item $slot */
+						foreach($player->getInventory()->all(ItemFactory::get(ItemIds::EMERALD, -1)) as $slot){
+							$emeraldCount += $slot->getCount();
 						}
-						$inventory->equipItem(0);
-						$inventory->removeItem(ItemFactory::get(ItemIds::EMERALD, -1, 4));
-						$inventory->sendContents($player);
+						$emeraldCount += 1;
+						$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.emerald", [$emeraldCount]), $player);
+						if($emeraldCount === 5 and !$inventory->contains(ItemFactory::get(ItemIds::WOODEN_HOE, -1))){
+							if($arena->isBystander($player)){
+								$inventory->addItem($item = ItemFactory::get(ItemIds::WOODEN_HOE)->setCustomName($this->getPlugin()->translateString("game.gun")));
+								$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.gun"), $player);
+							}elseif($arena->isMurderer($player)){
+								$inventory->addItem($item = ItemFactory::get(ItemIds::WOODEN_SWORD)->setCustomName($this->getPlugin()->translateString("game.knife")));
+								$this->getPlugin()->sendMessage($this->getPlugin()->translateString("game.found.knife"), $player);
+							}
+							$inventory->equipItem(0);
+							$inventory->removeItem(ItemFactory::get(ItemIds::EMERALD, -1, 4));
+							$inventory->sendContents($player);
+							$event->setCancelled();
+							$event->getItem()->flagForDespawn();
+						}
+					}elseif($item->getId() === ItemIds::WOODEN_SWORD and $arena->isBystander($player)){
 						$event->setCancelled();
-						$event->getItem()->flagForDespawn();
 					}
-				}elseif($item->getId() === ItemIds::WOODEN_SWORD and $arena->isBystander($player)){
-					$event->setCancelled();
 				}
 			}
 		}

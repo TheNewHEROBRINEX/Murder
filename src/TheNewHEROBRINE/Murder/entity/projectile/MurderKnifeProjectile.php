@@ -3,12 +3,11 @@ declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder\entity\projectile;
 
-use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\entity\projectile\Projectile;
+use pocketmine\event\entity\ProjectileHitEvent;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
-use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\AddItemActorPacket;
@@ -21,6 +20,9 @@ class MurderKnifeProjectile extends Projectile{
 
 	/** @var float */
 	public $height = 0.25;
+
+	/** @var float */
+	public $baseOffset = 0.125;
 
 	/** @var float */
 	protected $gravity = 0;
@@ -37,9 +39,11 @@ class MurderKnifeProjectile extends Projectile{
 
 	public function __construct(Level $level, CompoundTag $nbt, Player $murderer = null){
 		if($murderer !== null){
+			parent::__construct($level, $nbt, $murderer);
 			$this->knife = $murderer->getInventory()->getItemInHand();
+		}else{
+			$this->close();
 		}
-		parent::__construct($level, $nbt, $murderer);
 	}
 
 	public function entityBaseTick(int $tickDiff = 1) : bool{
@@ -57,21 +61,18 @@ class MurderKnifeProjectile extends Projectile{
 		return $hasUpdate;
 	}
 
-	public function onHitBlock(Block $blockHit, RayTraceResult $hitResult) : void{
-		parent::onHitBlock($blockHit, $hitResult);
-		$this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
+	public function onHit(ProjectileHitEvent $event) : void{
 		$this->flagForDespawn();
+		$this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
 	}
 
 	protected function sendSpawnPacket(Player $player) : void{
-		if($this->knife !== null){
-			$pk = new AddItemActorPacket();
-			$pk->entityRuntimeId = $this->getId();
-			$pk->position = $this->asVector3();
-			$pk->motion = $this->getMotion();
-			$pk->item = $this->knife;
-			$pk->metadata = $this->getDataPropertyManager()->getAll();
-			$player->dataPacket($pk);
-		}
+		$pk = new AddItemActorPacket();
+		$pk->entityRuntimeId = $this->getId();
+		$pk->position = $this->asVector3();
+		$pk->motion = $this->getMotion();
+		$pk->item = $this->knife;
+		$pk->metadata = $this->getDataPropertyManager()->getAll();
+		$player->dataPacket($pk);
 	}
 }
