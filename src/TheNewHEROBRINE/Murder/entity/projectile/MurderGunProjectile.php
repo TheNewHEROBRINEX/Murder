@@ -36,4 +36,8 @@ class MurderGunProjectile extends Arrow{
 	public function onHit(ProjectileHitEvent $event) : void{
 		$this->flagForDespawn();
 	}
+
+	public function canSaveWithChunk() : bool{
+		return false;
+	}
 }

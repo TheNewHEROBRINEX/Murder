@@ -19,4 +19,8 @@ class Corpse extends Human{
 			$this->close();
 		}
 	}
+
+	public function canSaveWithChunk() : bool{
+		return false;
+	}
 }

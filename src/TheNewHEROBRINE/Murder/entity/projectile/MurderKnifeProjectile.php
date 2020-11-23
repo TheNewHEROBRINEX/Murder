@@ -81,4 +81,8 @@ class MurderKnifeProjectile extends Throwable{
 		$pk->metadata = $this->getDataPropertyManager()->getAll();
 		$player->dataPacket($pk);
 	}
+
+	public function canSaveWithChunk() : bool{
+		return false;
+	}
 }
