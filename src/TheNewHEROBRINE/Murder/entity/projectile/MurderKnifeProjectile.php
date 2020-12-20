@@ -64,12 +64,12 @@ class MurderKnifeProjectile extends Throwable{
 
 	protected function onHitEntity(Entity $entityHit, RayTraceResult $hitResult) : void{
 		parent::onHitEntity($entityHit, $hitResult);
-		$this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
+		$this->getLevelNonNull()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
 	}
 
 	protected function onHitBlock(Block $blockHit, RayTraceResult $hitResult) : void{
 		parent::onHitBlock($blockHit, $hitResult);
-		$this->getLevel()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
+		$this->getLevelNonNull()->dropItem($this, $this->knife, new Vector3(0, 0, 0));
 	}
 
 	protected function sendSpawnPacket(Player $player) : void{

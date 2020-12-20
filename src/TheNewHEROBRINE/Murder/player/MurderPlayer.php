@@ -16,13 +16,12 @@ use pocketmine\utils\AssumptionFailedError;
 use TheNewHEROBRINE\Murder\entity\Corpse;
 use TheNewHEROBRINE\Murder\MurderArena;
 use TheNewHEROBRINE\Murder\role\MurderRole;
-use function is_array;
 
 class MurderPlayer{
 
-	const STATUS_NOT_IN_GAME = 0;
-	const STATUS_ALIVE = 1;
-	const STATUS_SPECTATOR = 2;
+	public const STATUS_NOT_IN_GAME = 0;
+	public const STATUS_ALIVE = 1;
+	public const STATUS_SPECTATOR = 2;
 
 	private ?MurderRole $role = null;
 
@@ -98,10 +97,13 @@ class MurderPlayer{
 		/** @var Corpse $corpse */
 		$corpse = Entity::createEntity("Corpse", $this->murderArena->getWorld(), Entity::createBaseNBT($player, null, $player->yaw, $player->pitch), $this);
 		$corpse->spawnToAll();
-		$player->sendTitle($this->murderArena->getPlugin()->translateString("game.death.title"), $this->murderArena->getPlugin()->translateString("game.death.subtitle", [$killedBy->getIdentity()->getUsername()]));
+		$player->sendTitle($this->murderArena->getPlugin()->translateString("game.death.title"), $this->murderArena->getPlugin()->translateString("game.death.subtitle", [$killedBy->getIdentityNonNull()->getUsername()]));
 		$player->setFood($player->getMaxFood());
 		$player->removeAllEffects();
 		$player->setGamemode(Player::SPECTATOR);
+		if($this->getPlayer()->getInventory()->contains($this->getRoleNonNull()->getWeapon())){
+			$this->murderArena->getWorld()->dropItem($this->player, $this->getRoleNonNull()->getWeapon()); //TODO: checks if the murderer drops sword on death and add handling for gun pickup
+		}
 		$player->getInventory()->clearAll();
 		$this->getRoleNonNull()->onGameOut($killedBy);
 	}
@@ -135,11 +137,11 @@ class MurderPlayer{
 	}
 
 	public function onEmeraldPickup() : bool{
-		return $this->isAlive() and $this->role->onEmeraldPickup();
+		return $this->isAlive() and $this->getRoleNonNull()->onEmeraldPickup();
 	}
 
 	public function onSwordPickup(Sword $sword) : bool{
-		return $this->isAlive() and $this->role->onSwordPickup($sword);
+		return $this->isAlive() and $this->getRoleNonNull()->onSwordPickup($sword);
 	}
 
 	public function getPlayer() : Player{
@@ -187,6 +189,17 @@ class MurderPlayer{
 
 	public function getIdentity() : ?MurderIdentity{
 		return $this->identity;
+	}
+
+	/**
+	 * @throws AssumptionFailedError
+	 */
+	public function getIdentityNonNull() : MurderIdentity{
+		$identity = $this->identity;
+		if($identity === null){
+			throw new AssumptionFailedError("Role of MurderPlayer " . $this->player->getName() . " is null");
+		}
+		return $identity;
 	}
 
 	public function setIdentity(MurderIdentity $identity) : void{

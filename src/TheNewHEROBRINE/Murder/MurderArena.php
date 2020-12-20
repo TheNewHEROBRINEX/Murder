@@ -6,7 +6,6 @@ namespace TheNewHEROBRINE\Murder;
 //use JetBrains\PhpStorm\Pure;
 use BadMethodCallException;
 use InvalidArgumentException;
-use pocketmine\entity\Entity;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\level\Level;
@@ -16,8 +15,6 @@ use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\TextFormat;
-use SebastianBergmann\CodeCoverage\Report\Text;
-use TheNewHEROBRINE\Murder\entity\Corpse;
 use TheNewHEROBRINE\Murder\game\GameEndCause;
 use TheNewHEROBRINE\Murder\player\MurderIdentity;
 use TheNewHEROBRINE\Murder\player\MurderPlayer;
@@ -36,9 +33,9 @@ use function usort;
 
 class MurderArena{
 
-	const GAME_IDLE = 0;
-	const GAME_STARTING = 1;
-	const GAME_RUNNING = 2;
+	public const GAME_IDLE = 0;
+	public const GAME_STARTING = 1;
+	public const GAME_RUNNING = 2;
 
 	/** @var MurderMain */
 	private MurderMain $plugin;
@@ -53,7 +50,7 @@ class MurderArena{
 	// private $maxTime;
 
 	/** @var int */
-	/** @phpstan-var self::GAME_IDLE|self::GAME_STARING|self::GAME_RUNNING */
+	/** @phpstan-var self::GAME_* */
 	private int $state = self::GAME_IDLE;
 
 	/** @var MurderPlayer[] */
@@ -377,7 +374,7 @@ class MurderArena{
 			return $priorities[get_class($murderPlayer1->getRoleNonNull())] <=> $priorities[get_class($murderPlayer2->getRoleNonNull())];
 		});
 		foreach($originalPlayers as $murderPlayer){
-			$this->broadcastMessage($murderPlayer->getIdentity()->getUsername() . " » " . $murderPlayer->getPlayer()->getName() . " " . (!$murderPlayer->isAlive() ? TextFormat::STRIKETHROUGH : "") . "(" . strtolower($murderPlayer->getRoleNonNull()->getName()) . ")");
+			$this->broadcastMessage($murderPlayer->getIdentityNonNull()->getUsername() . " » " . $murderPlayer->getPlayer()->getName() . " " . (!$murderPlayer->isAlive() ? TextFormat::STRIKETHROUGH : "") . "(" . strtolower($murderPlayer->getRoleNonNull()->getName()) . ")");
 		}
 		$this->broadcastMessage($cause->getMessage());
 		foreach($this->murderPlayers as $murderPlayer){

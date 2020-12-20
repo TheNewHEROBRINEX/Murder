@@ -26,8 +26,6 @@ abstract class MurderRole{
 
 	abstract public function onGameOut(?MurderPlayer $killedBy = null) : void;
 
-	abstract public function checkWinConditions() : bool;
-
 	abstract public function getWeapon() : Item;
 
 	abstract public function sendStartTitle() : void;

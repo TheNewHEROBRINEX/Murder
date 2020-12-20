@@ -13,7 +13,7 @@ class MurderGotKilled implements BystandersWinCause{
 		$this->killedBy = $killedBy; //PHP8: promotion
 	}
 
-	public function getMessage() : string{
-		return TextFormat::BOLD . TextFormat::GREEN . "The murderer has been killed by " . $this->killedBy->getIdentity()->getUsername() . " " . TextFormat::BOLD . TextFormat::GREEN . "!";
+	public function getMessage() : string{ //TODO: translation
+		return TextFormat::BOLD . TextFormat::GREEN . "The murderer has been killed by " . $this->killedBy->getIdentityNonNull()->getUsername() . " " . TextFormat::BOLD . TextFormat::GREEN . "!";
 	}
 }

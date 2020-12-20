@@ -20,7 +20,7 @@ use function strtolower;
 use const DIRECTORY_SEPARATOR;
 
 class MurderMain extends PluginBase{
-	const MESSAGE_PREFIX = TextFormat::GRAY . "[" . TextFormat::YELLOW . "Murder" . TextFormat::GRAY . "]" . TextFormat::WHITE;
+	public const MESSAGE_PREFIX = TextFormat::GRAY . "[" . TextFormat::YELLOW . "Murder" . TextFormat::GRAY . "]" . TextFormat::WHITE;
 
 	private Config $config, $arenasCfg, $language;
 
@@ -49,7 +49,9 @@ class MurderMain extends PluginBase{
 			return;
 		}
 		$this->arenasCfg = new Config($this->getDataFolder() . "arenas.yml");
+		/** @phpstan-var array{'spawns': list<array{int, int, int}>, 'espawns': list<array{int, int, int}>} $arena */
 		foreach($this->getArenasCfg()->getAll() as $name => $arena){
+			$name = (string)$name;
 			$this->getServer()->loadLevel($name);
 			$this->addArena($name, $arena["spawns"], $arena["espawns"]);
 		}
@@ -59,20 +61,8 @@ class MurderMain extends PluginBase{
 		Entity::registerEntity(Corpse::class, true);
 	}
 
-	public function onDisable() : void{
-		foreach($this->getArenas() as $arena){
-			$arena->stop();
-		}
-		foreach($this->getServer()->getLevels() as $level){
-			foreach($level->getEntities() as $entity){
-				if($entity instanceof MurderGunProjectile or $entity instanceof MurderKnifeProjectile or $entity instanceof Corpse){
-					$entity->flagForDespawn();
-				}
-			}
-		}
-	}
-
 	private function loadLanguage() : void{
+		/** @var string $lang */
 		$lang = $this->getConfig()->get("language", "eng");
 		$pathToLangs = $this->getFile() . "resources" . DIRECTORY_SEPARATOR . "lang" . DIRECTORY_SEPARATOR;
 		if(!file_exists($pathToLangs . "$lang.ini")){
@@ -84,7 +74,10 @@ class MurderMain extends PluginBase{
 
 	/**
 	 * @param int[][] $spawns
+	 * @phpstan-param list<array{int, int, int}> $spawns
+	 *
 	 * @param int[][] $espawns
+	 * @phpstan-param list<array{int, int, int}> $espawns
 	 */
 	public function addArena(string $name, array $spawns, array $espawns) : MurderArena{
 		return $this->arenas[$name] = new MurderArena($this, $name, $spawns, $espawns);
@@ -93,16 +86,16 @@ class MurderMain extends PluginBase{
 	/**
 	 * @param string[] $params
 	 */
-	public function translateString(string $str, array $params = []) : string{
-		/** @var string $str */
-		$str = $this->getLanguage()->get($str);
-		if($str === false){
-			return $str;
+	public function translateString(string $translationKey, array $params = []) : string{
+		/** @var string|false $translation */
+		$translation = $this->getLanguage()->get($translationKey);
+		if($translation === false){
+			return $translationKey;
 		}else{
 			foreach($params as $i => $p){
-				$str = str_replace("{%$i}", $p, $str);
+				$translation = str_replace("{%$i}", $p, $translation);
 			}
-			return TextFormat::colorize($str);
+			return TextFormat::colorize($translation);
 		}
 	}
 
@@ -181,6 +174,7 @@ class MurderMain extends PluginBase{
 	}
 
 	public function getWaitingLobby() : ?Level{
+		/** @var string $worldName */
 		$worldName = $this->getConfig()->get("hub");
 		$this->getServer()->loadLevel($worldName);
 		return $this->getServer()->getLevelByName($worldName);

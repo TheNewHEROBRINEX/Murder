@@ -33,7 +33,7 @@ class MurderGunProjectile extends Arrow{
 		return $hasUpdate;
 	}
 
-	public function onHit(ProjectileHitEvent $event) : void{
+	protected function onHit(ProjectileHitEvent $event) : void{
 		$this->flagForDespawn();
 	}
 

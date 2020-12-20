@@ -23,6 +23,10 @@ class Murderer extends MurderRole{
 		return true;
 	}
 
+	public function onDeath(MurderPlayer $killedBy) : void{
+		// TODO: Implement onDeath() method.
+	}
+
 	public function onGameOut(?MurderPlayer $killedBy = null) : void{
 		if($killedBy !== null){
 			if(!$killedBy->getRole() instanceof Bystander){
@@ -38,13 +42,9 @@ class Murderer extends MurderRole{
 				$newMurderer = $aliveBystanders[array_rand($aliveBystanders)];
 				$newMurderer->getPlayer()->getInventory()->removeItem($newMurderer->getRoleNonNull()->getWeapon());
 				$newMurderer->setRole(new Murderer($newMurderer));
-				$newMurderer->getPlayer()->getInventory()->setItem(0, $newMurderer->getRole()->getWeapon());
+				$newMurderer->getPlayer()->getInventory()->setItem(0, $newMurderer->getRoleNonNull()->getWeapon());
 			}
 		}
-	}
-
-	public function checkWinConditions() : bool{
-
 	}
 
 	public function sendStartTitle() : void{

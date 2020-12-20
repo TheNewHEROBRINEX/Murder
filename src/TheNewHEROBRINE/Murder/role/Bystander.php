@@ -3,13 +3,11 @@ declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder\role;
 
-use pocketmine\entity\Entity;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 use pocketmine\item\Sword;
 use pocketmine\utils\TextFormat;
-use TheNewHEROBRINE\Murder\entity\Corpse;
 use TheNewHEROBRINE\Murder\game\NoBystandersLeft;
 use TheNewHEROBRINE\Murder\player\MurderPlayer;
 
@@ -35,10 +33,6 @@ class Bystander extends MurderRole{
 		if(count($this->getMurderArena()->getAliveBystanders()) === 0){
 			$this->getMurderArena()->endGame(new NoBystandersLeft());
 		}
-	}
-
-	public function checkWinConditions() : bool{
-		// TODO: Implement checkWinConditions() method.
 	}
 
 	public function getWeapon() : Item{
