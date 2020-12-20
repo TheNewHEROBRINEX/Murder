@@ -6,16 +6,14 @@ namespace TheNewHEROBRINE\Murder;
 use pocketmine\scheduler\Task;
 
 class MurderTimer extends Task{
-
-	/** @var MurderMain */
-	private $plugin;
+	private MurderMain $plugin;
 
 	public function __construct(MurderMain $plugin){
 		$this->plugin = $plugin;
 	}
 
-	public function onRun(int $tick) : void{
-		if($this->plugin instanceof MurderMain){
+	public function onRun(int $currentTick) : void{
+		if($this->plugin->isEnabled()){
 			foreach($this->plugin->getArenas() as $arena){
 				$arena->tick();
 			}

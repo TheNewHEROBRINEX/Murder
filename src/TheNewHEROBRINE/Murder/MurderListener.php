@@ -3,12 +3,8 @@ declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder;
 
-use pocketmine\entity\Effect;
-use pocketmine\entity\EffectInstance;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityIds;
-use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityLevelChangeEvent;
 use pocketmine\event\inventory\InventoryPickupItemEvent;
 use pocketmine\event\Listener;
@@ -17,28 +13,35 @@ use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\inventory\PlayerInventory;
-use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
+use pocketmine\item\Sword;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\RemoveActorPacket;
 use pocketmine\network\mcpe\protocol\TakeItemActorPacket;
 use pocketmine\Player;
-use TheNewHEROBRINE\Murder\entity\Corpse;
+use TheNewHEROBRINE\Murder\entity\projectile\MurderGunProjectile;
+use TheNewHEROBRINE\Murder\entity\projectile\MurderKnifeProjectile;
+use TheNewHEROBRINE\Murder\player\MurderPlayer;
 use function count;
 
 class MurderListener implements Listener{
 
-	/** @var int[][] */
-	public $setspawns;
+	/**
+	 * @var int[][]
+	 * @phpstan-var array<string, array<string, int>>
+	 */
+	public array $setspawns;
 
-	/** @var int[][] */
-	public $setespawns;
+	/**
+	 * @var int[][]
+	 * @phpstan-var array<string, array<string, int>>
+	 */
+	public array $setespawns;
 
-	/** @var MurderMain */
-	private $plugin;
+	private MurderMain $plugin;
 
 	public function __construct(MurderMain $plugin){
 		$this->plugin = $plugin;
@@ -47,6 +50,7 @@ class MurderListener implements Listener{
 	public function onInteract(PlayerInteractEvent $event) : void{
 		$player = $event->getPlayer();
 		$item = $player->getInventory()->getItemInHand();
+		$world = $player->getLevelNonNull();
 		if($this->getPlugin()->getArenaByPlayer($player) !== null and $event->getAction() === PlayerInteractEvent::RIGHT_CLICK_AIR and ($item->getId() === ItemIds::WOODEN_SWORD or $item->getId() === ItemIds::WOODEN_HOE)){
 			$nbt = Entity::createBaseNBT(
 				$player->add(0, $player->getEyeHeight(), 0),
@@ -54,7 +58,8 @@ class MurderListener implements Listener{
 				($player->yaw > 180 ? 360 : 0) - $player->yaw,
 				-$player->pitch
 			);
-			$projectile = Entity::createEntity($item->getId() === ItemIds::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $player->level, $nbt, $player);
+			/** @var MurderGunProjectile|MurderKnifeProjectile $projectile */
+			$projectile = Entity::createEntity($item->getId() === ItemIds::WOODEN_HOE ? "MurderGunProjectile" : "MurderKnifeProjectile", $world, $nbt, $player);
 			$projectile->setMotion($projectile->getMotion()->multiply(1.5));
 			$projectile->spawnToAll();
 			if($item->getId() === ItemIds::WOODEN_SWORD){
@@ -64,60 +69,62 @@ class MurderListener implements Listener{
 				$pk->type = AddActorPacket::LEGACY_ID_MAP_BC[EntityIds::CREEPER];
 				$pk->position = $player->asVector3();
 				$pk->metadata = [Entity::DATA_FLAGS => [Entity::DATA_TYPE_LONG, 1 << Entity::DATA_FLAG_INVISIBLE]];
-				$player->getServer()->broadcastPacket($player->getLevel()->getPlayers(), $pk);
+				$player->getServer()->broadcastPacket($world->getPlayers(), $pk);
 				$pk = new ActorEventPacket();
 				$pk->entityRuntimeId = Entity::$entityCount;
 				$pk->event = ActorEventPacket::HURT_ANIMATION;
-				$player->getServer()->broadcastPacket($player->getLevel()->getPlayers(), $pk);
+				$player->getServer()->broadcastPacket($world->getPlayers(), $pk);
 				$pk = new RemoveActorPacket();
 				$pk->entityUniqueId = Entity::$entityCount;
-				$player->getServer()->broadcastPacket($player->getLevel()->getPlayers(), $pk);
+				$player->getServer()->broadcastPacket($world->getPlayers(), $pk);
 			}else{
-				$player->getLevel()->broadcastLevelSoundEvent($player, LevelSoundEventPacket::SOUND_EXPLODE);
+				$world->broadcastLevelSoundEvent($player, LevelSoundEventPacket::SOUND_EXPLODE);
 			}
 		}else{
 			$x = $event->getBlock()->getX();
 			$y = $event->getBlock()->getFloorY() + 1;
 			$z = $event->getBlock()->getZ();
-			$world = $player->getLevel()->getFolderName();
+			$worldName = $world->getFolderName();
 			$playerName = $player->getName();
-			if(isset($this->setspawns[$playerName][$world])){
-				$spawns = $this->getPlugin()->getArenasCfg()->getNested("$world.spawns");
+			if(isset($this->setspawns[$playerName][$worldName])){
+				/** @phpstan-var list<array{int, int, int}> $spawns */
+				$spawns = $this->getPlugin()->getArenasCfg()->getNested("$worldName.spawns");
 				$spawns[] = [$x, $y, $z];
-				$this->getPlugin()->getArenasCfg()->setNested("$world.spawns", $spawns);
-				$this->setspawns[$playerName][$world]--;
-				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.playersSpawns.spawnSet", [$world, $x, $y, $z, $this->setspawns[$playerName][$world]]), $player);
-				if($this->setspawns[$playerName][$world] === 0){
-					unset($this->setspawns[$playerName][$world]);
+				$this->getPlugin()->getArenasCfg()->setNested("$worldName.spawns", $spawns);
+				$this->setspawns[$playerName][$worldName]--;
+				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.playersSpawns.spawnSet", [$worldName, (string)$x, (string)$y, (string)$z, (string)$this->setspawns[$playerName][$worldName]]), $player);
+				if($this->setspawns[$playerName][$worldName] === 0){
+					unset($this->setspawns[$playerName][$worldName]);
 					if(count($this->setspawns[$playerName]) === 0){
 						unset($this->setspawns[$playerName]);
 					}
 					$this->getPlugin()->getArenasCfg()->save();
-					$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.emeraldsSpawns.started", [$this->setespawns[$playerName][$world], $player->getLevel()->getFolderName()]), $player);
+					$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.emeraldsSpawns.started", [(string)$this->setespawns[$playerName][$worldName], $worldName]), $player);
 				}
-			}elseif(isset($this->setespawns[$playerName][$world])){
-				$espawns = $this->getPlugin()->getArenasCfg()->getNested("$world.espawns");
+			}elseif(isset($this->setespawns[$playerName][$worldName])){
+				/** @phpstan-var list<array{int, int, int}> $espawns */
+				$espawns = $this->getPlugin()->getArenasCfg()->getNested("$worldName.espawns");
 				$espawns[] = [$x, $y, $z];
-				$this->getPlugin()->getArenasCfg()->setNested("$world.espawns", $espawns);
-				$this->setespawns[$playerName][$world]--;
-				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.emeraldsSpawns.spawnSet", [$world, $x, $y, $z, $this->setespawns[$playerName][$world]]), $player);
-				if($this->setespawns[$playerName][$world] === 0){
-					unset($this->setespawns[$playerName][$world]);
+				$this->getPlugin()->getArenasCfg()->setNested("$worldName.espawns", $espawns);
+				$this->setespawns[$playerName][$worldName]--;
+				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.emeraldsSpawns.spawnSet", [$worldName, (string)$x, (string)$y, (string)$z, (string)$this->setespawns[$playerName][$worldName]]), $player);
+				if($this->setespawns[$playerName][$worldName] === 0){
+					unset($this->setespawns[$playerName][$worldName]);
 					if(count($this->setespawns[$playerName]) === 0){
 						unset($this->setespawns[$playerName]);
 					}
 					$this->getPlugin()->getArenasCfg()->save();
 				}
-				$this->getPlugin()->addArena($world, $this->getPlugin()->getArenasCfg()->getNested("$world.spawns"), $this->getPlugin()->getArenasCfg()->getNested("$world.espawns"));
+				$this->getPlugin()->addArena($worldName, $this->getPlugin()->getArenasCfg()->getNested("$worldName.spawns"), $this->getPlugin()->getArenasCfg()->getNested("$worldName.espawns"));
 			}
 		}
 	}
 
 	public function onQuit(PlayerQuitEvent $event) : void{
-		$player = $event->getPlayer();
-		$arena = $this->getPlugin()->getArenaByPlayer($player);
-		if($arena !== null){
-			$arena->quit($player);
+		//$this->plugin->findMurderPlayer($event->getPlayer())?->onQuit(); PHP8
+		$murderPlayer = $this->plugin->findMurderPlayer($event->getPlayer());
+		if($murderPlayer instanceof MurderPlayer){
+			$murderPlayer->onQuit();
 		}
 	}
 
@@ -126,13 +133,43 @@ class MurderListener implements Listener{
 		if($inventory instanceof PlayerInventory){
 			$player = $inventory->getHolder();
 			if($player instanceof Player){
-				$arena = $this->getPlugin()->getArenaByPlayer($player);
-				$itemEntity = $event->getItem();
-				$itemDropped = $itemEntity->getItem();
-				if($arena instanceof MurderArena){
-					if($itemDropped->getId() === ItemIds::EMERALD){
+				$murderPlayer = $this->plugin->findMurderPlayer($player);
+				if($murderPlayer instanceof MurderPlayer){
+					$event->setCancelled();
+					$itemEntity = $event->getItem();
+					$itemItem = $itemEntity->getItem();
+					/*if(match(true){
+						$itemItem->getId() === ItemIds::EMERALD => $murderPlayer->onEmeraldPickup(),
+						$itemItem instanceof Sword              => $murderPlayer->onSwordPickup($itemItem),
+						default                                 => false
+					}){
+						$pk = new TakeItemActorPacket(); //play sound and despawn as normal
+						$pk->eid = $player->getId();
+						$pk->target = $itemEntity->getId();
+						$this->getPlugin()->getServer()->broadcastPacket($player->getViewers(), $pk);
+						$itemEntity->flagForDespawn();
+					} PHP8*/
+					if($itemItem->getId() === ItemIds::EMERALD){
+						$result = $murderPlayer->onEmeraldPickup();
+					}elseif($itemItem instanceof Sword){
+						$result = $murderPlayer->onSwordPickup($itemItem);
+					}else{
+						$result = false;
+					}
+					if($result){
+						$pk = new TakeItemActorPacket(); //play sound and despawn as normal
+						$pk->eid = $player->getId();
+						$pk->target = $itemEntity->getId();
+						$this->getPlugin()->getServer()->broadcastPacket($player->getViewers(), $pk);
+						$itemEntity->flagForDespawn();
+					}
+				}
+			}
+		}
+	}/*
+					if($itemItem->getId() === ItemIds::EMERALD){
 						$emeraldCount = 0;
-						/** @var Item $slot */
+						/** @var Item $slot *\/
 						foreach($player->getInventory()->all(ItemFactory::get(ItemIds::EMERALD, -1)) as $slot){
 							$emeraldCount += $slot->getCount();
 						}
@@ -155,7 +192,7 @@ class MurderListener implements Listener{
 							$this->getPlugin()->getServer()->broadcastPacket($player->getViewers(), $pk);
 							$itemEntity->flagForDespawn();
 						}
-					}elseif($itemDropped->getId() === ItemIds::WOODEN_SWORD){
+					}elseif($itemItem->getId() === ItemIds::WOODEN_SWORD){
 						if(!$arena->isMurderer($player)){
 							$event->setCancelled();
 						}
@@ -165,7 +202,7 @@ class MurderListener implements Listener{
 				}
 			}
 		}
-	}
+	}*/
 
 	public function onItemDrop(PlayerDropItemEvent $event) : void{
 		if($this->getPlugin()->getArenaByPlayer($event->getPlayer()) !== null){
@@ -175,12 +212,13 @@ class MurderListener implements Listener{
 
 	public function onExhaust(PlayerExhaustEvent $event) : void{
 		$player = $event->getPlayer();
-		if($player instanceof Player and $this->getPlugin()->getArenaByPlayer($player) !== null){
+		if($player instanceof Player and $this->plugin->findMurderPlayer($player) instanceof MurderPlayer
+		){
 			$event->setCancelled();
 		}
 	}
 
-	public function onDamage(EntityDamageEvent $event) : void{
+	/*public function onDamage(EntityDamageEvent $event) : void{
 		$damaged = $event->getEntity();
 		//players can't hit corpses
 		if($damaged instanceof Corpse){
@@ -221,15 +259,22 @@ class MurderListener implements Listener{
 				$event->setCancelled();
 			}
 		}
-	}
+	}*/
 
 	public function onLevelChange(EntityLevelChangeEvent $event) : void{
-		$entity = $event->getEntity();
+		$player = $event->getEntity();
 		$target = $event->getTarget();
-		if($entity instanceof Player){
-			$arena = $this->getPlugin()->getArenaByPlayer($entity);
-			if($arena and $target !== $arena->getWorld() and $target !== $this->getPlugin()->getHub()){
-				$arena->quit($entity);
+		if($player instanceof Player){
+			$murderPlayer = $this->plugin->findMurderPlayer($player);
+			if($murderPlayer instanceof MurderPlayer){
+				if($target !== $murderPlayer->getMurderArena()->getWorld() and $target !== $murderPlayer->getMurderArena()->getWaitingLobby()){
+					$murderPlayer->onLeave();
+				}
+			}else{
+				$arena = $this->plugin->getArenaByName($target->getFolderName());
+				if($arena !== null){
+					MurderPlayer::createSpectator($player, $arena, false);
+				}
 			}
 		}
 	}

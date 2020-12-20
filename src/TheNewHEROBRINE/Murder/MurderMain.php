@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace TheNewHEROBRINE\Murder;
 
+//use JetBrains\PhpStorm\Pure;
 use pocketmine\entity\Entity;
 use pocketmine\level\Level;
 use pocketmine\Player;
@@ -12,35 +13,22 @@ use pocketmine\utils\TextFormat;
 use TheNewHEROBRINE\Murder\entity\Corpse;
 use TheNewHEROBRINE\Murder\entity\projectile\MurderGunProjectile;
 use TheNewHEROBRINE\Murder\entity\projectile\MurderKnifeProjectile;
+use TheNewHEROBRINE\Murder\player\MurderPlayer;
 use function file_exists;
 use function str_replace;
 use function strtolower;
 use const DIRECTORY_SEPARATOR;
 
 class MurderMain extends PluginBase{
-
 	const MESSAGE_PREFIX = TextFormat::GRAY . "[" . TextFormat::YELLOW . "Murder" . TextFormat::GRAY . "]" . TextFormat::WHITE;
 
-	/** @var Config */
-	private $config;
-
-	/** @var Config */
-	private $arenasCfg;
-
-	/** @var Config */
-	private $language;
+	private Config $config, $arenasCfg, $language;
 
 	/** @var MurderArena[] */
-	private $arenas = [];
+	private array $arenas = [];
 
-	/** @var MurderListener */
-	private $listener;
-
-	/** @var Level */
-	private $hub;
-
-	/** @var int */
-	private $countdown;
+	private MurderListener $listener;
+	private int $countdown;
 
 	public function onEnable() : void{
 		$this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML, [
@@ -59,9 +47,6 @@ class MurderMain extends PluginBase{
 			$this->getServer()->getLogger()->error($this->translateString("console.hubNotExist", [$hub]));
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
-		}else{
-			$this->getServer()->loadLevel($hub);
-			$this->hub = $this->getServer()->getLevelByName($hub);
 		}
 		$this->arenasCfg = new Config($this->getDataFolder() . "arenas.yml");
 		foreach($this->getArenasCfg()->getAll() as $name => $arena){
@@ -111,10 +96,14 @@ class MurderMain extends PluginBase{
 	public function translateString(string $str, array $params = []) : string{
 		/** @var string $str */
 		$str = $this->getLanguage()->get($str);
-		foreach($params as $i => $p){
-			$str = str_replace("{%$i}", $p, $str);
+		if($str === false){
+			return $str;
+		}else{
+			foreach($params as $i => $p){
+				$str = str_replace("{%$i}", $p, $str);
+			}
+			return TextFormat::colorize($str);
 		}
-		return TextFormat::colorize($str);
 	}
 
 	public function sendMessage(string $text, Player $recipient) : void{
@@ -147,6 +136,7 @@ class MurderMain extends PluginBase{
 			$this->sendPopup($text, $recipient);
 	}
 
+	//#[Pure]
 	public function getArenaByPlayer(Player $player) : ?MurderArena{
 		foreach($this->getArenas() as $arena)
 			if($arena->inArena($player)){
@@ -156,11 +146,22 @@ class MurderMain extends PluginBase{
 		return null;
 	}
 
+	//#[Pure]
 	public function getArenaByName(string $name) : ?MurderArena{
 		if(isset($this->getArenas()[$name])){
 			return $this->getArenas()[$name];
 		}
 
+		return null;
+	}
+
+	//#[Pure]
+	public function findMurderPlayer(Player $player) : ?MurderPlayer{
+		foreach($this->getArenas() as $arena){
+			if($arena->inArena($player)){
+				return $arena->getMurderPlayer($player);
+			}
+		}
 		return null;
 	}
 
@@ -179,8 +180,10 @@ class MurderMain extends PluginBase{
 		return $this->countdown;
 	}
 
-	public function getHub() : Level{
-		return $this->hub;
+	public function getWaitingLobby() : ?Level{
+		$worldName = $this->getConfig()->get("hub");
+		$this->getServer()->loadLevel($worldName);
+		return $this->getServer()->getLevelByName($worldName);
 	}
 
 	public function getListener() : MurderListener{

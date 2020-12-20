@@ -6,14 +6,16 @@ namespace TheNewHEROBRINE\Murder\entity;
 use pocketmine\entity\Human;
 use pocketmine\level\Level;
 use pocketmine\nbt\tag\CompoundTag;
+use TheNewHEROBRINE\Murder\player\MurderPlayer;
+use TheNewHEROBRINE\Murder\role\Bystander;
 
 class Corpse extends Human{
-	public function __construct(Level $level, CompoundTag $nbt, Human $deadHuman = null){
-		if($deadHuman instanceof Human){
-			$this->setSkin($deadHuman->getSkin());
+	public function __construct(Level $level, CompoundTag $nbt, MurderPlayer $murderPlayer = null){
+		if($murderPlayer !== null){
+			$this->setSkin($murderPlayer->getIdentity()->getSkin());
 			parent::__construct($level, $nbt);
-			$this->getInventory()->setItemInHand($deadHuman->getInventory()->getItemInHand());
-			$this->propertyManager->setBlockPos(self::DATA_PLAYER_BED_POSITION, $deadHuman->floor());
+			$this->getInventory()->setItemInHand($murderPlayer->getPlayer()->getInventory()->getItemInHand());
+			$this->propertyManager->setBlockPos(self::DATA_PLAYER_BED_POSITION, $murderPlayer->getPlayer()->floor());
 			$this->setPlayerFlag(self::DATA_PLAYER_FLAG_SLEEP, true);
 		}else{
 			$this->close();

@@ -11,11 +11,11 @@ use pocketmine\utils\Color;
 
 class MurderGunProjectile extends Arrow{
 
-	/** @var int */
-	protected $gravity = 0;
+	/** @var float */
+	protected $gravity = 0.0;
 
-	/** @var int */
-	protected $drag = 0;
+	/** @var float */
+	protected $drag = 0.0;
 
 	public function entityBaseTick(int $tickDiff = 1) : bool{
 		if($this->closed){

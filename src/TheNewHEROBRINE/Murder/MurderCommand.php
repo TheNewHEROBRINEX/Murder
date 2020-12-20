@@ -16,9 +16,7 @@ use function count;
 use function implode;
 
 class MurderCommand extends Command implements PluginIdentifiableCommand{
-
-	/** @var MurderMain */
-	private $plugin;
+	private MurderMain $plugin;
 
 	public function __construct(MurderMain $plugin){
 		parent::__construct("murder", $plugin->translateString("command.description"), $plugin->translateString("command.usage"), ["mdr"]);
@@ -55,12 +53,12 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 					throw new InvalidCommandSyntaxException();
 				}
 
-				$arena = $this->getPlugin()->getArenaByName($args[0]);
-				if($arena !== null){
-					if(!$this->getPlugin()->getServer()->isLevelLoaded($arena->getName())){
-						$this->getPlugin()->getServer()->loadLevel($arena->getName());
+				$murderPlayer = $this->getPlugin()->getArenaByName($args[0]);
+				if($murderPlayer !== null){
+					if(!$this->getPlugin()->getServer()->isLevelLoaded($murderPlayer->getName())){
+						$this->getPlugin()->getServer()->loadLevel($murderPlayer->getName());
 					}
-					$arena->join($sender);
+					$murderPlayer->join($sender);
 				}else{
 					$sender->sendMessage($this->getPlugin()->translateString("game.notExisting", [$args[0]]));
 				}
@@ -75,9 +73,9 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 					throw new InvalidCommandSyntaxException();
 				}
 
-				$arena = $this->getPlugin()->getArenaByPlayer($sender);
-				if($arena !== null){
-					$arena->quit($sender);
+				$murderPlayer = $this->getPlugin()->findMurderPlayer($sender);
+				if($murderPlayer !== null){
+					$murderPlayer->onQuit();
 				}else{
 					$sender->sendMessage($this->getPlugin()->translateString("command.notInGame"));
 				}
@@ -92,13 +90,13 @@ class MurderCommand extends Command implements PluginIdentifiableCommand{
 					throw new InvalidCommandSyntaxException();
 				}
 
-				$world = $sender->getLevel()->getFolderName();
+				$worldName = $sender->getLevelNonNull()->getFolderName();
 				$name = $sender->getName();
-				$this->getPlugin()->getListener()->setspawns[$name][$world] = (int)$args[0];
-				$this->getPlugin()->getListener()->setespawns[$name][$world] = (int)$args[1];
-				$this->getPlugin()->getArenasCfg()->setNested("$world.spawns", []);
-				$this->getPlugin()->getArenasCfg()->setNested("$world.espawns", []);
-				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.playersSpawns.started", [$args[0], $sender->getLevel()->getFolderName()]), $sender);
+				$this->getPlugin()->getListener()->setspawns[$name][$worldName] = (int)$args[0];
+				$this->getPlugin()->getListener()->setespawns[$name][$worldName] = (int)$args[1];
+				$this->getPlugin()->getArenasCfg()->setNested("$worldName.spawns", []);
+				$this->getPlugin()->getArenasCfg()->setNested("$worldName.espawns", []);
+				$this->getPlugin()->sendMessage($this->getPlugin()->translateString("arenaSetting.playersSpawns.started", [$args[0], $worldName]), $sender);
 				return;
 
 			default:
